@@ -26,3 +26,23 @@ def log(text: str, level=Level.INFO) -> None:
         print(text)
     else:
         print(f"({now:%Y-%m-%d %H:%M:%S}) text")
+
+
+def error(text: str) -> None:
+    log(text, Level.ERROR)
+
+
+def warn(text: str) -> None:
+    log(text, Level.WARN)
+
+
+def info(text: str) -> None:
+    log(text, Level.INFO)
+
+
+def debug(text: str) -> None:
+    log(text, Level.DEBUG)
+
+
+def trace(text: str) -> None:
+    log(text, Level.TRACE)
