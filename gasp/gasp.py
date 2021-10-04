@@ -4,13 +4,19 @@ import requests
 from clingo import Control as InnerControl
 from dataclasses import asdict, is_dataclass
 
+from server import factory
 from shared.model import Model
-from shared.simple_logging import log
+from shared.simple_logging import log, Level, warn
+
 from server.database import ClingoMethodCall
 
 
-def try_to_start_server_if_not_available():
-    log(f"Consider starting the server before to make everything faster.", Level.WARN)
+def backend_is_running():
+    try:
+        r = requests.head("http://127.0.0.1:5000/")
+        return r.status_code == 200
+    except requests.exceptions.ConnectionError:
+        return False
 
 
 def is_non_cython_function_call(attr: classmethod):
@@ -20,9 +26,8 @@ def is_non_cython_function_call(attr: classmethod):
 class PaintConnector:
 
     def paint(self):
-        r = requests.get("http://127.0.0.1:5000/control/solve")
-        if r.ok:
-            print(r.json())
+        if not backend_is_running():
+            raise Exception("Server is not available")
 
     def unmark(self, model: Model):
         raise NotImplementedError
@@ -36,11 +41,18 @@ class PaintConnector:
 
 class DatabaseConnector:
     def __init__(self):
-        self.base_url = "http://127.0.0.1:5000/"
+        if backend_is_running():
+            self.base_url = "http://127.0.0.1:5000/"
+        else:
+            log("Backend is unavailable", Level.WARN)
 
     def save_function_call(self, call: ClingoMethodCall):
-        r = requests.post(f"{self.base_url}control/call", json=asdict(call))
-        print(r.status_code, r.reason)
+        if backend_is_running():
+            r = requests.post(f"{self.base_url}control/call", json=asdict(call))
+            print(r.status_code, r.reason)
+        else:
+            # TODO: only log once or sometimes, look at TTLCache
+            warn(f"Backend dead.")
 
 
 class Control(InnerControl):
@@ -53,6 +65,9 @@ class Control(InnerControl):
     def __init__(self, *args, **kwargs):
         self.gasp = PaintConnector()
         self.database = DatabaseConnector()
+        if not backend_is_running():
+            warn("You are using the vizgo control object and no server is running right now")
+            # TODO: output good warning
         self._register_function_call("__init__", args, kwargs)
         super().__init__(*args, **kwargs)
 
