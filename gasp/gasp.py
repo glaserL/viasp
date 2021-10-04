@@ -1,11 +1,13 @@
-from typing import Optional, Sequence, List
+import json
+from typing import List
 
-from clingo import Logger, Function
+import requests
+from clingo import Function
 from clingo import Control as InnerControl
-from logging import log, Level
-from dataclasses import dataclass
-#from server.gasp import app
-from server.database import AddedProgram
+from dataclasses import dataclass, asdict, is_dataclass
+
+from shared.simple_logging import log
+from server.database import ClingoMethodCall
 
 
 @dataclass
@@ -24,25 +26,39 @@ def is_non_cython_function_call(attr: classmethod):
 class PaintConnector:
 
     def paint(self):
+        r = requests.get("http://127.0.0.1:5000/control/solve")
+        if r.ok:
+            print(r.json())
+
+    def unmark(self, model: Model):
         raise NotImplementedError
 
-    def mark_for_painting(self, model: Model):
-        raise NotImplementedError
-
-    def unmark_for_painting(self, model: Model):
+    def mark(self, model: Model):
         raise NotImplementedError
 
     def clear(self):
         raise NotImplementedError
 
 
+class DatabaseConnector:
+    def __init__(self):
+        self.base_url = "http://127.0.0.1:5000/"
+
+    def save_function_call(self, call: ClingoMethodCall):
+        r = requests.post(f"{self.base_url}control/call", json=asdict(call))
+        print(r.status_code, r.reason)
+
+
 class Control(InnerControl):
 
     def _register_function_call(self, name, args, kwargs):
-        print(f"Registered {name}({args}, {kwargs})")
+        serializable_call = ClingoMethodCall(name, args, kwargs)
+        self.database.save_function_call(serializable_call)
+        print(f"Registered {serializable_call}")
 
     def __init__(self, *args, **kwargs):
         self.gasp = PaintConnector()
+        self.database = DatabaseConnector()
         self._register_function_call("__init__", args, kwargs)
         super().__init__(*args, **kwargs)
 
@@ -59,22 +75,12 @@ class Control(InnerControl):
             return attr
 
 
-"""
-Requirements:
-When I do something with the control object, but I haven't called paint yet, the control object should behave normally.
-When I call paint, the visualization should represent the control object in a way. This may take time.
-When I change something about the control object, the visualization should reflect that
+class EnhancedJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if is_dataclass(o):
+            return asdict(o)
+        return super().default(o)
 
-ctl = Control()
-# Do stuff
-ctl.paint()
-ctl.assign_external("constant", 5)
-ctl.paint()
-Idea to counter name space pollution:
-
-ctl.gasp.mark(model)
-
-"""
 
 if __name__ == "__main__":
     ctl = Control(["0"])
@@ -84,5 +90,5 @@ if __name__ == "__main__":
     ctl.ground([("base", [])])
     with ctl.solve(yield_="True") as handle:
         for m in handle:
-
             print(m)
+    ctl.gasp.paint()
