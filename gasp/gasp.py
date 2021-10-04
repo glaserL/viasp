@@ -1,18 +1,12 @@
 import json
-from typing import List
 
 import requests
-from clingo import Function
 from clingo import Control as InnerControl
-from dataclasses import dataclass, asdict, is_dataclass
+from dataclasses import asdict, is_dataclass
 
+from shared.model import Model
 from shared.simple_logging import log
 from server.database import ClingoMethodCall
-
-
-@dataclass
-class Model:
-    atoms: List[Function]
 
 
 def try_to_start_server_if_not_available():
