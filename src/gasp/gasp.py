@@ -4,11 +4,9 @@ import requests
 from clingo import Control as InnerControl
 from dataclasses import asdict, is_dataclass
 
-from server import factory
-from shared.model import Model
-from shared.simple_logging import log, Level, warn
-
-from server.database import ClingoMethodCall
+from .server.database import ClingoMethodCall
+from .shared.model import Model
+from .shared.simple_logging import Level, log, warn
 
 
 def backend_is_running():
@@ -44,6 +42,7 @@ class DatabaseConnector:
         if backend_is_running():
             self.base_url = "http://127.0.0.1:5000/"
         else:
+            self.base_url = "http://127.0.0.1:5000/"
             log("Backend is unavailable", Level.WARN)
 
     def save_function_call(self, call: ClingoMethodCall):
@@ -51,6 +50,9 @@ class DatabaseConnector:
             r = requests.post(f"{self.base_url}control/call", json=asdict(call))
             print(r.status_code, r.reason)
         else:
+
+            r = requests.post(f"{self.base_url}control/call", json=asdict(call))
+            print(r.status_code, r.reason)
             # TODO: only log once or sometimes, look at TTLCache
             warn(f"Backend dead.")
 
@@ -67,6 +69,9 @@ class Control(InnerControl):
         self.database = DatabaseConnector()
         if not backend_is_running():
             warn("You are using the vizgo control object and no server is running right now")
+            # app = factory.create_app()
+            # from waitress import serve
+            # serve(app, host="0.0.0.0", port=8080)
             # TODO: output good warning
         self._register_function_call("__init__", args, kwargs)
         super().__init__(*args, **kwargs)
