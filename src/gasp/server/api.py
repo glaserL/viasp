@@ -33,7 +33,7 @@ def call():
     if request.method == "POST":
         try:
             parsed_call = ClingoMethodCall(**json.loads(request.data))
-        except Exception as e:
+        except Exception:
             return "Invalid call object", 400
         handle_call_recieved(parsed_call)
     return "ok"

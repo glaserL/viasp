@@ -4,6 +4,7 @@ import requests
 from clingo import Control as InnerControl
 from dataclasses import asdict, is_dataclass
 
+from gasp.clingoApiClient import ClingoClient
 from .server.database import ClingoMethodCall
 from .shared.model import Model
 from .shared.simple_logging import Level, log, warn
@@ -37,26 +38,6 @@ class PaintConnector:
         raise NotImplementedError
 
 
-class DatabaseConnector:
-    def __init__(self):
-        if backend_is_running():
-            self.base_url = "http://127.0.0.1:5000/"
-        else:
-            self.base_url = "http://127.0.0.1:5000/"
-            log("Backend is unavailable", Level.WARN)
-
-    def save_function_call(self, call: ClingoMethodCall):
-        if backend_is_running():
-            r = requests.post(f"{self.base_url}control/call", json=asdict(call))
-            print(r.status_code, r.reason)
-        else:
-
-            r = requests.post(f"{self.base_url}control/call", json=asdict(call))
-            print(r.status_code, r.reason)
-            # TODO: only log once or sometimes, look at TTLCache
-            warn(f"Backend dead.")
-
-
 class Control(InnerControl):
 
     def _register_function_call(self, name, args, kwargs):
@@ -66,7 +47,7 @@ class Control(InnerControl):
 
     def __init__(self, *args, **kwargs):
         self.gasp = PaintConnector()
-        self.database = DatabaseConnector()
+        self.database = ClingoClient(**kwargs)
         if not backend_is_running():
             warn("You are using the vizgo control object and no server is running right now")
             # app = factory.create_app()
@@ -94,15 +75,3 @@ class EnhancedJSONEncoder(json.JSONEncoder):
         if is_dataclass(o):
             return asdict(o)
         return super().default(o)
-
-
-if __name__ == "__main__":
-    ctl = Control(["0"])
-
-    ctl.add("base", [], "a. {b}. c :- not b.")
-
-    ctl.ground([("base", [])])
-    with ctl.solve(yield_="True") as handle:
-        for m in handle:
-            print(m)
-    ctl.gasp.paint()
