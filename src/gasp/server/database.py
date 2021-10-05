@@ -1,13 +1,8 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Sequence, Any, Dict
+from typing import Sequence
 
+from ..shared.model import ClingoMethodCall
 
-@dataclass
-class ClingoMethodCall:
-    name: str
-    args: Sequence[Any]
-    kwargs: Dict[str, Any]
 
 class Database(ABC):
 
