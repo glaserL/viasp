@@ -1,12 +1,10 @@
 import json
-from time import sleep
+from typing import Tuple, Any, Dict
 
-from clingo import Control
-from flask import Flask, request, render_template, Blueprint, jsonify
-from collections import defaultdict
+from flask import request, Blueprint
 
+from .replayer import apply_multiple
 from ..shared.model import ClingoMethodCall
-from ..shared.simple_logging import info
 
 backend_api = Blueprint("api", __name__, template_folder='server/templates')
 
@@ -20,7 +18,7 @@ ctl = None
 calls = []
 
 
-def handle_call_recieved(call: ClingoMethodCall) -> None:
+def handle_call_received(call: ClingoMethodCall) -> None:
     if ctl is None:
         calls.append(call)
     else:
@@ -29,28 +27,27 @@ def handle_call_recieved(call: ClingoMethodCall) -> None:
 
 
 @backend_api.route("/control/call", methods=["POST"])
-def call():
+def add_call():
     if request.method == "POST":
         try:
             parsed_call = ClingoMethodCall(**json.loads(request.data))
-        except Exception:
+        except BaseException:
             return "Invalid call object", 400
-        handle_call_recieved(parsed_call)
+        handle_call_received(parsed_call)
     return "ok"
+
+
+def get_by_name_or_index_from_args_or_kwargs(name: str, index: int, *args: Tuple[Any], **kwargs: Dict[Any, Any]):
+    if name in kwargs:
+        return kwargs[name]
+    elif index < len(args):
+        return args[index]
+    else:
+        raise TypeError(f"No argument {name} found in kwargs or at index {index}.")
 
 
 @backend_api.route("/control/solve", methods=["GET"])
 def reconstruct():
-    sleep(1)
-    ctl = Control(["0"])
-
-    for call in calls:
-        if call.name != "__init__" and call.name != "solve":
-            func = getattr(ctl, call.name)
-            func(*call.args, **call.kwargs)
-    models = []
-    with ctl.solve(yield_=True) as handle:
-        for model in handle:
-            models.append(model)
-    print(f"Found {models}")
-    return str(models)
+    if calls:
+        apply_multiple(calls, ctl)
+    return "ok"
