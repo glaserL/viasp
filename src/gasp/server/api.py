@@ -3,6 +3,7 @@ from typing import Tuple, Any, Dict
 
 from flask import request, Blueprint
 
+from .database import CallCenter
 from .replayer import apply_multiple
 from ..shared.model import ClingoMethodCall
 
@@ -14,8 +15,8 @@ def hello_world():
     return "ok"
 
 
+calls = CallCenter()
 ctl = None
-calls = []
 
 
 def handle_call_received(call: ClingoMethodCall) -> None:
@@ -49,5 +50,5 @@ def get_by_name_or_index_from_args_or_kwargs(name: str, index: int, *args: Tuple
 @backend_api.route("/control/solve", methods=["GET"])
 def reconstruct():
     if calls:
-        apply_multiple(calls, ctl)
+        apply_multiple(calls.get_pending(), ctl)
     return "ok"

@@ -1,7 +1,8 @@
-from typing import Any, Dict, Sequence, Optional, Callable
+from typing import Sequence, Optional, Callable
 
 from clingo import Control
 
+from ..shared.event import Event, publish
 from ..shared.model import ClingoMethodCall
 from ..shared.simple_logging import info, warn
 
@@ -65,4 +66,6 @@ def apply_multiple(calls: Sequence[ClingoMethodCall], ctl=None) -> Control:
 
 
 def apply(call: ClingoMethodCall, ctl=None):
-    return BOB_THE_BUILDER.apply(call, ctl)
+    result = BOB_THE_BUILDER.apply(call, ctl)
+    publish(Event.CALL_EXECUTED, call=call)
+    return result

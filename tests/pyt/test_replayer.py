@@ -25,3 +25,4 @@ def test_run():
             _ = m.symbols(atoms=True)
             num_models += 1
     assert num_models == 2
+
