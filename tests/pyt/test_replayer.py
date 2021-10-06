@@ -1,7 +1,7 @@
 from inspect import signature
 
 from clingo import Control
-from src.gasp.server.replayer import replay
+from src.gasp.server.replayer import apply_multiple
 from src.gasp.shared.model import ClingoMethodCall
 
 
@@ -18,7 +18,7 @@ def run_sample():
 
 def test_run():
     wrapped = run_sample()
-    replayed = replay(wrapped)
+    replayed = apply_multiple(wrapped)
     num_models = 0
     with replayed.solve(yield_=True) as handle:
         for m in handle:

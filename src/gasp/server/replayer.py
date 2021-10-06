@@ -25,14 +25,14 @@ def handles(*args):
 
 
 @handler
-class MagicThingythatwraps:
+class ClingoReconstructor:
 
     def _get_handling_function(self, func_name: str) -> Optional[Callable]:
         for func, responsive_for in self.handlers.items():
             if func_name in responsive_for:
                 return func
 
-    def apply(self, ctl: Control, call: ClingoMethodCall) -> Control:
+    def apply(self, call: ClingoMethodCall, ctl: Control) -> Control:
         func = self.handlers.get(call.name, None)
         if func is None:
             warn(f"No function for {call.name} found. Defaulting to NOOP.")
@@ -55,9 +55,14 @@ class MagicThingythatwraps:
         return Control(**call.kwargs)
 
 
-def replay(calls: Sequence[ClingoMethodCall]) -> Control:
-    player = MagicThingythatwraps()
-    next = None
+BOB_THE_BUILDER = ClingoReconstructor()
+
+
+def apply_multiple(calls: Sequence[ClingoMethodCall], ctl=None) -> Control:
     for call in calls:
-        next = player.apply(next, call)
-    return next
+        ctl = apply(call, ctl)
+    return ctl
+
+
+def apply(call: ClingoMethodCall, ctl=None):
+    return BOB_THE_BUILDER.apply(call, ctl)
