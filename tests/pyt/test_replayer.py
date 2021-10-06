@@ -1,7 +1,7 @@
 from inspect import signature
 
 from clingo import Control
-from src.gasp.server.replayer import apply_multiple
+from src.gasp.asp.replayer import apply_multiple
 from src.gasp.shared.model import ClingoMethodCall
 
 
@@ -25,4 +25,3 @@ def test_run():
             _ = m.symbols(atoms=True)
             num_models += 1
     assert num_models == 2
-

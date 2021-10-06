@@ -4,7 +4,7 @@ from typing import Tuple, Any, Dict
 from flask import request, Blueprint
 
 from .database import CallCenter
-from .replayer import apply_multiple
+from ..asp.replayer import apply_multiple
 from ..shared.model import ClingoMethodCall
 
 backend_api = Blueprint("api", __name__, template_folder='server/templates')

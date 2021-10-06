@@ -1,5 +1,5 @@
 from src.gasp.server.database import CallCenter
-from src.gasp.server.replayer import apply_multiple
+from src.gasp.asp.replayer import apply_multiple
 from tests.pyt.test_replayer import run_sample
 
 
