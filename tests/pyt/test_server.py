@@ -18,7 +18,7 @@ web = create_api_test_client()
 
 
 def create_empty_call() -> ClingoMethodCall:
-    return ClingoMethodCall("", [], {})
+    return ClingoMethodCall("", {})
 
 
 def test_sth():

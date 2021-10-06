@@ -1,10 +1,11 @@
 import json
+from inspect import signature
 
 import requests
 from clingo import Control as InnerControl
 from dataclasses import asdict, is_dataclass
 
-from gasp.clingoApiClient import ClingoClient
+from .clingoApiClient import ClingoClient
 from .server.database import ClingoMethodCall
 from .shared.model import Model
 from .shared.simple_logging import Level, log, warn
@@ -40,8 +41,8 @@ class PaintConnector:
 
 class Control(InnerControl):
 
-    def _register_function_call(self, name, args, kwargs):
-        serializable_call = ClingoMethodCall(name, args, kwargs)
+    def _register_function_call(self, name, sig, args, kwargs):
+        serializable_call = ClingoMethodCall.merge(name, sig, args, kwargs)
         self.database.save_function_call(serializable_call)
         print(f"Registered {serializable_call}")
 
@@ -54,14 +55,14 @@ class Control(InnerControl):
             # from waitress import serve
             # serve(app, host="0.0.0.0", port=8080)
             # TODO: output good warning
-        self._register_function_call("__init__", args, kwargs)
+        self._register_function_call("__init__", signature(super().__init__), args, kwargs)
         super().__init__(*args, **kwargs)
 
     def __getattribute__(self, name):
         attr = InnerControl.__getattribute__(self, name)
         if is_non_cython_function_call(attr):
             def wrapper_func(*args, **kwargs):
-                self._register_function_call(attr.__name__, args, kwargs)
+                self._register_function_call(attr.__name__, signature(attr), args, kwargs)
                 result = attr(*args, **kwargs)
                 return result
 
