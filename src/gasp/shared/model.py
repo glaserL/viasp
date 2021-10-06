@@ -14,7 +14,7 @@ class Model:
 @dataclass
 class ClingoMethodCall:
     name: str
-    args: Dict[str, Any]
+    kwargs: Dict[str, Any]
 
     @classmethod
     def merge(cls, name: str, signature: Signature, args: Sequence[Any], kwargs: Dict[str, Any]):
