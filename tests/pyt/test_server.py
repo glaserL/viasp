@@ -3,13 +3,13 @@ from dataclasses import asdict
 from flask import Flask
 from flask.testing import FlaskClient
 
-from src.gasp.server.api import backend_api
+from gasp.server.blueprints.api import bp
 from src.gasp.shared.model import ClingoMethodCall
 
 
 def create_api_test_client() -> FlaskClient:
     app = Flask(__name__)
-    app.register_blueprint(backend_api)
+    app.register_blueprint(bp)
 
     return app.test_client()
 

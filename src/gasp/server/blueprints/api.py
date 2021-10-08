@@ -1,18 +1,18 @@
 import json
 from typing import Tuple, Any, Dict
 
-from flask import request, Blueprint
+from flask import request, Blueprint, render_template
 
-from .database import CallCenter
-from ..asp.replayer import apply_multiple
-from ..shared.model import ClingoMethodCall
+from gasp.server.database import CallCenter
+from gasp.asp.replayer import apply_multiple
+from gasp.shared.model import ClingoMethodCall
 
-backend_api = Blueprint("api", __name__, template_folder='server/templates')
+bp = Blueprint("api", __name__, template_folder='../templates/')
 
 
-@backend_api.route("/")
+@bp.route("/", methods=["GET"])
 def hello_world():
-    return "ok"
+    return render_template("base.html")
 
 
 calls = CallCenter()
@@ -27,7 +27,7 @@ def handle_call_received(call: ClingoMethodCall) -> None:
         raise NotImplementedError
 
 
-@backend_api.route("/control/call", methods=["POST"])
+@bp.route("/control/call", methods=["POST"])
 def add_call():
     if request.method == "POST":
         try:
@@ -47,7 +47,7 @@ def get_by_name_or_index_from_args_or_kwargs(name: str, index: int, *args: Tuple
         raise TypeError(f"No argument {name} found in kwargs or at index {index}.")
 
 
-@backend_api.route("/control/solve", methods=["GET"])
+@bp.route("/control/solve", methods=["GET"])
 def reconstruct():
     if calls:
         apply_multiple(calls.get_pending(), ctl)
