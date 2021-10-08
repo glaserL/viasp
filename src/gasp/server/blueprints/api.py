@@ -10,11 +10,6 @@ from gasp.shared.model import ClingoMethodCall
 bp = Blueprint("api", __name__, template_folder='../templates/')
 
 
-@bp.route("/", methods=["GET"])
-def hello_world():
-    return render_template("base.html")
-
-
 calls = CallCenter()
 ctl = None
 

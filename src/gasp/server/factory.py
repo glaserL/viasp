@@ -6,9 +6,7 @@ from werkzeug.utils import find_modules, import_string
 
 def register_blueprints(app):
     """collects all blueprints and adds them to the app object"""
-    print(f"KWKWK")
     for name in find_modules('gasp.server.blueprints'):
-        print(f"KWKWASDAKDS")
         mod = import_string(name)
         print(f"Found module {name} with import string {mod}.")
         if hasattr(mod, 'bp'):
@@ -18,7 +16,7 @@ def register_blueprints(app):
 
 
 def create_app(config=None):
-    app = Flask('api')  # flask object
+    app = Flask('api', static_folder=None)  # flask object
     # app.config.from_object(__name__) #load configs from here, could be another config file
     # app.config.update(dict(
     #     DATABASE=os.path.join(app.root_path, 'laprint.db'),
