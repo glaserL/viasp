@@ -4,3 +4,7 @@ __pycache__/
 *$py.class
 # mac
 *DS_Store
+# dev
+*.idea
+#js
+*node_modules
