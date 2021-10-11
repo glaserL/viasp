@@ -1,15 +1,57 @@
 from copy import copy
 from dataclasses import dataclass, field
 from inspect import Signature
-from typing import List, Any, Sequence, Dict, Union
+from typing import Any, Sequence, Dict, Union, Collection, Set
 from uuid import UUID, uuid4
 
-from clingo import Function
 
-
-@dataclass
+@dataclass(frozen=True, eq=True)
 class Model:
-    atoms: List[Function]
+    atoms: Set[str]
+    _prev: Set[str]
+
+    def __hash__(self):
+        return hash((frozenset(self.atoms), frozenset(self._prev)))
+
+    @classmethod
+    def from_previous_union(cls, new: Collection[str], prev: Collection[str]):
+        """Here new is ONLY the added one, without the stuff in prev"""
+        new, prev = set(new), set(prev)
+        return cls(new | prev, prev)
+
+    @classmethod
+    def from_previous_diff(cls, new: Collection[str], prev: Collection[str]):
+        """Here new is the entire new model, including the stuff in prev"""
+        new, prev = set(new), set(prev)
+        return cls(new, prev - new)
+
+
+@dataclass(frozen=True)
+class CostableModel(Model):
+    cost: int
+
+    def __hash__(self):
+        return hash((frozenset(self.atoms), frozenset(self._prev), self.cost))
+
+    @classmethod
+    def from_previous_union_cost(cls, new: Collection[str], prev: Collection[str], cost: int):
+        """Here new is ONLY the added one, without the stuff in prev"""
+        new, prev = set(new), set(prev)
+        return cls(new | prev, prev, cost)
+
+    @classmethod
+    def from_previous_diff_cost(cls, new: Collection[str], prev: Collection[str], cost: int):
+        """Here new is the entire new model, including the stuff in prev"""
+        new, prev = set(new), set(prev)
+        return cls(new, prev - new, cost)
+
+
+@dataclass(frozen=True)
+class Transformation:
+    rules: Sequence[str]
+
+    def __hash__(self):
+        return hash(tuple(self.rules))
 
 
 @dataclass

@@ -3,13 +3,13 @@ from dataclasses import asdict
 from flask import Flask
 from flask.testing import FlaskClient
 
-from gasp.server.blueprints.api import bp
+from src.gasp.server.blueprints.api import bp as api_bp
 from src.gasp.shared.model import ClingoMethodCall
 
 
 def create_api_test_client() -> FlaskClient:
     app = Flask(__name__)
-    app.register_blueprint(bp)
+    app.register_blueprint(api_bp)
 
     return app.test_client()
 
@@ -19,12 +19,6 @@ web = create_api_test_client()
 
 def create_empty_call() -> ClingoMethodCall:
     return ClingoMethodCall("", {})
-
-
-def test_sth():
-    rv = web.get("/")
-    assert rv.status == "200 OK"
-    assert rv.data.decode("utf-8") == "ok"
 
 
 def test_registering_valid_call_should_return_ok():

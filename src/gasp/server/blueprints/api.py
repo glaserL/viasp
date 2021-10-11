@@ -3,12 +3,11 @@ from typing import Tuple, Any, Dict
 
 from flask import request, Blueprint, render_template
 
-from gasp.server.database import CallCenter
-from gasp.asp.replayer import apply_multiple
-from gasp.shared.model import ClingoMethodCall
+from ....gasp.server.database import CallCenter
+from ....gasp.asp.replayer import apply_multiple
+from ....gasp.shared.model import ClingoMethodCall
 
 bp = Blueprint("api", __name__, template_folder='../templates/')
-
 
 calls = CallCenter()
 ctl = None
