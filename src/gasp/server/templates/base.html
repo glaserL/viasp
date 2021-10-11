@@ -4,8 +4,16 @@
     <link rel=stylesheet type=text/css href="{{url_for('app.static', filename='stylesheet.css') }}">
 </head>
 <body>
-<div onclick="openNav()" class="header">
-    <div id="app_title">gASP - graphical ASP</div>
+<div class="header">
+    <div id="app_title">
+        <span>gASP - graphical ASP</span>
+        <span id="display_all_toggle_span">Show All:
+        <label id="display_all_toggle" class="switch">
+            <input type="checkbox" value="show_all" checked={{settings.show_all}}>
+            <span class="slider round"></span>
+        </label></span>
+    </div>
+
 </div>
 <div id="detailSidebar" onclick="closeNav()" class="detail">
 </div>
@@ -15,14 +23,7 @@
         <div class="row_header" style="cursor: pointer" onclick="toggleRow(this)">{{row.rule}}</div>
         <div class="row_row">
             {% for set in row.sets %}
-            <div id={{set.id}} style="cursor: pointer" onclick="showDetail( this )" class=set_container>
-                <div class="set_header">
-                    SIGNATURE
-                </div>
-                <div class="set_value">
-                    {{ set.true }}
-                </div>
-            </div>
+
             {% endfor %}
         </div>
     </div>

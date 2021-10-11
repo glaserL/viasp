@@ -1,37 +1,51 @@
 
 body {
-  margin: 0;
-  height: 100vh;
+    margin: 0;
+    height: 100vh;
 }
 
 .header {
-    height: 20px;
     background-color: black;
-    box-shadow: 0 2px 2px -2px rgba(0,0,0,.2);
+    box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .2);
+    align-content: center;
 }
+
 #app_title {
     font-family: "Roboto Light", monospace;
     color: #eeeeee;
     padding-left: 15px;
+    font-size: 22px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
+
+#display_all_toggle_span {
+    float: right;
+}
+
 .graph_container {
     /*display: flex;*/
     justify-content: space-around;
 }
+
 h3 {
     color: #FF1C89;
 }
+
 .row_header {
     background-color: black;
     color: whitesmoke;
 }
+
 .row_row {
     display: flex;
     justify-content: space-around;
 }
+
 .set_container {
     width: fit-content;
 }
+
 .set_header {
     background: #FF1C89;
     border-radius: 0 10px 0 0;
@@ -40,6 +54,7 @@ h3 {
     font-family: Monaco, monospace;
     color: whitesmoke;
 }
+
 .set_value {
     background: #eeeeee;
     border: 2px solid #FF1C89;
@@ -50,20 +65,87 @@ h3 {
 
 .detail {
     height: 100%;
-    box-shadow: 0 2px 2px -2px rgba(0,0,0,.2);
+    box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .2);
     color: whitesmoke;
     float: right;
-  overflow-x: hidden;
-  transition: 0.5s;
-  width: 0;
-  /*z-index: 1;*/
+    overflow-x: hidden;
+    transition: 0.5s;
+    width: 0;
+    /*z-index: 1;*/
     background-color: black;
-  position: fixed; /* Sit on top of the page content */
-  top: 0;
-  right: 0;
-  padding-top: 60px;
+    position: fixed; /* Sit on top of the page content */
+    top: 0;
+    right: 0;
+    padding-top: 60px;
 }
 
 @media screen and (max-height: 450px) {
-  .detail-column{padding-top: 15px;}
+    .detail-column {
+        padding-top: 15px;
+    }
+}
+
+/*CHECKBOX*/
+
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 25px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(22px);
+    -ms-transform: translateX(22px);
+    transform: translateX(22px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
 }

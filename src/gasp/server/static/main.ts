@@ -1,5 +1,15 @@
 console.log("ELELGIGGLE");
 
+var checkbox = document.querySelector("input[type=checkbox]");
+console.log(checkbox)
+checkbox.addEventListener('change', function () {
+    fetch(`settings/?${this.getAttribute("value")}=${this.checked}`, {
+        method: "POST"
+    }).then(function (r) {
+        console.log(r);
+    })
+});
+
 function toggleRow(container) {
     console.log(container);
     const thingToToggle = container.parentNode.getElementsByClassName("row_row")[0];
@@ -17,18 +27,6 @@ function isClosed(id) {
     return width === "" || width === "0px";
 }
 
-
-function drawEdges() {
-    fetch("edges").then(function (response) {
-        return response.json();
-    }).then(function (edges) {
-        for (const edge in edges) {
-            const from = document.getElementById(edge.from).offset();
-            const to = document.getElementById(edge.from).offset();
-
-        }
-    })
-}
 
 function showDetail(node) {
     if (isClosed("detailSidebar")) {
@@ -50,4 +48,8 @@ function openNav() {
 
 function closeNav() {
     document.getElementById("detailSidebar").style.width = "0"
+}
+
+function makeNode() {
+    return
 }
