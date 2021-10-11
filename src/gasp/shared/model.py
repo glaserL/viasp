@@ -67,3 +67,23 @@ class ClingoMethodCall:
         for index, arg in enumerate(args):
             args_dict[param_names[index]] = arg
         return cls(name, args_dict)
+
+
+def fromPrev(new: Union[Model, Collection[str]], prev: Union[Model, Collection[str]], mode: str = "union",
+             cost: int = None) -> Union[Model, CostableModel]:
+    if isinstance(new, Model):
+        new = new.atoms
+    if isinstance(prev, Model):
+        prev = prev.atoms
+    if mode == "diff":
+        if cost is not None:
+            return CostableModel.from_previous_diff_cost(new, prev, cost)
+        else:
+            return Model.from_previous_diff(new, prev)
+    elif mode == "union":
+        if cost is not None:
+            return CostableModel.from_previous_union_cost(new, prev, cost)
+        else:
+            return Model.from_previous_union(new, prev)
+    else:
+        raise TypeError

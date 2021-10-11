@@ -1,58 +1,6 @@
-import json
-from dataclasses import dataclass
-from typing import Set, Sequence, Collection, Union
-import igraph
-
 import networkx as nx
-from clingo import Control
-from networkx.readwrite.json_graph import adjacency_data, node_link_data, node_link_graph
 
-from gasp.shared.io import DataclassJSONEncoder
-
-
-def fromPrev(new: Union[Model, Collection[str]], prev: Union[Model, Collection[str]], mode: str = "union",
-             cost: int = None) -> Union[Model, CostableModel]:
-    if isinstance(new, Model):
-        new = new.atoms
-    if isinstance(prev, Model):
-        prev = prev.atoms
-    if mode == "diff":
-        if cost is not None:
-            return CostableModel.from_previous_diff_cost(new, prev, cost)
-        else:
-            return Model.from_previous_diff(new, prev)
-    elif mode == "union":
-        if cost is not None:
-            return CostableModel.from_previous_union_cost(new, prev, cost)
-        else:
-            return Model.from_previous_union(new, prev)
-    else:
-        raise TypeError
-
-
-class WhyDoIHaveToDoThisOnMyOwn:
-
-    def __init__(self):
-        self._hash_to_model = {}
-        self._hash_to_rule = {}
-        self._graph = igraph.Graph(directed=True)
-
-    def add_edge(self, source, target, rule):
-        src, tgt = self._get_internal_vertex_hash(source), self._get_internal_vertex_hash(target)
-        r = self._get_internal_edge_hash(rule)
-        self._graph.add_edge(src, tgt, rule_id=r)
-
-    def _get_internal_edge_hash(self, edge):
-        hashed = hash(edge)
-        if hashed not in self._hash_to_model:
-            self._hash_to_model[hashed] = edge
-        return hashed
-
-    def _get_internal_vertex_hash(self, vertex):
-        hashed = hash(vertex)
-        if hashed not in self._hash_to_model:
-            self._hash_to_model[hashed] = vertex
-        return hashed
+from src.gasp.shared.model import fromPrev, Transformation, Model
 
 
 def example_graph():
@@ -95,15 +43,3 @@ def example_graph():
     graph.add_edge(constraint_2, cost_2, rule=minimize)
     graph.add_edge(constraint_3, cost_3, rule=minimize)
     return graph
-
-
-def testi_test():
-    x = example_graph()
-    serializable = node_link_data(x)
-    path = "../resources/traveling_salesperson.json"
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(serializable, f, cls=DataclassJSONEncoder, ensure_ascii=False, indent=2)
-    with open(path, "r", encoding="utf-8") as f:
-        loaded = json.load(f)
-    print(loaded)
-    g = node_link_graph(loaded)
