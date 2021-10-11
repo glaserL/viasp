@@ -1,6 +1,6 @@
-from src.gasp import gasp
+from src.gasp import wrapper
 
 
 def test_instanciations():
-    _ = gasp.Control()
-    _ = gasp.Control(["0"])
+    _ = wrapper.Control()
+    _ = wrapper.Control(["0"])

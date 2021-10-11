@@ -1,11 +1,11 @@
 import json
 from typing import Tuple, Any, Dict
 
-from flask import request, Blueprint, render_template
+from flask import request, Blueprint
 
-from ....gasp.server.database import CallCenter
-from ....gasp.asp.replayer import apply_multiple
-from ....gasp.shared.model import ClingoMethodCall
+from ..database import CallCenter
+from ...shared.model import ClingoMethodCall
+from ...asp import apply_multiple
 
 bp = Blueprint("api", __name__, template_folder='../templates/')
 
