@@ -17,7 +17,7 @@
 </div>
 <div id="detailSidebar" onclick="closeNav()" class="detail">
 </div>
-<div class="graph_container">
+<div id="graph_container" class="graph_container">
     {% for row in sets %}
         <div class="row_container">
             <div class="row_header" style="cursor: pointer" onclick="toggleRow(this)">{{ row.rule }}</div>
