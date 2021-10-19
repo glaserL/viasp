@@ -1,0 +1,13 @@
+name: viasp
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - clingo=5.5.0
+  - dataclasses=0.8
+  - flask=2.0
+  - networkx=2.6.3
+  - pytest=6.2.4
+  - python=3.8
+  - python-clingox=1.0.1
+  - requests=2.26.0
