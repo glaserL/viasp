@@ -47,7 +47,7 @@ class Control(InnerControl):
         print(f"Registered {serializable_call}")
 
     def __init__(self, *args, **kwargs):
-        self.gasp = PaintConnector()
+        self.viasp = PaintConnector()
         self.database = ClingoClient(**kwargs)
         if not backend_is_running():
             warn("You are using the vizgo control object and no server is running right now")

@@ -10,7 +10,7 @@ bp = Blueprint("dag_api", __name__, template_folder='server/templates')
 
 def dumb_fuck() -> nx.Graph:
     result = None
-    with open("/Users/bianchignocchi/Developer/cogsys/0_ma/gasp/tests/resources/traveling_salesperson.json",
+    with open("/Users/bianchignocchi/Developer/cogsys/0_ma/viasp/tests/resources/traveling_salesperson.json",
               encoding="utf-8") as f:
         result = json.load(f, cls=DataclassJSONDecoder)
     loaded_graph = nx.node_link_graph(result)
