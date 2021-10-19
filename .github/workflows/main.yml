@@ -1,0 +1,33 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Running Tests
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checking out repository
+        uses: actions/checkout@v2
+      - name: Setting up conda environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: viasp
+          environment-file: environment.yml
+          python-version: 3.8
+          auto-activate-base: false
+      - name: Running pytest
+        shell: bash -l {0}
+        run: |
+          PYTHONPATH=. pytest tests/pyt
