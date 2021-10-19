@@ -1,6 +1,6 @@
 import networkx as nx
 
-from src.gasp.shared.model import fromPrev, Transformation, Model
+from src.viasp.shared.model import fromPrev, Transformation, Model
 
 
 def example_graph():

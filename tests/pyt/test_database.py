@@ -1,4 +1,4 @@
-from src.gasp.server.database import CallCenter
+from src.viasp.server.database import CallCenter
 from tests.pyt.test_replayer import run_sample
 
 

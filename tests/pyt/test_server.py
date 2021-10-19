@@ -3,8 +3,8 @@ from dataclasses import asdict
 from flask import Flask
 from flask.testing import FlaskClient
 
-from src.gasp.server.blueprints.api import bp as api_bp
-from src.gasp.shared.model import ClingoMethodCall
+from src.viasp.server.blueprints.api import bp as api_bp
+from src.viasp.shared.model import ClingoMethodCall
 
 
 def create_api_test_client() -> FlaskClient:

@@ -6,7 +6,7 @@ from werkzeug.utils import find_modules, import_string
 
 def register_blueprints(app):
     """collects all blueprints and adds them to the app object"""
-    for name in find_modules('gasp.server.blueprints'):
+    for name in find_modules('viasp.server.blueprints'):
         mod = import_string(name)
         print(f"Found module {name} with import string {mod}.")
         if hasattr(mod, 'bp'):

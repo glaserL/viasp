@@ -3,7 +3,7 @@ import json
 import networkx as nx
 from flask import Blueprint
 
-from gasp.shared.io import DataclassJSONDecoder, DataclassJSONEncoder
+from viasp.shared.io import DataclassJSONDecoder, DataclassJSONEncoder
 
 bp = Blueprint("dag_api", __name__, template_folder='server/templates')
 

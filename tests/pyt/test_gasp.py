@@ -1,4 +1,4 @@
-from src.gasp import wrapper
+from src.viasp import wrapper
 
 
 def test_instanciations():

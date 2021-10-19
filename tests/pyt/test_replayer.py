@@ -1,8 +1,8 @@
 from inspect import signature
 
 from clingo import Control
-from src.gasp.asp.replayer import apply_multiple
-from src.gasp.shared.model import ClingoMethodCall
+from src.viasp.asp.replayer import apply_multiple
+from src.viasp.shared.model import ClingoMethodCall
 
 
 def run_sample():

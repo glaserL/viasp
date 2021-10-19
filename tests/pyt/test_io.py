@@ -3,8 +3,8 @@ import json
 import networkx as nx
 from networkx import node_link_data, node_link_graph
 
-from src.gasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder
-from src.gasp.shared.model import Model, CostableModel
+from src.viasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder
+from src.viasp.shared.model import Model, CostableModel
 from tests.pyt.helper import example_graph
 
 examples = [Model(set(), {"a", "b"}),

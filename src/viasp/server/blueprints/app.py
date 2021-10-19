@@ -4,7 +4,7 @@ from typing import Any
 import networkx as nx
 from flask import render_template, Blueprint, request
 
-from gasp.shared.simple_logging import info
+from viasp.shared.simple_logging import info
 
 bp = Blueprint("app", __name__, template_folder='../templates/', static_folder='../static/', static_url_path='/static')
 
