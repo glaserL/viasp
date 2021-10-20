@@ -5,7 +5,7 @@ from flask import request, Blueprint
 
 from ..database import CallCenter
 from ...shared.model import ClingoMethodCall
-from ...asp import apply_multiple
+from ...asp.replayer import apply_multiple
 
 bp = Blueprint("api", __name__, template_folder='../templates/')
 

@@ -1,7 +1,7 @@
 import clingo
 import pytest
 
-from src.viasp.asp.transform import transform
+from src.viasp.asp.reify import transform
 
 
 def assertProgramEqual(actual, expected, message=None):
