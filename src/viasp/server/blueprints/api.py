@@ -1,7 +1,7 @@
 import json
 from typing import Tuple, Any, Dict
 
-from flask import request, Blueprint
+from flask import request, Blueprint, jsonify
 
 from ..database import CallCenter
 from ...shared.model import ClingoMethodCall
@@ -48,11 +48,19 @@ def reconstruct():
     return "ok"
 
 
+class DataContainer:
+    def __init__(self):
+        self.hihi = []
+
+
+dc = DataContainer()
+
+
 def handle_models_recieved(parsed_models):
-    pass
+    dc.hihi = parsed_models
 
 
-@bp.route("/control/models", methods=["POST"])
+@bp.route("/control/models", methods=["GET", "POST"])
 def set_stable_models():
     if request.method == "POST":
         try:
@@ -60,4 +68,12 @@ def set_stable_models():
         except BaseException:
             return "Invalid model object", 400
         handle_models_recieved(parsed_models)
+    elif request.method == "GET":
+        return jsonify(dc.hihi)
     return "ok"
+
+
+@bp.route("/control/models/clear", methods=["POST"])
+def models_clear():
+    if request.method == "POST":
+        dc.hihi.clear()
