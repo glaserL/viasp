@@ -46,3 +46,18 @@ def reconstruct():
     if calls:
         apply_multiple(calls.get_pending(), ctl)
     return "ok"
+
+
+def handle_models_recieved(parsed_models):
+    pass
+
+
+@bp.route("/control/models", methods=["POST"])
+def set_stable_models():
+    if request.method == "POST":
+        try:
+            parsed_models = json.loads(request.data)
+        except BaseException:
+            return "Invalid model object", 400
+        handle_models_recieved(parsed_models)
+    return "ok"

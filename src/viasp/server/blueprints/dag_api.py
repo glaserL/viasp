@@ -3,7 +3,7 @@ import json
 import networkx as nx
 from flask import Blueprint
 
-from viasp.shared.io import DataclassJSONDecoder, DataclassJSONEncoder
+from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder
 
 bp = Blueprint("dag_api", __name__, template_folder='server/templates')
 
@@ -17,7 +17,7 @@ def dumb_fuck() -> nx.Graph:
     return loaded_graph
 
 
-DUMB = dumb_fuck()
+DUMB = nx.Graph()
 
 
 @bp.route("/model/<uuid>", methods=["GET"])
