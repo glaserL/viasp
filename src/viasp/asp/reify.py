@@ -31,7 +31,7 @@ class sasa(Transformer):
 
         return new_head
 
-    def _make_helper_thingy(self, rule: clingo.ast.AST):
+    def _make_head_switch(self, rule: clingo.ast.AST):
         """In: H :- B
         Out: H:- h(_, H)"""
         head = rule.head
@@ -48,12 +48,20 @@ class sasa(Transformer):
 
     def visit_Rule(self, rule: clingo.ast.AST):
         print(f"Visiting rule {rule}")
+        if len(rule.body) == 0:
+            # It's a fact.
+            return rule
+
+        # Embed the head
         new_head = self._nest_rule_head(rule)
+        # Add reified head to body
         new_body = [self._nest_rule_head_in_model(rule.head)]
-        helper_thingy = self._make_helper_thingy(rule)
         new_body.extend(rule.body)
         new_rule = Rule(rule.location, new_head, new_body)
-        return [new_rule, helper_thingy]
+
+        # Add switch statement for the head
+        head_switch = self._make_head_switch(rule)
+        return [new_rule, head_switch]
 
     def visit_Literal(self, literal: clingo.ast.AST, body):
         print(f"Visiting {literal=} {literal.sign=}")

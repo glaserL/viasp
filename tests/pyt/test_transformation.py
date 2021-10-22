@@ -19,18 +19,16 @@ def parse_program_to_ast(prg: str) -> [clingo.ast.AST]:
     return parsed
 
 
-@pytest.mark.skip(reason="Not implemented yet.")
 def test_simple_fact_is_transform_correctly():
     rule = "a."
-    expected = ["#program base.", "a."]
-    assertProgramEqual(transform(rule), expected)
+    expected = "a."
+    assertProgramEqual(transform(rule), parse_program_to_ast(expected))
 
 
-@pytest.mark.skip(reason="Not implemented yet.")
 def test_fact_with_variable_is_transform_correctly():
     rule = "a(1)."
-    expected = ["#program base.", "a(1)."]
-    assertProgramEqual(transform(rule), expected)
+    expected = "a(1)."
+    assertProgramEqual(transform(rule), parse_program_to_ast(expected))
 
 
 def test_normal_rule_without_negation_is_transformed_correctly():
