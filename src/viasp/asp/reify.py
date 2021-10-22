@@ -21,10 +21,12 @@ class IdentityTransformAsReferenceForMe(Transformer):
 
 class sasa(Transformer):
 
+    def __init__(self):
+        self.rule_nr = 1
+
     def _nest_rule_head(self, rule: clingo.ast.AST):
         loc = rule.location
-        begin = loc.begin.line
-        loc_fun = ast.Function(loc, str(begin), [], False)
+        loc_fun = ast.Function(loc, str(self.rule_nr), [], False)
         loc_atm = ast.SymbolicAtom(loc_fun)
         loc_lit = ast.Literal(loc, ast.Sign.NoSign, loc_atm)
         new_head = ast.Function(loc, "h", [loc_lit, rule.head], 0)
@@ -32,8 +34,8 @@ class sasa(Transformer):
         return new_head
 
     def _make_head_switch(self, rule: clingo.ast.AST):
-        """In: H :- B
-        Out: H:- h(_, H)"""
+        """In: H :- B.
+        Out: H:- h(_, H)."""
         head = rule.head
         wild_card_fun = ast.Function(rule.location, "_", [], False)
         wild_card_atm = ast.SymbolicAtom(wild_card_fun)
@@ -42,6 +44,10 @@ class sasa(Transformer):
         return ast.Rule(rule.location, head, [fun])
 
     def _nest_rule_head_in_model(self, head):
+        """
+        In: H :- B.
+        Out: model(H).
+        """
         loc = head.location
         new_head = ast.Function(loc, "model", [head], 0)
         return new_head
@@ -61,6 +67,7 @@ class sasa(Transformer):
 
         # Add switch statement for the head
         head_switch = self._make_head_switch(rule)
+        self.rule_nr += 1
         return [new_rule, head_switch]
 
     def visit_Literal(self, literal: clingo.ast.AST, body):
@@ -74,11 +81,21 @@ class sasa(Transformer):
             return literal
 
 
+# def register_rules(rule_or_list_of_rules, rulez):
+#     if isinstance(rule_or_list_of_rules, list):
+#         rulez.extend(rule_or_list_of_rules)
+#     else:
+#         rulez.append(rule_or_list_of_rules)
+
+
 def register_rules(rule_or_list_of_rules, rulez):
     if isinstance(rule_or_list_of_rules, list):
-        rulez.extend(rule_or_list_of_rules)
+        for rule in rule_or_list_of_rules:
+            if not rule in rulez:
+                rulez.extend(rule_or_list_of_rules)
     else:
-        rulez.append(rule_or_list_of_rules)
+        if not rule_or_list_of_rules in rulez:
+            rulez.append(rule_or_list_of_rules)
 
 
 def transform(program: str):
