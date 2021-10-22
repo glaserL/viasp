@@ -1,6 +1,6 @@
 import clingo
 import pytest
-
+from clingo.ast import Rule, parse_string
 from src.viasp.asp.reify import transform
 
 
@@ -13,20 +13,17 @@ def assertProgramEqual(actual, expected, message=None):
     assert actual == expected, message if message is not None else f"{expected} should be equal to {actual}"
 
 
-@pytest.mark.skip(reason="Not implemented yet.")
-def test_rule_with_negation_is_transformed_correctly():
-    rule = "a(X) :- b(X), not c(X)."
-
-    expected = "h(0,a(X)) :- model(a(X)), b(X), not c(X)."
-
-    assert expected == transform(rule)
+def parse_program_to_ast(prg: str) -> [clingo.ast.AST]:
+    parsed = []
+    parse_string(prg, lambda rule: parsed.append(rule))
+    return parsed
 
 
 @pytest.mark.skip(reason="Not implemented yet.")
 def test_simple_fact_is_transform_correctly():
     rule = "a."
-    expected = "a."
-    assert expected == transform(rule)
+    expected = ["#program base.", "a."]
+    assertProgramEqual(transform(rule), expected)
 
 
 @pytest.mark.skip(reason="Not implemented yet.")
@@ -36,18 +33,16 @@ def test_fact_with_variable_is_transform_correctly():
     assertProgramEqual(transform(rule), expected)
 
 
-@pytest.mark.skip(reason="Not implemented yet.")
 def test_normal_rule_without_negation_is_transformed_correctly():
     rule = "b(X) :- c(X)."
-    expected = ["#program base.", "h(1, b(X)) :- model(b(X)), c(X).", "b(X) :- h(_,b(X))."]
-    assertProgramEqual(transform(rule), expected)
+    expected = "h(1, b(X)) :- model(b(X)); c(X). b(X) :- h(_,b(X))."
+    assertProgramEqual(transform(rule), parse_program_to_ast(expected))
 
 
-@pytest.mark.skip(reason="Not implemented yet.")
 def test_normal_rule_with_negation_is_transformed_correctly():
     rule = "b(X) :- c(X), not a(X)."
-    expected = ["#program base.", "h(1, b(X)) :- model(b(X)), c(X), not a(X).", "b(X) :- h(_,b(X))."]
-    assertProgramEqual(transform(rule), expected)
+    expected = "h(1, b(X)) :- model(b(X)); c(X); not a(X).b(X) :- h(_,b(X))."
+    assertProgramEqual(transform(rule), parse_program_to_ast(expected))
 
 
 @pytest.mark.skip(reason="Not implemented yet.")

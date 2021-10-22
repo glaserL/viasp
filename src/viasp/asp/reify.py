@@ -1,6 +1,6 @@
 import clingo
-from clingo import ast, Number
-from clingo.ast import Transformer, parse_string, Rule, Function, ASTSequence
+from clingo import ast
+from clingo.ast import Transformer, parse_string, Rule
 
 
 class IdentityTransformAsReferenceForMe(Transformer):
@@ -41,11 +41,18 @@ class sasa(Transformer):
         fun = ast.Function(head.location, "h", [wild_card_lit, head], 0)
         return ast.Rule(rule.location, head, [fun])
 
+    def _nest_rule_head_in_model(self, head):
+        loc = head.location
+        new_head = ast.Function(loc, "model", [head], 0)
+        return new_head
+
     def visit_Rule(self, rule: clingo.ast.AST):
         print(f"Visiting rule {rule}")
         new_head = self._nest_rule_head(rule)
+        new_body = [self._nest_rule_head_in_model(rule.head)]
         helper_thingy = self._make_helper_thingy(rule)
-        new_rule = Rule(rule.location, new_head, self.visit_sequence(rule.body, body=True))
+        new_body.extend(rule.body)
+        new_rule = Rule(rule.location, new_head, new_body)
         return [new_rule, helper_thingy]
 
     def visit_Literal(self, literal: clingo.ast.AST, body):
@@ -58,10 +65,8 @@ class sasa(Transformer):
         else:
             return literal
 
-rulez = []
 
-
-def register_rules(rule_or_list_of_rules):
+def register_rules(rule_or_list_of_rules, rulez):
     if isinstance(rule_or_list_of_rules, list):
         rulez.extend(rule_or_list_of_rules)
     else:
@@ -70,5 +75,6 @@ def register_rules(rule_or_list_of_rules):
 
 def transform(program: str):
     itarfm = sasa()
-    parse_string(program, lambda rule: register_rules(itarfm.visit(rule)))
+    rulez = []
+    parse_string(program, lambda rule: register_rules(itarfm.visit(rule), rulez))
     return rulez
