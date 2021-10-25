@@ -37,6 +37,19 @@ def test_normal_rule_without_negation_is_transformed_correctly():
     assertProgramEqual(transform(rule), parse_program_to_ast(expected))
 
 
+def test_multiple_nested_variable_gets_transformed_correctly():
+    program = "x(1). y(1). l(x(X),y(Y)) :- x(X), y(Y)."
+    expected = "x(1). y(1). h(1, l(x(X),y(Y))) :- model(l(x(X),y(Y))), x(X), y(Y). l(x(X),y(Y)) :- h(_, l(x(X),y(Y)))."
+    assertProgramEqual(transform(program), parse_program_to_ast(expected))
+
+
+@pytest.mark.skip(reason="Not implemented yet.")
+def test_conflict_variables_are_resolved():
+    program = "h(42, 11). x(X) :- y(X)."
+    expected = "h(42, 11). h_(1, x(X)) :- model(x(X)), y(X). h(1, x(X)) :- h_(_, x(X))."
+    assertProgramEqual(transform(program), parse_program_to_ast(expected))
+
+
 def test_normal_rule_with_negation_is_transformed_correctly():
     rule = "b(X) :- c(X), not a(X)."
     expected = "h(1, b(X)) :- model(b(X)); c(X); not a(X).b(X) :- h(_,b(X))."
