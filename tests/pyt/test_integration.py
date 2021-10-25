@@ -1,6 +1,3 @@
-import multiprocessing
-import time
-
 import pytest
 from clingo import Control
 from flask import Flask
