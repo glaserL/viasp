@@ -1,3 +1,5 @@
+from typing import Dict, List
+
 import clingo
 from clingo import ast
 from clingo.ast import Transformer, parse_string, Rule
@@ -103,3 +105,30 @@ def transform(program: str):
     rulez = []
     parse_string(program, lambda rule: register_rules(itarfm.visit(rule), rulez))
     return rulez
+
+
+def add_to_dict_and_increment(dct: Dict[int, clingo.ast.AST], elem: clingo.ast.AST, counter: int):
+    dct[counter] = elem
+    counter += 1
+
+
+class JustTheRulesTransformer(Transformer):
+
+    def __init__(self):
+        self.rule_nr = 1
+
+    def visit_Rule(self, rule):
+        if len(rule.body) == 0:
+            return rule
+        else:
+            self.rule_nr += 1
+
+            return self.rule_nr, rule
+
+
+def line_nr_to_rule_mapping(program: str) -> Dict[int, clingo.ast.AST]:
+    jtrt = JustTheRulesTransformer()
+    mappings = []
+    parse_string(program, lambda rule: mappings.append(jtrt.visit(rule)))
+    mappings = {nr: rule for nr, rule in filter(lambda e: isinstance(e, tuple), mappings)}
+    return mappings

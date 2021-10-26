@@ -1,7 +1,7 @@
 import clingo
 import pytest
 from clingo.ast import Rule, parse_string
-from src.viasp.asp.reify import transform
+from src.viasp.asp.reify import transform, line_nr_to_rule_mapping
 
 
 def assertProgramEqual(actual, expected, message=None):
@@ -74,6 +74,12 @@ def test_normal_rule_with_choice_in_head_is_transformed_correctly():
     rule = "{b(X)} :- c(X)."
     expected = "#program base.h(1, b(X)) :- model(b(X)), c(X).b(X) :- h(_,b(X))."
     assertProgramEqual(transform(rule), parse_program_to_ast(expected))
+
+
+def test_program_mappings_work():
+    rule = "a. x(1). d :- c. y(X) :- x(X). {z(X)} :- not d(X)."  # {z(1..3)}."
+    rule_mapping = line_nr_to_rule_mapping(rule)
+    assert len(rule_mapping) == 3
 
 
 def get_reasons(prg, model):

@@ -6,6 +6,8 @@ import networkx as nx
 from clingo import Control, Symbol, Model
 from itertools import tee
 
+from .reify import line_nr_to_rule_mapping
+
 
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
@@ -34,7 +36,7 @@ def get_facts(original_program) -> Collection[Symbol]:
     ctl.ground([("__facts", [])])
     for atom in ctl.symbolic_atoms:
         if atom.is_fact:
-            facts.add(atom)
+            facts.add(atom.symbol)
     return frozenset(facts)
 
 
@@ -47,13 +49,13 @@ def sort_and_merge_h_symbols(h_symbols: Collection[Symbol]) -> List[Collection[S
     return h_symbols
 
 
-def make_reason_path(wrapped_stable_model, transformed_prg) -> nx.DiGraph:
+def make_reason_path(wrapped_stable_model, transformed_prg, rule_mapping) -> nx.DiGraph:
     h_syms = get_h_symbols_from_model(wrapped_stable_model, transformed_prg)
 
     h_syms = sort_and_merge_h_symbols(h_syms)
     g = nx.DiGraph()
     for (_, a), (rule_nr, b) in pairwise(h_syms):
-        g.add_edge(a, b, edge_label=rule_nr)
+        g.add_edge(a, b, edge_label=rule_mapping[rule_nr.number])
     return g
 
 
@@ -67,8 +69,9 @@ def join_paths_with_facts(paths: Collection[nx.DiGraph], facts: Collection[Symbo
 
 def build_graph(wrapped_stable_models, transformed_prg, orig_program) -> nx.DiGraph:
     paths: List[nx.DiGraph] = []
+    mapping = line_nr_to_rule_mapping(orig_program)
     for model in wrapped_stable_models:
-        paths.append(make_reason_path(model, transformed_prg))
+        paths.append(make_reason_path(model, transformed_prg, mapping))
     facts = get_facts(orig_program)
     result_graph = join_paths_with_facts(paths, facts)
     return result_graph

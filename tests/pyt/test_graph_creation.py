@@ -1,4 +1,6 @@
+import networkx as nx
 from clingo import Control
+import matplotlib.pyplot as plt
 
 from src.viasp.asp.justify import save_model, build_graph
 from src.viasp.asp.reify import transform
@@ -23,3 +25,5 @@ def testi_test():
     g = build_graph(saved_models, transformed, program)
     assert len(g.nodes()) != 0
     assert len(g.edges()) != 0
+    nx.draw(g, with_labels=True)
+    plt.show()
