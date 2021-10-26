@@ -3,6 +3,8 @@ import os
 from flask import Flask
 from werkzeug.utils import find_modules, import_string
 
+from viasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder
+
 
 def register_blueprints(app):
     """collects all blueprints and adds them to the app object"""
@@ -17,6 +19,8 @@ def register_blueprints(app):
 
 def create_app(config=None):
     app = Flask('api', static_folder=None)  # flask object
+    app.json_encoder = DataclassJSONEncoder
+    app.json_decoder = DataclassJSONDecoder
     # app.config.from_object(__name__) #load configs from here, could be another config file
     # app.config.update(dict(
     #     DATABASE=os.path.join(app.root_path, 'laprint.db'),
