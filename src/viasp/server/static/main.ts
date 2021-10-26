@@ -28,7 +28,7 @@ var checkbox = document.querySelector("input[type=checkbox]");
 console.log(checkbox)
 checkbox.addEventListener('change', function () {
     fetch(`
-    settings / ?${this.getAttribute("value")}=${this.checked}`, {
+    settings/?${this.getAttribute("value")}=${this.checked}`, {
         method: "POST"
     }).then(function (r) {
         console.log(r);

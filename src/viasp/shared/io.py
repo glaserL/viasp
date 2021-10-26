@@ -3,6 +3,7 @@ from enum import IntEnum
 from json import JSONEncoder, JSONDecoder
 from dataclasses import is_dataclass, asdict
 from typing import Any, Union, Collection
+from uuid import UUID
 
 import clingo
 from _clingo.lib import clingo_model_type_brave_consequences, clingo_model_type_cautious_consequences, \
@@ -38,6 +39,8 @@ class DataclassJSONEncoder(JSONEncoder):
             print(o)
             result["_type"] = repr(o).split("(")[0]
             return result
+        if isinstance(o, UUID):
+            return o.hex
         elif isinstance(o, set):
             return list(o)
         return super().default(o)

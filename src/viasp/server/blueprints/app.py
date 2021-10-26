@@ -23,7 +23,6 @@ def change_setting(key: str, value: Any):
 
 @bp.route("/settings/", methods=["GET", "POST"])
 def settings():
-    print("he")
     if request.method == "POST":
         for key, value in request.args.items():
             change_setting(key, value)
