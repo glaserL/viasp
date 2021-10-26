@@ -9,6 +9,8 @@ import clingo
 from _clingo.lib import clingo_model_type_brave_consequences, clingo_model_type_cautious_consequences, \
     clingo_model_type_stable_model
 from clingo import Model as clingo_Model, ModelType, Symbol
+from clingo.ast import AST
+
 from .model import Model, CostableModel
 
 
@@ -27,8 +29,12 @@ class DataclassJSONDecoder(JSONDecoder):
         del obj['_type']
         if type == 'Model':
             return Model(**obj)
-        if type == 'CostableModel':
+        elif type == 'CostableModel':
             return CostableModel(**obj)
+        elif type == "Function":
+            return clingo.Function(**obj)
+        elif type == "Number":
+            return clingo.Number(**obj)
         return obj
 
 
@@ -39,10 +45,24 @@ class DataclassJSONEncoder(JSONEncoder):
             print(o)
             result["_type"] = repr(o).split("(")[0]
             return result
-        if isinstance(o, UUID):
+        elif isinstance(o, UUID):
             return o.hex
+        elif isinstance(o, frozenset):
+            return list(o)
         elif isinstance(o, set):
             return list(o)
+        elif isinstance(o, AST):
+            return str(o)
+        elif isinstance(o, clingo_Model):
+            x = model_to_dict(o)
+            return x
+        elif isinstance(o, ModelType):
+            if o in [ModelType.CautiousConsequences, ModelType.BraveConsequences, ModelType.StableModel]:
+                return {"__enum__": str(o)}
+            return super().default(o)
+        elif isinstance(o, Symbol):
+            x = symbol_to_dict(o)
+            return x
         return super().default(o)
 
 
@@ -57,12 +77,13 @@ def model_to_dict(model: clingo_Model) -> dict:
 def symbol_to_dict(symbol: clingo.Symbol) -> dict:
     symbol_dict = {}
     if symbol.type == clingo.SymbolType.Function:
+        symbol_dict["_type"] = "Function"
         symbol_dict["name"] = symbol.name
-        symbol_dict["negative"] = symbol.negative
         symbol_dict["positive"] = symbol.positive
         symbol_dict["arguments"] = symbol.arguments
     elif symbol.type == clingo.SymbolType.Number:
         symbol_dict["number"] = symbol.number
+        symbol_dict["_type"] = "Number"
     return symbol_dict
 
 
