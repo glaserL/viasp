@@ -25,5 +25,3 @@ def testi_test():
     g = build_graph(saved_models, transformed, program)
     assert len(g.nodes()) != 0
     assert len(g.edges()) != 0
-    nx.draw(g, with_labels=True)
-    plt.show()
