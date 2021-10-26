@@ -1,13 +1,25 @@
+#mainDisplay {
+    background-color: #FF1C89;
+    flex: 1 1 auto;
+    margin: 0;
+}
+
+canvas {
+    color: #2196F3;
+}
 
 body {
     margin: 0;
     height: 100vh;
+    display: flex;
+    flex-flow: column;
 }
 
 .header {
     background-color: black;
     box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .2);
     align-content: center;
+    flex: 0 1 auto;
 }
 
 #app_title {
