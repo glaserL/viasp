@@ -11,7 +11,7 @@ from _clingo.lib import clingo_model_type_brave_consequences, clingo_model_type_
 from clingo import Model as clingo_Model, ModelType, Symbol
 from clingo.ast import AST
 
-from .model import Model, CostableModel
+from .model import Model, CostableModel, Node
 
 
 def model_to_json(model: Union[clingo_Model, Collection[clingo_Model]], *args, **kwargs) -> str:
@@ -35,6 +35,8 @@ class DataclassJSONDecoder(JSONDecoder):
             return clingo.Function(**obj)
         elif type == "Number":
             return clingo.Number(**obj)
+        elif type == "Node":
+            return Node(**obj)
         return obj
 
 

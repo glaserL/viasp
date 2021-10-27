@@ -38,8 +38,24 @@ def get_database():
     return GraphDataBaseKEKL()
 
 
-@bp.route("/model/<uuid>", methods=["GET"])
-def get_model(uuid):
+def handle_request_for_children(data):
+    print(f"?ASDA?Sd {data}")
+    graph = get_database().load(as_json=False)
+    rule_id = data["rule_id"]
+    children = list()
+    for u, v, d in graph.edges(data=True):
+        edge = d['transformation']
+        print(f"{u}-[{d}]->{v}")
+        if str(edge["id"]) == rule_id:
+            children.append(v)
+    return children
+
+
+@bp.route("/children/", methods=["GET"])
+def get_children():
+    if request.method == "GET":
+        to_be_returned = handle_request_for_children(request.args)
+        return jsonify(to_be_returned)
     raise NotImplementedError
 
 
@@ -50,7 +66,14 @@ def get_rule(uuid):
 
 @bp.route("/rules", methods=["GET"])
 def get_all_rules():
-    r = jsonify(list(get_database().load(as_json=False).edges))
+    graph = get_database().load(as_json=False)
+    returning = []
+    for u, v in graph.edges:
+        transformation = graph[u][v]["transformation"]
+        if transformation not in returning:
+            returning.append(transformation)
+    print(f"kekekjdgkjdhfkljsfek {returning}")
+    r = jsonify(returning)
     return r
 
 

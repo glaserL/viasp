@@ -4,6 +4,14 @@ from inspect import Signature
 from typing import Any, Sequence, Dict, Union, Collection, Set
 from uuid import UUID, uuid4
 
+from clingo import Symbol
+
+
+@dataclass(unsafe_hash=True)
+class Node:
+    atoms: Collection[Symbol] = field(hash=False)
+    uuid: Union[UUID, None] = field(default_factory=uuid4, hash=True)
+
 
 @dataclass(frozen=True, eq=True)
 class Model:
@@ -48,6 +56,7 @@ class CostableModel(Model):
 
 @dataclass(frozen=True)
 class Transformation:
+    id: int
     rules: Sequence[str]
 
     def __hash__(self):

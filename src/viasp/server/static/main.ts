@@ -140,21 +140,72 @@ class DrawingApp {
 
 function makeNode(node): string {
     console.log(node)
-    return `<div id="${node.id}" style="cursor: pointer" onclick="showDetail( this )" class=set_container>
-<div class="set_header">SIGNATURE</div>
-<div class="set_value">${node.atoms}</div>
+    console.log(node.uuid)
+    return `<div id="${node.uuid}" style="cursor: pointer" onclick="showDetail( this )" class=set_container>
+<div class="set_header">SIGNATUREEEE</div>
+<div class="set_value">${node}</div>
 </div>
     `
 }
 
+function make_atoms_string(atoms) {
+    if (atoms instanceof Array) {
+        console.log(`An array ${atoms}`)
+        return atoms.map(make_atoms_string).join(" ")
+    }
+    switch (atoms["_type"]) {
+        case "Number":
+            console.log(`A number ${JSON.stringify(atoms)}`)
+            return atoms["number"]
+        case "Function":
+            console.log(`A func ${JSON.stringify(atoms)}`)
+            let args = atoms["arguments"].map(make_atoms_string).join(",")
+            return `${atoms["name"]}(${args})`
+    }
+
+}
+
+async function make_rule_cotainer(node) {
+    console.log(node)
+    let nodes = await make_node_divs(node)
+    return `<div id="row_${node.id}" style="cursor: pointer" class=row_container>
+<div class="row_header" style="cursor: pointer" onclick="toggleRow(this)">${node.rules}</div>
+${nodes.join("")}
+</div>`
+}
+
+function makeNodeDiv(child): string {
+    return `<div id="{{ child.uuid }}" style="cursor: pointer" onclick="showDetail( this )"
+                             class=set_container>
+                            <div class="set_header">
+                                SIGNATURE
+                            </div>
+                            <div class="set_value">
+                                ${make_atoms_string(child.atoms)}
+                            </div>
+                        </div>`
+}
+
+async function make_node_divs(rule: any) {
+    return fetch(`children/?rule_id=${rule.id}`).then((r) => r.json())
+        .then(async function (children) {
+            console.log(children)
+            var nodes = []
+            for (const child of children) {
+                nodes.push(makeNodeDiv(child))
+            }
+            return nodes;
+        })
+}
+
+
 document.addEventListener("DOMContentLoaded", function () {
-    fetch(`
-    rules`).then(function (r) {
+    fetch(`rules`).then(function (r) {
         if (r.ok) {
-            r.json().then(function (models) {
+            r.json().then(async function (rules) {
                 const graph_container = document.getElementById("graph_container")
-                for (const value of models) {
-                    const node_child = makeNode(value);
+                for (const rule of rules) {
+                    const node_child = await make_rule_cotainer(rule);
                     graph_container.insertAdjacentHTML('beforeend', node_child);
                 }
             })
@@ -195,15 +246,15 @@ function showDetail(node) {
     if (isClosed("detailSidebar")) {
         openNav();
     }
+    console.log(`Node: ${node}`)
     console.log(node.id)
-    fetch(`
-    model /${node.id}`).then(function (model) {
+    fetch(`model/${node.id}`).then(function (model) {
         return model.json();
     }).then(function (returnstuff) {
         const detail = document.getElementById("detailSidebar");
         console.log(returnstuff)
         detail.innerHTML = ` < h3 >${returnstuff.true}</h3><p>Known to be false: ${returnstuff.false}</
-    p > `
+    p> `
     })
 }
 

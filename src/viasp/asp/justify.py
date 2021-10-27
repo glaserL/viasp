@@ -7,6 +7,7 @@ from clingo import Control, Symbol, Model
 from itertools import tee
 
 from .reify import line_nr_to_rule_mapping
+from ..shared.model import Node, Transformation
 
 
 def pairwise(iterable):
@@ -45,7 +46,7 @@ def sort_and_merge_h_symbols(h_symbols: Collection[Symbol]) -> List[Collection[S
     for sym in h_symbols:
         rule_nr, symbol = sym.arguments
         tmp[rule_nr].append(symbol)
-    h_symbols = [(rule_nr, frozenset(tmp[rule_nr])) for rule_nr in sorted(tmp.keys())]
+    h_symbols = [(rule_nr, Node(tmp[rule_nr])) for rule_nr in sorted(tmp.keys())]
     return h_symbols
 
 
@@ -55,14 +56,15 @@ def make_reason_path(wrapped_stable_model, transformed_prg, rule_mapping) -> nx.
     h_syms = sort_and_merge_h_symbols(h_syms)
     g = nx.DiGraph()
     for (_, a), (rule_nr, b) in pairwise(h_syms):
-        g.add_edge(a, b, edge_label=rule_mapping[rule_nr.number])
+        g.add_edge(a, b, transformation=Transformation(rule_nr.number, rule_mapping[rule_nr.number]))
     return g
 
 
-def join_paths_with_facts(paths: Collection[nx.DiGraph], facts: Collection[Symbol]) -> nx.DiGraph:
+def join_paths_with_facts(paths: Collection[nx.DiGraph], facts: Collection[Symbol],
+                          first_rule: Transformation) -> nx.DiGraph:
     for path in paths:
         beginning = next(filter(lambda tuple: tuple[1] == 0, path.in_degree()))
-        path.add_edge(facts, beginning[0])
+        path.add_edge(facts, beginning[0], transformation=first_rule)
     combined = nx.compose_all(list(paths))
     return combined
 
@@ -73,7 +75,8 @@ def build_graph(wrapped_stable_models, transformed_prg, orig_program) -> nx.DiGr
     for model in wrapped_stable_models:
         paths.append(make_reason_path(model, transformed_prg, mapping))
     facts = get_facts(orig_program)
-    result_graph = join_paths_with_facts(paths, facts)
+    first_rule = Transformation(min(mapping.keys()), mapping[min(mapping.keys())])
+    result_graph = join_paths_with_facts(paths, facts, first_rule)
     return result_graph
 
 
