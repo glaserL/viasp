@@ -6,8 +6,9 @@ import networkx as nx
 from clingo import Control, Symbol, Model
 from itertools import tee
 
-from .reify import line_nr_to_rule_mapping
+from .reify import line_nr_to_rule_mapping_and_facts
 from ..shared.model import Node, Transformation
+from ..shared.simple_logging import info
 
 
 def pairwise(iterable):
@@ -50,11 +51,13 @@ def sort_and_merge_h_symbols(h_symbols: Collection[Symbol]) -> List[Collection[S
     return h_symbols
 
 
-def make_reason_path(wrapped_stable_model, transformed_prg, rule_mapping) -> nx.DiGraph:
+def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, transformed_prg, rule_mapping,
+                                                facts) -> nx.DiGraph:
     h_syms = get_h_symbols_from_model(wrapped_stable_model, transformed_prg)
 
     h_syms = sort_and_merge_h_symbols(h_syms)
     g = nx.DiGraph()
+    g.add_edge(facts, h_syms[0][1], transformation=Transformation(0, "FACTS"))
     for (_, a), (rule_nr, b) in pairwise(h_syms):
         g.add_edge(a, b, transformation=Transformation(rule_nr.number, rule_mapping[rule_nr.number]))
     return g
@@ -62,19 +65,25 @@ def make_reason_path(wrapped_stable_model, transformed_prg, rule_mapping) -> nx.
 
 def join_paths_with_facts(paths: Collection[nx.DiGraph], facts: Collection[Symbol],
                           first_rule: Transformation) -> nx.DiGraph:
-    for path in paths:
-        beginning = next(filter(lambda tuple: tuple[1] == 0, path.in_degree()))
-        path.add_edge(facts, beginning[0], transformation=first_rule)
+    # for path in paths:
+    #     beginning = next(filter(lambda tuple: tuple[1] == 0, path.in_degree()))
+    #     path.add_edge(facts, beginning[0], transformation=first_rule)
     combined = nx.compose_all(list(paths))
     return combined
 
 
 def build_graph(wrapped_stable_models, transformed_prg, orig_program) -> nx.DiGraph:
     paths: List[nx.DiGraph] = []
-    mapping = line_nr_to_rule_mapping(orig_program)
+    mapping, facts = line_nr_to_rule_mapping_and_facts(orig_program)
+    facts = Node(facts)
+    if not len(mapping):
+        info(f"Program only contains facts. {facts}")
+        single_node_graph = nx.DiGraph()
+        single_node_graph.add_node(facts)
+        return single_node_graph
     for model in wrapped_stable_models:
-        paths.append(make_reason_path(model, transformed_prg, mapping))
-    facts = get_facts(orig_program)
+        paths.append(make_reason_path_from_facts_to_stable_model(model, transformed_prg, mapping, facts))
+
     first_rule = Transformation(min(mapping.keys()), mapping[min(mapping.keys())])
     result_graph = join_paths_with_facts(paths, facts, first_rule)
     return result_graph
