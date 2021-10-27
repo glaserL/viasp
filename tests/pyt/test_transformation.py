@@ -1,7 +1,7 @@
 import clingo
 import pytest
 from clingo.ast import Rule, parse_string
-from src.viasp.asp.reify import transform, line_nr_to_rule_mapping
+from src.viasp.asp.reify import transform, line_nr_to_rule_mapping_and_facts
 
 
 def assertProgramEqual(actual, expected, message=None):
@@ -78,8 +78,9 @@ def test_normal_rule_with_choice_in_head_is_transformed_correctly():
 
 def test_program_mappings_work():
     rule = "a. x(1). d :- c. y(X) :- x(X). {z(X)} :- not d(X)."  # {z(1..3)}."
-    rule_mapping = line_nr_to_rule_mapping(rule)
+    rule_mapping, facts = line_nr_to_rule_mapping_and_facts(rule)
     assert len(rule_mapping) == 3
+    assert len(facts) == 2
 
 
 def get_reasons(prg, model):

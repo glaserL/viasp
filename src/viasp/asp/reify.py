@@ -1,8 +1,8 @@
-from typing import Dict, List
+from typing import Dict, List, Collection, Tuple
 
 import clingo
 from clingo import ast
-from clingo.ast import Transformer, parse_string, Rule
+from clingo.ast import Transformer, parse_string, Rule, ASTType
 
 
 class IdentityTransformAsReferenceForMe(Transformer):
@@ -126,9 +126,10 @@ class JustTheRulesTransformer(Transformer):
             return self.rule_nr, rule
 
 
-def line_nr_to_rule_mapping(program: str) -> Dict[int, clingo.ast.AST]:
+def line_nr_to_rule_mapping_and_facts(program: str) -> Tuple[Dict[int, clingo.ast.AST], Collection[clingo.ast.AST]]:
     jtrt = JustTheRulesTransformer()
-    mappings = []
-    parse_string(program, lambda rule: mappings.append(jtrt.visit(rule)))
-    mappings = {nr: rule for nr, rule in filter(lambda e: isinstance(e, tuple), mappings)}
-    return mappings
+    all_rules: List[clingo.ast.AST] = []
+    parse_string(program, lambda rule: all_rules.append(jtrt.visit(rule)))
+    mappings = {nr: rule for nr, rule in filter(lambda e: isinstance(e, tuple), all_rules)}
+    facts = [fact for fact in filter(lambda e: not isinstance(e, tuple) and e.ast_type != ASTType.Program, all_rules)]
+    return mappings, facts
