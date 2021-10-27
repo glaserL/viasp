@@ -3,7 +3,8 @@ import pytest
 from clingo import Control
 import matplotlib.pyplot as plt
 
-from src.viasp.asp.justify import save_model, build_graph, make_reason_path_from_facts_to_stable_model, get_facts
+from src.viasp.asp.justify import save_model, build_graph, make_reason_path_from_facts_to_stable_model, get_facts, \
+    pairwise
 from src.viasp.asp.reify import transform
 from src.viasp.shared.model import Node, Transformation
 
@@ -27,6 +28,11 @@ def test_justification_creates_a_graph_with_a_single_path():
     g = build_graph(saved_models, transformed, program)
     assert len(g.nodes()) == 3
     assert len(g.edges()) == 2
+
+
+def test_pairwise_works():
+    lst = [0, 1, 2, 3]
+    assert list(pairwise(lst)) == [(0, 1), (1, 2), (2, 3)]
 
 
 def test_graph_merges_facts_together():

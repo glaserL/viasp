@@ -57,7 +57,7 @@ def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, transforme
 
     h_syms = sort_and_merge_h_symbols(h_syms)
     g = nx.DiGraph()
-    g.add_edge(facts, h_syms[0][1], transformation=Transformation(0, "FACTS"))
+    g.add_edge(facts, h_syms[0][1], transformation=Transformation(0, rule_mapping[min(rule_mapping.keys())]))
     for (_, a), (rule_nr, b) in pairwise(h_syms):
         g.add_edge(a, b, transformation=Transformation(rule_nr.number, rule_mapping[rule_nr.number]))
     return g

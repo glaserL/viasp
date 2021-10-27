@@ -1,7 +1,8 @@
 import clingo
 import pytest
-from clingo.ast import Rule, parse_string
+from clingo.ast import Rule, parse_string, ASTType
 from src.viasp.asp.reify import transform, line_nr_to_rule_mapping_and_facts
+from tests.pyt.helper import traveling_salesperson
 
 
 def assertProgramEqual(actual, expected, message=None):
@@ -62,6 +63,31 @@ def test_multiple_rules_with_same_head_do_not_lead_to_duplicate_h_with_wildcard(
     assertProgramEqual(transform(rule), parse_program_to_ast(expected))
 
 
+def extract_rule_nrs_from_parsed_program(prg):
+    rule_nrs = []
+    for rule in prg:
+        if rule.ast_type != ASTType.Rule:
+            continue
+        head = rule.head.atom.symbol
+        if head.name == "h" and str(head.arguments[0]) != "_":
+            rule_nrs.append(head.arguments[0].symbol.number)
+
+    return rule_nrs
+
+
+def test_programs_with_facts_result_in_matching_program_mappings():
+    program = "c(1). c(2). f. b(X) :- c(X), not a(X). b(X) :- a(X), not c(X)."
+    expected = "c(1). c(2). f. h(1, b(X)) :- model(b(X)), c(X), not a(X).h(2, b(X)) :- model(b(X)), a(X), not c(X).b(X) :- h(_,b(X))."
+    parsed = parse_program_to_ast(expected)
+    transformed = transform(program)
+    assertProgramEqual(transformed, parsed)
+    mapping_keys = extract_rule_nrs_from_parsed_program(parsed)
+    mapping, facts = line_nr_to_rule_mapping_and_facts(program)
+    assert len(facts) == 3
+
+    assert list(mapping.keys()) == mapping_keys
+
+
 @pytest.mark.skip(reason="Not implemented yet.")
 def test_choice_rule_is_transformed_correctly():
     rule = "{b(X)}."
@@ -92,6 +118,13 @@ def get_reasons(prg, model):
     for x in ctl.symbolic_atoms.by_signature("h", 2):
         reasons.append(x.symbol)
     return set(reasons)
+
+
+@pytest.mark.skip(reason="Not implemented yet.")
+def test_traveling_salesperson_works():
+    program = traveling_salesperson()
+    rule_mapping, facts = line_nr_to_rule_mapping_and_facts(program)
+    transformed = transform(program)
 
 
 @pytest.mark.skip(reason="Not implemented yet.")

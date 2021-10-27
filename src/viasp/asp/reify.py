@@ -5,6 +5,10 @@ from clingo import ast
 from clingo.ast import Transformer, parse_string, Rule, ASTType
 
 
+def is_fact(rule):
+    return len(rule.body) == 0
+
+
 class IdentityTransformAsReferenceForMe(Transformer):
 
     def visit_Rule(self, rule: clingo.ast.AST, *args, **kwargs):
@@ -56,8 +60,7 @@ class sasa(Transformer):
 
     def visit_Rule(self, rule: clingo.ast.AST):
         print(f"Visiting rule {rule}")
-        if len(rule.body) == 0:
-            # It's a fact.
+        if is_fact(rule):
             return rule
 
         # Embed the head
@@ -118,12 +121,13 @@ class JustTheRulesTransformer(Transformer):
         self.rule_nr = 1
 
     def visit_Rule(self, rule):
-        if len(rule.body) == 0:
+        if is_fact(rule):
             return rule
         else:
+            rule_nr = self.rule_nr
             self.rule_nr += 1
 
-            return self.rule_nr, rule
+            return rule_nr, rule
 
 
 def line_nr_to_rule_mapping_and_facts(program: str) -> Tuple[Dict[int, clingo.ast.AST], Collection[clingo.ast.AST]]:
