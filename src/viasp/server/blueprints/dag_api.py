@@ -39,7 +39,6 @@ def get_database():
 
 
 def handle_request_for_children(data):
-    print(f"?ASDA?Sd {data}")
     graph = get_database().load(as_json=False)
     rule_id = data["rule_id"]
     children = list()
@@ -48,6 +47,7 @@ def handle_request_for_children(data):
         print(f"{u}-[{d}]->{v}")
         if str(edge["id"]) == rule_id:
             children.append(v)
+    print(f"Returning {children} as children of {data}")
     return children
 
 
@@ -69,6 +69,7 @@ def get_all_rules():
     graph = get_database().load(as_json=False)
     returning = []
     for u, v in graph.edges:
+        print(f"Looking at {u.uuid}-[{graph[u][v]['transformation']}->{v.uuid}")
         transformation = graph[u][v]["transformation"]
         if transformation not in returning:
             returning.append(transformation)

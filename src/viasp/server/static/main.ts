@@ -138,15 +138,6 @@ class DrawingApp {
     }
 }
 
-function makeNode(node): string {
-    console.log(node)
-    console.log(node.uuid)
-    return `<div id="${node.uuid}" style="cursor: pointer" onclick="showDetail( this )" class=set_container>
-<div class="set_header">SIGNATUREEEE</div>
-<div class="set_value">${node}</div>
-</div>
-    `
-}
 
 function make_atoms_string(atoms) {
     if (atoms instanceof Array) {
@@ -170,16 +161,16 @@ async function make_rule_cotainer(node) {
     let nodes = await make_node_divs(node)
     return `<div id="row_${node.id}" style="cursor: pointer" class=row_container>
 <div class="row_header" style="cursor: pointer" onclick="toggleRow(this)">${node.rules}</div>
+<div class="row_row">
 ${nodes.join("")}
+</div>
 </div>`
 }
 
 function makeNodeDiv(child): string {
     return `<div id="{{ child.uuid }}" style="cursor: pointer" onclick="showDetail( this )"
                              class=set_container>
-                            <div class="set_header">
-                                SIGNATURE
-                            </div>
+                             
                             <div class="set_value">
                                 ${make_atoms_string(child.atoms)}
                             </div>
