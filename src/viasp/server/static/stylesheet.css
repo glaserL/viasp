@@ -19,6 +19,7 @@ body {
     background-color: black;
     box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .2);
     align-content: center;
+    height: 5vh;
     /*flex: 0 1 auto;*/
 }
 
@@ -38,6 +39,8 @@ body {
 .graph_container {
     /*display: flex;*/
     justify-content: space-around;
+    /*float: left;*/
+    flex-direction: column;
 }
 
 h3 {
@@ -84,16 +87,17 @@ h3 {
 }
 
 .detail {
-    height: 100%;
+    float: right;
+    height: 95vh;
     box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .2);
     color: whitesmoke;
     /*float: right;*/
-    overflow-x: hidden;
-    transition: 0.5s;
+    overflow-x: scroll;
+    transition: 0.1s;
     width: 0;
-    /*z-index: 1;*/
+    z-index: 1;
     background-color: black;
-    position: fixed; /* Sit on top of the page content */
+    /*position: fixed; !* Sit on top of the page content *!*/
     top: 0;
     right: 0;
     padding-top: 60px;
