@@ -88,17 +88,21 @@ def test_programs_with_facts_result_in_matching_program_mappings():
     assert list(mapping.keys()) == mapping_keys
 
 
-@pytest.mark.skip(reason="Not implemented yet.")
 def test_choice_rule_is_transformed_correctly():
     rule = "{b(X)}."
     expected = "h(1, b(X)) :- model(b(X)). b(X) :- h(_,b(X))."
     assertProgramEqual(transform(rule), parse_program_to_ast(expected))
 
 
-@pytest.mark.skip(reason="Not implemented yet.")
 def test_normal_rule_with_choice_in_head_is_transformed_correctly():
     rule = "{b(X)} :- c(X)."
     expected = "#program base.h(1, b(X)) :- model(b(X)), c(X).b(X) :- h(_,b(X))."
+    assertProgramEqual(transform(rule), parse_program_to_ast(expected))
+
+
+def test_head_aggregate_is_transformed_correctly():
+    rule = "{a(X) : b(X)}."
+    expected = "#program base.h(1, a(X)) :- model(a(X)), b(X). a(X) :- h(_,a(X))."
     assertProgramEqual(transform(rule), parse_program_to_ast(expected))
 
 
