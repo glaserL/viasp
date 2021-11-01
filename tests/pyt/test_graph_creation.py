@@ -30,6 +30,15 @@ def test_justification_creates_a_graph_with_a_single_path():
     assert len(g.edges()) == 2
 
 
+def test_justification_creates_a_graph_with_three_paths_on_choice_rules():
+    program = "a(1). a(2). { b(X) } :- a(X)."
+    transformed = transform(program)
+    saved_models = get_stable_models_for_program(program)
+    g = build_graph(saved_models, transformed, program)
+    assert len(g.nodes()) == 5
+    assert len(g.edges()) == 4
+
+
 def test_pairwise_works():
     lst = [0, 1, 2, 3]
     assert list(pairwise(lst)) == [(0, 1), (1, 2), (2, 3)]

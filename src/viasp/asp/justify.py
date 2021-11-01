@@ -8,7 +8,7 @@ from itertools import tee
 
 from .reify import line_nr_to_rule_mapping_and_facts
 from ..shared.model import Node, Transformation
-from ..shared.simple_logging import info
+from ..shared.simple_logging import info, warn
 
 
 def pairwise(iterable):
@@ -57,6 +57,10 @@ def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, transforme
 
     h_syms = sort_and_merge_h_symbols(h_syms)
     g = nx.DiGraph()
+    if not h_syms:
+        warn(f"Adding a model without reasons {wrapped_stable_model}")
+        g.add_edge(facts, Node(set()), transformation=Transformation(0, rule_mapping[min(rule_mapping.keys())]))
+        return g
     g.add_edge(facts, h_syms[0][1], transformation=Transformation(0, rule_mapping[min(rule_mapping.keys())]))
     for (_, a), (rule_nr, b) in pairwise(h_syms):
         g.add_edge(a, b, transformation=Transformation(rule_nr.number, rule_mapping[rule_nr.number]))
