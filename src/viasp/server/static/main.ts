@@ -79,12 +79,10 @@ checkbox.addEventListener('change', function () {
 function toggleRow(container) {
     console.log(container);
     const thingToToggle = container.parentNode.getElementsByClassName("row_row")[0];
-    if (thingToToggle.height === "" || thingToToggle.height === "0px") {
-        console.log("Opening..")
-        thingToToggle.height = "100px"
+    if (thingToToggle.style.display === "none") {
+        thingToToggle.style.display = "flex";
     } else {
-        console.log(`Shrinking ${thingToToggle}...`)
-        thingToToggle.height = "0";
+        thingToToggle.style.display = "none";
     }
 }
 
@@ -96,10 +94,10 @@ function toggleDetailContent(container) {
     console.log(stateSpan)
     if (thingToToggle.style.display === "none") {
         thingToToggle.style.display = "block";
-        stateSpan.innerHTML = "&or;"
+        stateSpan.innerHTML = "&or; "
     } else {
         thingToToggle.style.display = "none";
-        stateSpan.innerHTML = ">"
+        stateSpan.innerHTML = "> "
     }
 }
 
@@ -127,7 +125,7 @@ function showDetail(node) {
 }
 
 function createTogglableDetailDivForAtoms(header, elem): string {
-    return `<div><h3 class="detail_atom_view_heading" onclick="toggleDetailContent(this)"><span class="detail_atom_view_heading_state">&or;</span>${header}</h3><div class="detail_atom_view_content">${make_atoms_string(elem.atoms)}</div></div>`
+    return `<div><h3 class="detail_atom_view_heading" onclick="toggleDetailContent(this)"><span class="detail_atom_view_heading_state">&or; </span>${header}</h3><div class="detail_atom_view_content">${make_atoms_string(elem.atoms)}</div></div>`
 }
 
 
