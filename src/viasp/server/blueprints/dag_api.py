@@ -87,3 +87,23 @@ def graph():
         return "ok"
     elif request.method == "GET":
         return get_database().load()
+
+
+def calculate_detail_path(uuid: str):
+    graph = get_database().load(as_json=False)
+
+    beginning = next(filter(lambda tuple: tuple[1] == 0, graph.in_degree()))[0]
+    matching_nodes = [x for x, y in graph.nodes(data=True) if x.uuid == uuid]
+    assert len(matching_nodes) == 1
+    end = matching_nodes[0]
+    path = nx.shortest_path(graph, beginning, end)
+    return path
+
+
+@bp.route("/model/")
+def model():
+    if "uuid" in request.args.keys():
+        key = request.args["uuid"]
+    path = calculate_detail_path(key)
+    print(f"Returning {path}")
+    return jsonify(path)

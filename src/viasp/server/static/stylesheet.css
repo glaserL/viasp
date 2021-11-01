@@ -1,3 +1,4 @@
+
 #mainDisplay {
     background-color: #FF1C89;
     flex: 1 1 auto;
@@ -173,3 +174,34 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 }
+
+/* DETAIL VIEW */
+
+/* Containers */
+.detail_atom_view_heading {
+    overflow: hidden;
+    text-align: left;
+}
+
+.detail_atom_view_heading:after {
+    background-color: #FF1C89;
+    content: "";
+    display: inline-block;
+    height: 1px;
+    position: relative;
+    /*vertical-align: middle;*/
+    width: 75%;
+}
+
+.detail_atom_view_heading:before {
+    right: 0.5em;
+    margin-left: -50%;
+}
+
+.detail_atom_view_heading:after {
+    left: 0.5em;
+    margin-right: -50%;
+}
+
+
+

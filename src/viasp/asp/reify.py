@@ -130,10 +130,21 @@ class JustTheRulesTransformer(Transformer):
             return rule_nr, rule
 
 
-def line_nr_to_rule_mapping_and_facts(program: str) -> Tuple[Dict[int, clingo.ast.AST], Collection[clingo.ast.AST]]:
+def extract_symbols(facts):
+    ctl = clingo.Control()
+    ctl.add("INTERNAL", [], "".join(str(f) for f in facts))
+    ctl.ground([("INTERNAL", [])])
+    result = []
+    for fact in ctl.symbolic_atoms:
+        result.append(fact.symbol)
+    return result
+
+
+def line_nr_to_rule_mapping_and_facts(program: str) -> Tuple[Dict[int, clingo.ast.AST], Collection[clingo.Symbol]]:
     jtrt = JustTheRulesTransformer()
     all_rules: List[clingo.ast.AST] = []
     parse_string(program, lambda rule: all_rules.append(jtrt.visit(rule)))
     mappings = {nr: rule for nr, rule in filter(lambda e: isinstance(e, tuple), all_rules)}
     facts = [fact for fact in filter(lambda e: not isinstance(e, tuple) and e.ast_type != ASTType.Program, all_rules)]
+    facts = extract_symbols(facts)
     return mappings, facts
