@@ -1,10 +1,12 @@
 """This module is concerned with finding reasons for why a stable model is found."""
 from collections import defaultdict
-from typing import List, Collection
+from typing import List, Collection, Tuple, Dict
 
 import networkx as nx
 from clingo import Control, Symbol, Model
 from itertools import tee
+
+from clingo.ast import AST
 
 from .reify import line_nr_to_rule_mapping_and_facts
 from ..shared.model import Node, Transformation
@@ -42,36 +44,34 @@ def get_facts(original_program) -> Collection[Symbol]:
     return frozenset(facts)
 
 
-def sort_and_merge_h_symbols(h_symbols: Collection[Symbol]) -> List[Collection[Symbol]]:
+def sort_and_merge_h_symbols(h_symbols: Collection[Symbol]) -> List[Tuple[int, Node]]:
     tmp = defaultdict(list)
     for sym in h_symbols:
         rule_nr, symbol = sym.arguments
         tmp[rule_nr].append(symbol)
-    h_symbols = [(rule_nr, Node(tmp[rule_nr])) for rule_nr in sorted(tmp.keys())]
+    h_symbols = [(rule_nr.number, Node(tmp[rule_nr], rule_nr.number)) for rule_nr in sorted(tmp.keys())]
     return h_symbols
 
 
-def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, transformed_prg, rule_mapping,
-                                                facts) -> nx.DiGraph:
+def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, transformed_prg, rule_mapping: Dict[int, AST],
+                                                facts: Node) -> nx.DiGraph:
     h_syms = get_h_symbols_from_model(wrapped_stable_model, transformed_prg)
 
     h_syms = sort_and_merge_h_symbols(h_syms)
     g = nx.DiGraph()
     if not h_syms:
         warn(f"Adding a model without reasons {wrapped_stable_model}")
-        g.add_edge(facts, Node(set()), transformation=Transformation(0, rule_mapping[min(rule_mapping.keys())]))
+        g.add_edge(facts, Node(set(), min(rule_mapping.keys())),
+                   transformation=Transformation(min(rule_mapping.keys()), rule_mapping[min(rule_mapping.keys())]))
         return g
-    g.add_edge(facts, h_syms[0][1], transformation=Transformation(0, rule_mapping[min(rule_mapping.keys())]))
+    g.add_edge(facts, h_syms[0][1],
+               transformation=Transformation(min(rule_mapping.keys()), rule_mapping[min(rule_mapping.keys())]))
     for (_, a), (rule_nr, b) in pairwise(h_syms):
-        g.add_edge(a, b, transformation=Transformation(rule_nr.number, rule_mapping[rule_nr.number]))
+        g.add_edge(a, b, transformation=Transformation(rule_nr, rule_mapping[rule_nr]))
     return g
 
 
-def join_paths_with_facts(paths: Collection[nx.DiGraph], facts: Collection[Symbol],
-                          first_rule: Transformation) -> nx.DiGraph:
-    # for path in paths:
-    #     beginning = next(filter(lambda tuple: tuple[1] == 0, path.in_degree()))
-    #     path.add_edge(facts, beginning[0], transformation=first_rule)
+def join_paths_with_facts(paths: Collection[nx.DiGraph]) -> nx.DiGraph:
     combined = nx.compose_all(list(paths))
     return combined
 
@@ -79,17 +79,18 @@ def join_paths_with_facts(paths: Collection[nx.DiGraph], facts: Collection[Symbo
 def build_graph(wrapped_stable_models, transformed_prg, orig_program) -> nx.DiGraph:
     paths: List[nx.DiGraph] = []
     mapping, facts = line_nr_to_rule_mapping_and_facts(orig_program)
-    facts = Node(facts)
+    facts = Node(facts, 0)
     if not len(mapping):
         info(f"Program only contains facts. {facts}")
         single_node_graph = nx.DiGraph()
         single_node_graph.add_node(facts)
         return single_node_graph
     for model in wrapped_stable_models:
-        paths.append(make_reason_path_from_facts_to_stable_model(model, transformed_prg, mapping, facts))
+        new_path = make_reason_path_from_facts_to_stable_model(model, transformed_prg, mapping, facts)
+        paths.append(new_path)
 
     first_rule = Transformation(min(mapping.keys()), mapping[min(mapping.keys())])
-    result_graph = join_paths_with_facts(paths, facts, first_rule)
+    result_graph = join_paths_with_facts(paths)
     return result_graph
 
 

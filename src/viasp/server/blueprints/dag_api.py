@@ -59,6 +59,24 @@ def get_children():
     raise NotImplementedError
 
 
+def get_src_tgt_mapping_from_graph(ids=None):
+    ids = set(ids) if ids != None else None
+    graph = get_database().load(as_json=False)
+    return [{"src": src.uuid, "tgt": tgt.uuid} for src, tgt in graph.edges() if
+            ids is None or (src.uuid in ids and tgt.uuid in ids)]
+
+
+@bp.route("/edges", methods=["GET", "POST"])
+def get_edges():
+    if request.method == "POST":
+        to_be_returned = get_src_tgt_mapping_from_graph(request.json)
+    elif request.method == "GET":
+        to_be_returned = get_src_tgt_mapping_from_graph()
+
+    jsonified = jsonify(to_be_returned)
+    return jsonified
+
+
 @bp.route("/rule/<uuid>", methods=["GET"])
 def get_rule(uuid):
     return NotImplementedError

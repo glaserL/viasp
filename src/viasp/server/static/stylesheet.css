@@ -41,11 +41,8 @@ body {
     /*display: flex;*/
     justify-content: space-around;
     /*float: left;*/
+    background: transparent;
     flex-direction: column;
-}
-
-h3 {
-    color: #FF1C89;
 }
 
 .row_header {
@@ -57,10 +54,12 @@ h3 {
     display: flex;
     justify-content: space-around;
     align-content: center;
+    background: transparent;
 }
 
 .row_container {
     justify-content: space-around;
+    background: transparent;
 }
 
 /**** NODES ****/
@@ -179,12 +178,14 @@ input:checked + .slider:before {
 
 /* Containers */
 .detail_atom_view_heading {
+    font-family: monospace, sans-serif;
     overflow: hidden;
     text-align: left;
 }
 
 .detail_atom_view_heading:after {
-    background-color: #FF1C89;
+    background-color: #cccccc;
+    color: #cccccc;
     content: "";
     display: inline-block;
     height: 1px;

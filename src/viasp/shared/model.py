@@ -7,10 +7,14 @@ from uuid import UUID, uuid4
 from clingo import Symbol
 
 
-@dataclass(unsafe_hash=True)
+@dataclass()
 class Node:
-    atoms: Collection[Symbol] = field(hash=False)
-    uuid: Union[UUID, None] = field(default_factory=uuid4, hash=True)
+    atoms: Collection[Symbol] = field(hash=True)
+    rule_nr: int = field(hash=True)
+    uuid: Union[UUID, None] = field(default_factory=uuid4, hash=False)
+
+    def __hash__(self):
+        return hash((frozenset(self.atoms), self.rule_nr))
 
 
 @dataclass(frozen=True, eq=True)
