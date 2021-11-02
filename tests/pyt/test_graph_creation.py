@@ -39,6 +39,16 @@ def test_justification_creates_a_graph_with_three_paths_on_choice_rules():
     assert len(g.edges()) == 4
 
 
+@pytest.mark.skip(reason="Not implemented yet.")
+def test_justification_creates_a_graph_with_three_paths_on_multiple_choice_rules_merging_isomorphic_partial_paths():
+    program = "a(1). {b(X)} :- a(X). d(X) :- b(X). {c(X)} :- b(X)."
+    transformed = transform(program)
+    saved_models = get_stable_models_for_program(program)
+    g = build_graph(saved_models, transformed, program)
+    assert len(g.nodes()) == 7
+    # assert len(g.edges()) == 4
+
+
 def test_pairwise_works():
     lst = [0, 1, 2, 3]
     assert list(pairwise(lst)) == [(0, 1), (1, 2), (2, 3)]
@@ -72,7 +82,7 @@ def test_path_creation():
     transformed = transform(program)
     single_saved_model = get_stable_models_for_program(program).pop()
     path = make_reason_path_from_facts_to_stable_model(single_saved_model, transformed,
-                                                       {1: "first_rule", 2: "second_rule"}, Node([]))
+                                                       {1: "first_rule", 2: "second_rule"}, Node([], 0))
     nodes, edges = list(path.nodes), list(t for _, _, t in path.edges.data(True))
     assert len(edges) == 2
     assert len(nodes) == 3
