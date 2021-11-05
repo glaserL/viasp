@@ -332,7 +332,7 @@ class muConnector {
 
         line.style.left = originX + "px";
         line.style.height = l + "px";
-        line.style.width = 0;
+        line.style.width = "0";
         line.style.top = originY + adj1.hp + "px";
         line.style.transform = "rotate(" + angle + "deg)";
         line.style.transformOrigin = "0 " + -1 * adj1.hp + "px";
