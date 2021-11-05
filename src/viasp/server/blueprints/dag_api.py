@@ -6,6 +6,7 @@ import networkx as nx
 from flask import Blueprint, request, render_template, Response, make_response, jsonify
 
 from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder
+from ...shared.util import get_start_node_from_graph
 
 bp = Blueprint("dag_api", __name__, template_folder='server/templates')
 
@@ -110,8 +111,8 @@ def graph():
 
 def get_atoms_in_path_by_signature(uuid: str):
     graph = get_database().load(as_json=False)
+    beginning = get_start_node_from_graph(graph)[0]
 
-    beginning = next(filter(lambda tuple: tuple[1] == 0, graph.in_degree()))[0]
     matching_nodes = [x for x, y in graph.nodes(data=True) if x.uuid == uuid]
     assert len(matching_nodes) == 1
     end = matching_nodes[0]
