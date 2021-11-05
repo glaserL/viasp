@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 from typing import Union
 
 import networkx as nx
@@ -107,7 +108,7 @@ def graph():
         return get_database().load()
 
 
-def calculate_detail_path(uuid: str):
+def get_atoms_in_path_by_signature(uuid: str):
     graph = get_database().load(as_json=False)
 
     beginning = next(filter(lambda tuple: tuple[1] == 0, graph.in_degree()))[0]
@@ -115,13 +116,19 @@ def calculate_detail_path(uuid: str):
     assert len(matching_nodes) == 1
     end = matching_nodes[0]
     path = nx.shortest_path(graph, beginning, end)
-    return path
+    signature_to_atom_mapping = defaultdict(list)
+    for node in path:
+        for symbol in node.atoms:
+            signature = (symbol.name, len(symbol.arguments))
+            signature_to_atom_mapping[signature] = symbol
+    return [(f"{s[0]}/{s[1]}", signature_to_atom_mapping[s])
+            for s in signature_to_atom_mapping.keys()]
 
 
 @bp.route("/model/")
 def model():
     if "uuid" in request.args.keys():
         key = request.args["uuid"]
-    path = calculate_detail_path(key)
+    path = get_atoms_in_path_by_signature(key)
     print(f"Returning {path}")
     return jsonify(path)

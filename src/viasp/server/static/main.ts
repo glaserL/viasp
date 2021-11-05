@@ -122,13 +122,14 @@ function showDetail(node) {
         .then(function (data) {
             const detail = document.getElementById("detailSidebar");
             console.log(data)
-            var pretty = data.map(elem => createTogglableDetailDivForAtoms("header", elem)).join("")
+            var pretty = data.map(elem => createTogglableDetailDivForAtoms(elem[0], elem[1])).join("")
             detail.innerHTML = `<h3 onclick="closeNav()">Stable Model</h3><p>${pretty}</p>`
         });
 }
 
 function createTogglableDetailDivForAtoms(header, elem): string {
-    return `<div><h3 class="detail_atom_view_heading" onclick="toggleDetailContent(this)"><span class="detail_atom_view_heading_state">&or; </span>${header}</h3><div class="detail_atom_view_content">${make_atoms_string(elem.atoms)}</div></div>`
+    console.log(`Creating togglable for ${elem} with header ${header}`)
+    return `<div><h3 class="detail_atom_view_heading" onclick="toggleDetailContent(this)"><span class="detail_atom_view_heading_state">&or; </span>${header}</h3><div class="detail_atom_view_content">${make_atoms_string(elem)}</div></div>`
 }
 
 
