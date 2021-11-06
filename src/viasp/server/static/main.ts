@@ -1,26 +1,26 @@
 function make_atoms_string(atoms) {
-    console.log(`IN: ${JSON.stringify(atoms)}`)
+    // console.log(`IN: ${JSON.stringify(atoms)}`)
     if (atoms instanceof Array) {
-        console.log(`An array ${atoms}`)
+        // console.log(`An array ${atoms}`)
         return atoms.map(make_atoms_string).join(" ")
     }
     switch (atoms["_type"]) {
         case "Number":
-            console.log(`A number ${JSON.stringify(atoms)}`)
+            // console.log(`A number ${JSON.stringify(atoms)}`)
             return atoms["number"]
         case "Function":
-            console.log(`A func ${JSON.stringify(atoms)}`)
+            // console.log(`A func ${JSON.stringify(atoms)}`)
             let args = atoms["arguments"].map(make_atoms_string).join(",")
             return `${atoms["name"]}(${args})`
     }
 
 }
 
-async function make_rule_cotainer(node) {
-    console.log(node)
-    let nodes = await make_node_divs(node)
-    return `<div id="row_${node.id}" style="cursor: pointer" class=row_container>
-<div class="row_header" style="cursor: pointer" onclick="toggleRow(this)">${node.rules}</div>
+async function make_rule_container(rules) {
+    console.log(rules)
+    let nodes = await make_node_divs(rules)
+    return `<div id="row_${rules.id}" style="cursor: pointer" class=row_container>
+<div class="row_header" style="cursor: pointer" onclick="toggleRow(this)">${rules.rules}</div>
 <div class="row_row">
 ${nodes.join("")}
 </div>
@@ -43,7 +43,7 @@ async function make_node_divs(rule: any) {
     return fetch(`children/?rule_id=${rule.id}`)
         .then((r) => r.json())
         .then(async function (children) {
-            console.log(children)
+            console.log(`Drawing for ${JSON.stringify(rule)} (${children.length}) children ${JSON.stringify(children)}`)
             var nodes = []
             for (const child of children) {
                 nodes.push(makeNodeDiv(child))
@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
             r.json().then(async function (rules) {
                 const graph_container = document.getElementById("graph_container")
                 for (const rule of rules) {
-                    const node_child = await make_rule_cotainer(rule);
+                    const node_child = await make_rule_container(rule);
                     graph_container.insertAdjacentHTML('beforeend', node_child);
                 }
             })

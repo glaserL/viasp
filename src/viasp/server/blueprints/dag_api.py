@@ -111,7 +111,7 @@ def graph():
 
 def get_atoms_in_path_by_signature(uuid: str):
     graph = get_database().load(as_json=False)
-    beginning = get_start_node_from_graph(graph)[0]
+    beginning = get_start_node_from_graph(graph)
 
     matching_nodes = [x for x, y in graph.nodes(data=True) if x.uuid == uuid]
     assert len(matching_nodes) == 1

@@ -1,7 +1,7 @@
 from copy import copy
 from dataclasses import dataclass, field
 from inspect import Signature
-from typing import Any, Sequence, Dict, Union, Collection, Set
+from typing import Any, Sequence, Dict, Union, Collection, Set, FrozenSet
 from uuid import UUID, uuid4
 
 from clingo import Symbol
@@ -9,12 +9,19 @@ from clingo import Symbol
 
 @dataclass()
 class Node:
-    atoms: Collection[Symbol] = field(hash=True)
+    diff: FrozenSet[Symbol] = field(hash=True)
     rule_nr: int = field(hash=True)
-    uuid: Union[UUID, None] = field(default_factory=uuid4, hash=False)
+    atoms: FrozenSet[Symbol] = field(default_factory=frozenset, hash=True)
+    uuid: UUID = field(default_factory=uuid4, hash=False)
 
     def __hash__(self):
-        return hash((frozenset(self.atoms), self.rule_nr))
+        return hash((self.atoms, self.rule_nr, self.diff))
+
+    def __eq__(self, o):
+        return isinstance(o, type(self)) and (self.atoms, self.rule_nr, self.diff) == (o.atoms, o.rule_nr, o.diff)
+
+    def __repr__(self):
+        return f"Node(diff={{{'. '.join(map(str, self.diff))}}}, rule_nr={self.rule_nr}, atoms={{{'. '.join(map(str, self.atoms))}}}, uuid={self.uuid})"
 
 
 @dataclass(frozen=True, eq=True)

@@ -36,6 +36,8 @@ class DataclassJSONDecoder(JSONDecoder):
         elif type == "Number":
             return clingo.Number(**obj)
         elif type == "Node":
+            obj['atoms'] = frozenset(obj['atoms'])
+            obj['diff'] = frozenset(obj['diff'])
             return Node(**obj)
         return obj
 
