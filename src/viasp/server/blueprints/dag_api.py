@@ -71,8 +71,7 @@ def get_src_tgt_mapping_from_graph(ids=None):
             for _, target, _ in graph.out_edges(node, data=True):
                 graph.add_edge(source, target)
         graph.remove_node(node)
-    return [{"src": src.uuid, "tgt": tgt.uuid} for src, tgt in graph.edges() if
-            ids is None or (src.uuid in ids and tgt.uuid in ids)]
+    return [{"src": src.uuid, "tgt": tgt.uuid} for src, tgt in graph.edges()]
 
 
 @bp.route("/edges", methods=["GET", "POST"])

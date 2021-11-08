@@ -204,8 +204,8 @@ function drawEdges() {
                     var conn = new muConnector({
                         ele1: src,
                         ele2: tgt,
-                        lineStyle: "5px dotted red",
-                        defaultGap: -35
+                        lineStyle: "5px solid red",
+                        // defaultGap: -35
                     });
                     connectors.push(conn);
                     conn.link()
@@ -317,35 +317,24 @@ class muConnector {
         var linkEle2 = document.getElementById(this.ele2.id);
         var line = document.getElementById("L" + this.id);
 
-        const srcHidden = linkEle1.offsetHeight == 0
-        const tgtHidden = linkEle2.offsetHeight == 0
-        console.log(`Linking ${linkEle1} (${srcHidden}) to ${linkEle2} (${tgtHidden})`)
-
         var ele1rect = linkEle1.getBoundingClientRect();
-        var rowEle1 = linkEle1.closest(".row_row") as HTMLElement;
         var originX =
             ele1rect.left + document.body.scrollLeft + linkEle1.offsetWidth / 2;
-        var originContainerYOffset = ele1rect.top + linkEle1.offsetHeight / 2;
         var originY =
             window.pageYOffset +
-            document.body.scrollTop + originContainerYOffset;
+            ele1rect.top +
+            document.body.scrollTop +
+            linkEle1.offsetHeight / 2;
 
         var ele2rect = linkEle2.getBoundingClientRect();
-        var rowEle2 = linkEle2.closest("#row_row") as HTMLElement;
         var targetX =
             ele2rect.left + document.body.scrollLeft + linkEle2.offsetWidth / 2;
-        var targetContainerYOffset = ele2rect.top + linkEle2.offsetHeight / 2;
-        // if (tgtHidden) {
-        //     console.log(`HIDDEN ${rowEle2.getBoundingClientRect().top}+${rowEle2.offsetHeight}/2`)
-        //     console.log(`HIDDEN rowEle ${JSON.stringify(rowEle2)}`)
-        // } else {
-        //     console.log(`SHOWN ${ele2rect.top}+${linkEle2.offsetHeight / 2}`)
-        // }
         var targetY =
             window.pageYOffset +
+            ele2rect.top +
             document.body.scrollTop +
-            targetContainerYOffset;
-        console.log(`targetY: ${targetY}=${window.pageYOffset}+${document.body.scrollTop}+${targetContainerYOffset}`)
+            linkEle2.offsetHeight / 2;
+
         var l = this.hyp(targetX - originX, targetY - originY);
         var angle = (180 / 3.1415) * Math.acos((targetY - originY) / l);
         if (targetX > originX) {
