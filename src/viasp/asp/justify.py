@@ -10,7 +10,7 @@ from clingo.ast import AST
 from .reify import line_nr_to_rule_mapping_and_facts
 from ..shared.model import Node, Transformation
 from ..shared.simple_logging import info, warn
-from ..shared.util import pairwise, get_sorted_path_from_path_graph
+from ..shared.util import pairwise, get_sorted_path_from_path_graph, get_start_node_from_graph
 
 
 def get_h_symbols_from_model(wrapped_stable_model: Iterable[Symbol], transformed_prg) -> List[Symbol]:
@@ -37,12 +37,18 @@ def get_facts(original_program) -> Collection[Symbol]:
     return frozenset(facts)
 
 
-def collect_and_sort_h_symbols_by_rule_nr(h_symbols: Collection[Symbol]) -> List[Node]:
-    tmp = defaultdict(list)
+def collect_h_symbols_and_create_nodes(h_symbols: Collection[Symbol], relevant_indices, pad: bool) -> List[Node]:
+    tmp: Dict[int, List[Symbol]] = defaultdict(list)
     for sym in h_symbols:
         rule_nr, symbol = sym.arguments
-        tmp[rule_nr].append(symbol)
-    h_symbols = [Node(frozenset(tmp[rule_nr]), rule_nr.number) for rule_nr in sorted(tmp.keys())]
+        tmp[rule_nr.number].append(symbol)
+    if pad:
+        h_symbols = [
+            Node(frozenset(tmp[rule_nr]), rule_nr) if rule_nr in tmp else Node(frozenset(), rule_nr) for
+            rule_nr in relevant_indices]
+    else:
+        h_symbols = [Node(frozenset(tmp[rule_nr]), rule_nr) for rule_nr in tmp.keys()]
+
     return h_symbols
 
 
@@ -57,10 +63,11 @@ def insert_atoms_into_nodes(path: List[Node]):
 
 
 def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, transformed_prg, rule_mapping: Dict[int, AST],
-                                                facts: Node) -> nx.DiGraph:
+                                                facts: Node, pad=True) -> nx.DiGraph:
     h_syms = get_h_symbols_from_model(wrapped_stable_model, transformed_prg)
 
-    h_syms = collect_and_sort_h_symbols_by_rule_nr(h_syms)
+    h_syms = collect_h_symbols_and_create_nodes(h_syms, rule_mapping.keys(), pad)
+    h_syms.sort(key=lambda node: node.rule_nr)
     h_syms.insert(0, facts)
 
     insert_atoms_into_nodes(h_syms)
@@ -68,7 +75,7 @@ def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, transforme
     if len(h_syms) == 1:
         # If there is a stable model that is exactly the same as the facts.
         warn(f"Adding a model without reasons {wrapped_stable_model}")
-        g.add_edge(facts, Node(frozenset(), min(rule_mapping.keys())),
+        g.add_edge(facts, Node(frozenset(), min(rule_mapping.keys()), frozenset(facts.diff)),
                    transformation=Transformation(min(rule_mapping.keys()), rule_mapping[min(rule_mapping.keys())]))
         return g
     # g.add_edge(facts, h_syms[0],
