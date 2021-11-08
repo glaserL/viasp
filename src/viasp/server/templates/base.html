@@ -17,6 +17,12 @@
 <div id="content">
     <div id="detailSidebar" class="detail">
     </div>
+    <div id="search" class="search">
+        <form autocomplete="off">
+            <div id="search_result" class="search_result"></div>
+            <input type="text" name="q" id="q" onKeyUp="showResults(this)"><span style="font-weight: 400;"></span>
+        </form>
+    </div>
     <div id="graph_container" class="graph_container">
     </div>
 </div>

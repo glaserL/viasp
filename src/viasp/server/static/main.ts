@@ -344,19 +344,19 @@ class muConnector {
         // Compute adjustments to edge of element plus gaps.
         var adj1 = this.edgeAdjust(
             angle,
-            this.gapX1 +
+
             parseFloat(getComputedStyle(linkEle1, null).width.replace("px", "")) /
             2,
-            this.gapY1 +
+
             parseFloat(getComputedStyle(linkEle1, null).height.replace("px", "")) /
             2
         );
         var adj2 = this.edgeAdjust(
             angle,
-            this.gapX2 +
+
             parseFloat(getComputedStyle(linkEle2, null).width.replace("px", "")) /
             2,
-            this.gapY2 +
+
             parseFloat(getComputedStyle(linkEle2, null).height.replace("px", "")) /
             2
         );
@@ -456,3 +456,33 @@ function refreshEdges() {
 // });
 //
 
+////////////////////// SEARCH BAR
+
+function showResults(val: HTMLInputElement) {
+    /// STOLEN FROM https://www.algolia.com/blog/engineering/how-to-implement-autocomplete-with-javascript-on-your-website/
+    console.log(`ALGOLIA LULW ${val}`)
+    const res = document.getElementById("search_result");
+    res.innerHTML = '';
+    const query = val.value
+    if (query == '') {
+        return;
+    }
+    let resultList = '';
+    fetch('/query?q=' + query).then(
+        function (response) {
+            return response.json();
+        }).then(function (data) {
+        for (let i = 0; i < data.length; i++) {
+            if (i % 2 == 0) {
+                resultList += '<li class="search_row search_rule">' + data[i] + '</li>';
+            } else {
+                resultList += '<li class="search_row search_set">' + data[i] + '</li>'
+            }
+        }
+        res.innerHTML = '<ul class="search_result_list">' + resultList + '</ul>';
+        return true;
+    }).catch(function (err) {
+        console.warn('Something went wrong.', err);
+        return false;
+    });
+}

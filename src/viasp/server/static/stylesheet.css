@@ -65,6 +65,7 @@ body {
 /**** NODES ****/
 .set_container {
     width: fit-content;
+    height: fit-content;
     border: 0;
     transition: drop-shadow .1s;
 }
@@ -211,5 +212,43 @@ input:checked + .slider:before {
     margin-right: -50%;
 }
 
+/* ===== SEARCH BOX ===== */
+.search {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
 
+.search_set {
+    background-color: #cccccc;
+}
 
+.search_set:before {
+    content: "{}";
+    position: absolute;
+    left: 0;
+    color: #FF1C89;
+}
+
+.search_rule {
+    background-color: aliceblue;
+}
+
+.search_rule:before {
+    content: ":-";
+    position: absolute;
+    left: 0;
+    color: black;
+}
+
+.search_row {
+    list-style-type: none;
+}
+
+.search_result_list {
+    position: relative;
+    list-style: none;
+    margin-left: 0;
+    padding-left: 1.2em;
+
+}

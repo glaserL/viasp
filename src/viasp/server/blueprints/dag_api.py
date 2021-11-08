@@ -147,3 +147,8 @@ def model():
     path = get_atoms_in_path_by_signature(key)
     print(f"Returning {path}")
     return jsonify(path)
+
+
+@bp.route("/query", methods=["GET"])
+def search():
+    return jsonify(["WHAT", "A", "NIGHT"])
