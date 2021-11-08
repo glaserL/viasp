@@ -24,7 +24,7 @@ class GraphDataBaseKEKL:
         with open(self.path, "w", encoding="utf-8") as f:
             json.dump(serializable_graph, f, cls=DataclassJSONEncoder, ensure_ascii=False, indent=2)
 
-    def load(self, as_json=True) -> Union[nx.Graph, dict]:
+    def load(self, as_json=True) -> Union[nx.DiGraph, dict]:
         try:
             with open(self.path, encoding="utf-8") as f:
                 result = json.load(f, cls=DataclassJSONDecoder)
@@ -64,6 +64,13 @@ def get_children():
 def get_src_tgt_mapping_from_graph(ids=None):
     ids = set(ids) if ids != None else None
     graph = get_database().load(as_json=False)
+    nodes = set(graph.nodes)
+    to_be_deleted = set(existing for existing in nodes if existing.uuid not in ids)
+    for node in to_be_deleted:
+        for source, _, _ in graph.in_edges(node, data=True):
+            for _, target, _ in graph.out_edges(node, data=True):
+                graph.add_edge(source, target)
+        graph.remove_node(node)
     return [{"src": src.uuid, "tgt": tgt.uuid} for src, tgt in graph.edges() if
             ids is None or (src.uuid in ids and tgt.uuid in ids)]
 
@@ -82,6 +89,14 @@ def get_edges():
 @bp.route("/rule/<uuid>", methods=["GET"])
 def get_rule(uuid):
     return NotImplementedError
+
+
+@bp.route("/facts", methods=["GET"])
+def get_facts():
+    graph = get_database().load(as_json=False)
+    facts = get_start_node_from_graph(graph)
+    r = jsonify(facts)
+    return r
 
 
 @bp.route("/rules", methods=["GET"])

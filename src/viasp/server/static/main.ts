@@ -16,6 +16,18 @@ function make_atoms_string(atoms) {
 
 }
 
+async function make_facts_container() {
+    const facts_node = await fetch("facts")
+        .then(r => r.json())
+        .then(facts => makeNodeDiv(facts))
+    return `<div id="row_facts" style="cursor: pointer" class=row_container>
+<div class="row_header" style="cursor: pointer" onclick="toggleRow(this)">Facts</div>
+<div class="row_row">
+${facts_node}
+</div>
+</div>`
+}
+
 async function make_rule_container(rules) {
     console.log(rules)
     let nodes = await make_node_divs(rules)
@@ -32,7 +44,9 @@ function makeNodeDiv(child): string {
     atomString = atomString.length == 0 ? "Ø" : atomString;
     return `<div id="${child.uuid}" style="cursor: pointer" onclick="showDetail( this )"
                              class=set_container>
-                             
+                             <div class="set_header">
+                                ${child.uuid}
+                             </div>
                             <div class="set_value">
                                 ${atomString}
                             </div>
@@ -58,6 +72,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (r.ok) {
             r.json().then(async function (rules) {
                 const graph_container = document.getElementById("graph_container")
+                const facts = await make_facts_container();
+                graph_container.insertAdjacentHTML("beforeend", facts)
                 for (const rule of rules) {
                     const node_child = await make_rule_container(rule);
                     graph_container.insertAdjacentHTML('beforeend', node_child);
@@ -84,9 +100,12 @@ function toggleRow(container) {
     const thingToToggle = container.parentNode.getElementsByClassName("row_row")[0];
     if (thingToToggle.style.display === "none") {
         thingToToggle.style.display = "flex";
+
     } else {
         thingToToggle.style.display = "none";
     }
+
+    setTimeout(drawEdges, 100);
 }
 
 function toggleDetailContent(container) {
@@ -135,24 +154,38 @@ function createTogglableDetailDivForAtoms(header, elem): string {
 
 function openNav() {
     document.getElementById("detailSidebar").style.width = "250px";
+    setTimeout(drawEdges, 100);
 }
 
 function closeNav() {
     document.getElementById("detailSidebar").style.width = "0"
+    setTimeout(drawEdges, 100);
 }
 
 
 function collectNodesShown() {
     var shownNodes = document.getElementsByClassName("set_container")
-    var result = Array.from(shownNodes).map(e => e.getAttribute("id"))
+    var result = Array.from(shownNodes).filter(e => e.clientWidth > 0).map(e => e.getAttribute("id"))
     console.log(`Found ${result} ids`)
 
     return result
 }
 
+function clearConnections() {
+    for (const connector of connectors) {
+        const id = "L" + connector.id;
+        const thingToClear = document.getElementById(id);
+        thingToClear.remove()
+    }
+    connectors = []
+}
+
+let connectors = [];
 
 function drawEdges() {
     console.log("Drawing edges..")
+    clearConnections()
+
     fetch("edges", {
         method: "POST",
         headers: {
@@ -163,8 +196,6 @@ function drawEdges() {
         .then((r) => r.json())
         .catch(reason => console.log(reason))
         .then(function (edges) {
-
-
                 console.log(`Got ${JSON.stringify(edges)} from backend`)
                 for (const edge of edges) {
                     console.log(`Got ${JSON.stringify(edge)} from backend`)
@@ -173,9 +204,11 @@ function drawEdges() {
                     var conn = new muConnector({
                         ele1: src,
                         ele2: tgt,
-                        lineStyle: "1px dotted red",
+                        lineStyle: "5px dotted red",
                         defaultGap: -35
                     });
+                    connectors.push(conn);
+                    conn.link()
 
                 }
             }
@@ -284,24 +317,35 @@ class muConnector {
         var linkEle2 = document.getElementById(this.ele2.id);
         var line = document.getElementById("L" + this.id);
 
+        const srcHidden = linkEle1.offsetHeight == 0
+        const tgtHidden = linkEle2.offsetHeight == 0
+        console.log(`Linking ${linkEle1} (${srcHidden}) to ${linkEle2} (${tgtHidden})`)
+
         var ele1rect = linkEle1.getBoundingClientRect();
+        var rowEle1 = linkEle1.closest(".row_row") as HTMLElement;
         var originX =
             ele1rect.left + document.body.scrollLeft + linkEle1.offsetWidth / 2;
+        var originContainerYOffset = ele1rect.top + linkEle1.offsetHeight / 2;
         var originY =
             window.pageYOffset +
-            ele1rect.top +
-            document.body.scrollTop +
-            linkEle1.offsetHeight / 2;
+            document.body.scrollTop + originContainerYOffset;
 
         var ele2rect = linkEle2.getBoundingClientRect();
+        var rowEle2 = linkEle2.closest("#row_row") as HTMLElement;
         var targetX =
             ele2rect.left + document.body.scrollLeft + linkEle2.offsetWidth / 2;
+        var targetContainerYOffset = ele2rect.top + linkEle2.offsetHeight / 2;
+        // if (tgtHidden) {
+        //     console.log(`HIDDEN ${rowEle2.getBoundingClientRect().top}+${rowEle2.offsetHeight}/2`)
+        //     console.log(`HIDDEN rowEle ${JSON.stringify(rowEle2)}`)
+        // } else {
+        //     console.log(`SHOWN ${ele2rect.top}+${linkEle2.offsetHeight / 2}`)
+        // }
         var targetY =
             window.pageYOffset +
-            ele2rect.top +
             document.body.scrollTop +
-            linkEle2.offsetHeight / 2;
-
+            targetContainerYOffset;
+        console.log(`targetY: ${targetY}=${window.pageYOffset}+${document.body.scrollTop}+${targetContainerYOffset}`)
         var l = this.hyp(targetX - originX, targetY - originY);
         var angle = (180 / 3.1415) * Math.acos((targetY - originY) / l);
         if (targetX > originX) {
@@ -329,6 +373,7 @@ class muConnector {
         );
 
         l = l - (adj1.hp + adj2.hp);
+        console.log(`DRAWING LINE AT X ${originX}.`)
 
         line.style.left = originX + "px";
         line.style.height = l + "px";
@@ -336,6 +381,7 @@ class muConnector {
         line.style.top = originY + adj1.hp + "px";
         line.style.transform = "rotate(" + angle + "deg)";
         line.style.transformOrigin = "0 " + -1 * adj1.hp + "px";
+        line.style.zIndex = "100";
     }
 
     Round(value, places) {
@@ -390,6 +436,20 @@ class muConnector {
     hyp(X, Y) {
         return Math.abs(Math.sqrt(X * X + Y * Y));
     }
+}
+
+function refreshEdges() {
+    connectors.forEach((c) => {
+        var ele = c.ele2;
+        var rect = ele.getBoundingClientRect();
+        c.offsets[c.ele2.id].left = rect.left + document.body.scrollLeft;
+        c.offsets[c.ele2.id].top = rect.top + document.body.scrollTop;
+
+        c.link();
+        console.log("B")
+
+    });
+
 }
 
 //
