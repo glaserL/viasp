@@ -13,7 +13,12 @@ function make_atoms_string(atoms) {
             let args = atoms["arguments"].map(make_atoms_string).join(",")
             return `${atoms["name"]}(${args})`
     }
+}
 
+function
+make_rules_string(rules): string {
+    console.log(rules)
+    return rules.join(" ")
 }
 
 async function make_facts_container() {
@@ -462,9 +467,11 @@ function showResults(val: HTMLInputElement) {
     /// STOLEN FROM https://www.algolia.com/blog/engineering/how-to-implement-autocomplete-with-javascript-on-your-website/
     console.log(`ALGOLIA LULW ${val}`)
     const res = document.getElementById("search_result");
-    res.innerHTML = '';
+
     const query = val.value
     if (query == '') {
+        console.log("QUERYING NOTHING")
+        res.innerHTML = '';
         return;
     }
     let resultList = '';
@@ -473,10 +480,11 @@ function showResults(val: HTMLInputElement) {
             return response.json();
         }).then(function (data) {
         for (let i = 0; i < data.length; i++) {
-            if (i % 2 == 0) {
-                resultList += '<li class="search_row search_rule">' + data[i] + '</li>';
+            // console.log(`GETTING ${JSON.stringify(data[i])}`);
+            if (data[i]._type == "Node") {
+                resultList += '<li class="search_row search_set">' + make_atoms_string(data[i].atoms) + '</li>'
             } else {
-                resultList += '<li class="search_row search_set">' + data[i] + '</li>'
+                resultList += '<li class="search_row search_rule">' + make_rules_string(data[i]) + '</li>';
             }
         }
         res.innerHTML = '<ul class="search_result_list">' + resultList + '</ul>';

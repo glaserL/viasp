@@ -220,7 +220,11 @@ input:checked + .slider:before {
 }
 
 .search_set {
-    background-color: #cccccc;
+    font-family: monospace;
+}
+
+.search_set:hover {
+    cursor: pointer
 }
 
 .search_set:before {
@@ -231,7 +235,7 @@ input:checked + .slider:before {
 }
 
 .search_rule {
-    background-color: aliceblue;
+    font-family: monospace;
 }
 
 .search_rule:before {

@@ -151,4 +151,16 @@ def model():
 
 @bp.route("/query", methods=["GET"])
 def search():
-    return jsonify(["WHAT", "A", "NIGHT"])
+    if "q" in request.args.keys():
+        query = request.args["q"]
+        graph = get_database().load(as_json=False)
+        matching_nodes = list(filter(lambda node: any(query in str(atm) for atm in node.atoms), graph.nodes()))
+        matching_rules = []
+        for _, _, edge in graph.edges(data=True):
+            rules = edge["transformation"]["rules"]
+            if any(query in r for r in rules):
+                matching_rules.append(rules)
+        sth = matching_rules
+        sth.extend(matching_nodes)
+        return jsonify(sth[:3])
+    return jsonify([])

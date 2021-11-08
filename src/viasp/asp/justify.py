@@ -76,12 +76,12 @@ def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, transforme
         # If there is a stable model that is exactly the same as the facts.
         warn(f"Adding a model without reasons {wrapped_stable_model}")
         g.add_edge(facts, Node(frozenset(), min(rule_mapping.keys()), frozenset(facts.diff)),
-                   transformation=Transformation(min(rule_mapping.keys()), rule_mapping[min(rule_mapping.keys())]))
+                   transformation=Transformation(min(rule_mapping.keys()), [rule_mapping[min(rule_mapping.keys())]]))
         return g
     # g.add_edge(facts, h_syms[0],
     #           transformation=Transformation(min(rule_mapping.keys()), rule_mapping[min(rule_mapping.keys())]))
     for a, b in pairwise(h_syms):
-        g.add_edge(a, b, transformation=Transformation(b.rule_nr, rule_mapping[b.rule_nr]))
+        g.add_edge(a, b, transformation=Transformation(b.rule_nr, [rule_mapping[b.rule_nr]]))
 
     return g
 
