@@ -9,7 +9,7 @@ from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder
 from ...shared.model import Transformation
 from ...shared.util import get_start_node_from_graph
 
-bp = Blueprint("dag_api", __name__, template_folder='server/templates')
+bp = Blueprint("dag_api", __name__, template_folder='../templates', static_folder='../static/', static_url_path='/static')
 
 
 class GraphDataBaseKEKL:
