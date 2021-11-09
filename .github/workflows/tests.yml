@@ -38,5 +38,5 @@ jobs:
       - name: Starting server
         shell: bash -l {0}
         run: |
-          viasp-start &
+          viasp-start
           viasp-stop
