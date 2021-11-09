@@ -17,7 +17,6 @@ function make_atoms_string(atoms) {
 
 function
 make_rules_string(rules): string {
-    console.log(rules)
     return rules.join(" ")
 }
 
@@ -26,7 +25,7 @@ async function make_facts_container() {
         .then(r => r.json())
         .then(facts => makeNodeDiv(facts))
     return `<div id="row_facts" style="cursor: pointer" class=row_container>
-<div class="row_header" style="cursor: pointer" onclick="toggleRow(this)">Facts</div>
+<div class="row_header" style="cursor: pointer" onclick="toggleRow('row_facts')">Facts</div>
 <div class="row_row">
 ${facts_node}
 </div>
@@ -34,10 +33,9 @@ ${facts_node}
 }
 
 async function make_rule_container(rules) {
-    console.log(rules)
     let nodes = await make_node_divs(rules)
     return `<div id="row_${rules.id}" style="cursor: pointer" class=row_container>
-<div class="row_header" style="cursor: pointer" onclick="toggleRow(this)">${rules.rules}</div>
+<div class="row_header" style="cursor: pointer" onclick="toggleRow('row_${rules.id}')">${rules.rules}</div>
 <div class="row_row">
 ${nodes.join("")}
 </div>
@@ -62,7 +60,7 @@ async function make_node_divs(rule: any) {
     return fetch(`children/?rule_id=${rule.id}`)
         .then((r) => r.json())
         .then(async function (children) {
-            console.log(`Drawing for ${JSON.stringify(rule)} (${children.length}) children ${JSON.stringify(children)}`)
+            //console.log(`Drawing for ${JSON.stringify(rule)} (${children.length}) children ${JSON.stringify(children)}`)
             var nodes = []
             for (const child of children) {
                 nodes.push(makeNodeDiv(child))
@@ -90,7 +88,6 @@ document.addEventListener("DOMContentLoaded", function () {
 })
 
 var checkbox = document.querySelector("input[type=checkbox]");
-console.log(checkbox)
 checkbox.addEventListener('change', function () {
     fetch(`
     settings/?${this.getAttribute("value")}=${this.checked}`, {
@@ -100,9 +97,9 @@ checkbox.addEventListener('change', function () {
     })
 });
 
-function toggleRow(container) {
-    console.log(container);
-    const thingToToggle = container.parentNode.getElementsByClassName("row_row")[0];
+function toggleRow(row_id) {
+    //console.log(`Toggling ${row_id}`);
+    const thingToToggle: HTMLElement = document.getElementById(row_id).querySelector(".row_row");
     if (thingToToggle.style.display === "none") {
         thingToToggle.style.display = "flex";
 
@@ -114,11 +111,8 @@ function toggleRow(container) {
 }
 
 function toggleDetailContent(container) {
-    console.log(container)
     const thingToToggle = container.parentNode.getElementsByClassName("detail_atom_view_content")[0];
     const stateSpan = container.getElementsByClassName("detail_atom_view_heading_state")[0];
-    console.log(thingToToggle)
-    console.log(stateSpan)
     if (thingToToggle.style.display === "none") {
         thingToToggle.style.display = "block";
         stateSpan.innerHTML = "&or; "
@@ -138,8 +132,6 @@ function showDetail(node) {
     if (isClosed("detailSidebar")) {
         openNav();
     }
-    console.log(`Node: ${node}`)
-    console.log(node.id)
     fetch(`model/?uuid=${node.id}`)
         .then((r) => r.json())
         .catch(reason => console.log(reason))
@@ -152,7 +144,7 @@ function showDetail(node) {
 }
 
 function createTogglableDetailDivForAtoms(header, elem): string {
-    console.log(`Creating togglable for ${elem} with header ${header}`)
+
     return `<div><h3 class="detail_atom_view_heading" onclick="toggleDetailContent(this)"><span class="detail_atom_view_heading_state">&or; </span>${header}</h3><div class="detail_atom_view_content">${make_atoms_string(elem)}</div></div>`
 }
 
@@ -171,7 +163,6 @@ function closeNav() {
 function collectNodesShown() {
     var shownNodes = document.getElementsByClassName("set_container")
     var result = Array.from(shownNodes).filter(e => e.clientWidth > 0).map(e => e.getAttribute("id"))
-    console.log(`Found ${result} ids`)
 
     return result
 }
@@ -201,9 +192,9 @@ function drawEdges() {
         .then((r) => r.json())
         .catch(reason => console.log(reason))
         .then(function (edges) {
-                console.log(`Got ${JSON.stringify(edges)} from backend`)
+                //console.log(`Got ${JSON.stringify(edges)} from backend`)
                 for (const edge of edges) {
-                    console.log(`Got ${JSON.stringify(edge)} from backend`)
+                    //console.log(`Got ${JSON.stringify(edge)} from backend`)
                     var src = edge["src"]
                     var tgt = edge["tgt"]
                     var conn = new muConnector({
@@ -367,7 +358,6 @@ class muConnector {
         );
 
         l = l - (adj1.hp + adj2.hp);
-        console.log(`DRAWING LINE AT X ${originX}.`)
 
         line.style.left = originX + "px";
         line.style.height = l + "px";
@@ -440,7 +430,6 @@ function refreshEdges() {
         c.offsets[c.ele2.id].top = rect.top + document.body.scrollTop;
 
         c.link();
-        console.log("B")
 
     });
 
@@ -465,12 +454,11 @@ function refreshEdges() {
 
 function showResults(val: HTMLInputElement) {
     /// STOLEN FROM https://www.algolia.com/blog/engineering/how-to-implement-autocomplete-with-javascript-on-your-website/
-    console.log(`ALGOLIA LULW ${val}`)
+
     const res = document.getElementById("search_result");
 
     const query = val.value
     if (query == '') {
-        console.log("QUERYING NOTHING")
         res.innerHTML = '';
         return;
     }
@@ -480,11 +468,11 @@ function showResults(val: HTMLInputElement) {
             return response.json();
         }).then(function (data) {
         for (let i = 0; i < data.length; i++) {
-            // console.log(`GETTING ${JSON.stringify(data[i])}`);
+            //console.log(`GETTING ${JSON.stringify(data[i])}`);
             if (data[i]._type == "Node") {
-                resultList += '<li class="search_row search_set">' + make_atoms_string(data[i].atoms) + '</li>'
+                resultList += `<li class="search_row search_set" id="result_${data[i]._type}_${data[i].uuid}" onclick="setFilter(this)">${make_atoms_string(data[i].atoms)}</li>`
             } else {
-                resultList += '<li class="search_row search_rule">' + make_rules_string(data[i]) + '</li>';
+                resultList += `<li class="search_row search_rule"  id="result_${data[i]._type}_${data[i].id}" onclick="setFilter(this)">${make_rules_string(data[i].rules)}</li>`
             }
         }
         res.innerHTML = '<ul class="search_result_list">' + resultList + '</ul>';
@@ -493,4 +481,28 @@ function showResults(val: HTMLInputElement) {
         console.warn('Something went wrong.', err);
         return false;
     });
+}
+
+function setFilter(elem: HTMLInputElement): void {
+    let tmp = elem.id.split("_")
+    let type = tmp[1]
+    let uuid = tmp[2]
+    if (type == "Transformation") {
+        inverseToggleRow(`row_${uuid}`)
+    } else if (type == "Node") {
+        fetch("/filter?uuid=" + uuid, {
+            method: "POST"
+        }).then(r => {
+                if (!r.ok) {
+                    console.log(`Could not set filter for ${uuid}`)
+                }
+            }
+        )
+    } else {
+        throw TypeError("Unknown type to set filter: " + type);
+    }
+}
+
+function inverseToggleRow(row_id) {
+    Array.from(document.getElementsByClassName("row_container")).filter(e => e.id != row_id).forEach(e => toggleRow(e.id))
 }

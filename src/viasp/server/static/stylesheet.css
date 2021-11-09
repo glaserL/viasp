@@ -238,6 +238,10 @@ input:checked + .slider:before {
     font-family: monospace;
 }
 
+.search_rule:hover {
+    cursor: pointer
+}
+
 .search_rule:before {
     content: ":-";
     position: absolute;

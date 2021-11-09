@@ -8,6 +8,7 @@ from dataclasses import asdict, is_dataclass
 
 from .clingoApiClient import ClingoClient
 from .server.database import ClingoMethodCall
+from .shared.io import model_to_json
 from .shared.model import Model
 from .shared.simple_logging import warn
 
@@ -28,21 +29,21 @@ class PaintConnector:
 
     def __init__(self, **kwargs):
         self._marked: List[Model] = []
-        self._database = ClingoClient()
+        self._database = ClingoClient(**kwargs)
         self._connection = None
 
     def paint(self):
         if not backend_is_running():
             raise Exception("Server is not available")
-        # elif self._connection is None:
-        #     self._connection = _make_connection()
-        # self._connection.
+        self._database.set_target_stable_model(self._marked)
 
     def unmark(self, model: Model):
-        self._marked.remove(model)
+        serialized = model_to_json(model)
+        self._marked.remove(serialized)
 
     def mark(self, model: Model):
-        self._marked.append(model)
+        serialized = model_to_json(model)
+        self._marked.append(serialized)
 
     def clear(self):
         self._marked.clear()
