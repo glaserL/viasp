@@ -29,7 +29,7 @@ setuptools.setup(
     entry_points={
         "console_scripts": [
             "viasp-start = viasp.__main__:start",
-            "viasp-stop = viasp.__main__:stop",
+            "viasp-stop = viasp.__main__:kill",
         ],
     },
     # package_dir={
