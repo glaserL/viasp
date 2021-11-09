@@ -7,7 +7,7 @@ from flask import render_template, Blueprint, request
 
 from ...shared.simple_logging import info, log
 
-bp = Blueprint("app", __name__, template_folder='../templates/', static_folder='../static/', static_url_path='/static')
+bp = Blueprint("app", __name__, template_folder='../templates', static_folder='../static/', static_url_path='/static')
 
 DEFAULTS = {"show_all": True}
 
