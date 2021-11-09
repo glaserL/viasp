@@ -155,13 +155,13 @@ def search():
     if "q" in request.args.keys():
         query = request.args["q"]
         graph = get_database().load(as_json=False)
-        matching_nodes = list(filter(lambda node: any(query in str(atm) for atm in node.atoms), graph.nodes()))
-        matching_rules = []
+        result = []
+        for node in graph.nodes():
+            if any(query in str(atm) for atm in node.atoms) and node not in result:
+                result.append(node)
         for _, _, edge in graph.edges(data=True):
             transformation = edge["transformation"]
-            if any(query in r for r in transformation.rules):
-                matching_rules.append(transformation)
-        sth = matching_rules
-        sth.extend(matching_nodes)
-        return jsonify(sth[:3])
+            if any(query in r for r in transformation.rules) and transformation not in result:
+                result.append(transformation)
+        return jsonify(result[:3])
     return jsonify([])
