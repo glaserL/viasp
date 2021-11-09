@@ -6,6 +6,7 @@ import networkx as nx
 from flask import Blueprint, request, render_template, Response, make_response, jsonify
 
 from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder
+from ...shared.model import Transformation
 from ...shared.util import get_start_node_from_graph
 
 bp = Blueprint("dag_api", __name__, template_folder='server/templates')
@@ -45,9 +46,9 @@ def handle_request_for_children(data):
     rule_id = data["rule_id"]
     children = list()
     for u, v, d in graph.edges(data=True):
-        edge = d['transformation']
+        edge: Transformation = d['transformation']
         print(f"{u}-[{d}]->{v}")
-        if str(edge["id"]) == rule_id:
+        if str(edge.id) == rule_id:
             children.append(v)
     print(f"Returning {children} as children of {data}")
     return children
@@ -157,9 +158,9 @@ def search():
         matching_nodes = list(filter(lambda node: any(query in str(atm) for atm in node.atoms), graph.nodes()))
         matching_rules = []
         for _, _, edge in graph.edges(data=True):
-            rules = edge["transformation"]["rules"]
-            if any(query in r for r in rules):
-                matching_rules.append(rules)
+            transformation = edge["transformation"]
+            if any(query in r for r in transformation.rules):
+                matching_rules.append(transformation)
         sth = matching_rules
         sth.extend(matching_nodes)
         return jsonify(sth[:3])
