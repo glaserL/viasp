@@ -38,5 +38,7 @@ jobs:
       - name: Starting server
         shell: bash -l {0}
         run: |
-          viasp-start
-          viasp-stop
+          viasp-start &
+          PID=$!
+          sleep 5s
+          kill -9 $PID
