@@ -36,6 +36,6 @@ jobs:
         run: |
           python setup.py install
       - name: Starting server
-          shell: bash -l {0}
+        shell: bash -l {0}
         run: |
           viasp-start
