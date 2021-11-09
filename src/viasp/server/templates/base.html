@@ -18,9 +18,11 @@
     <div id="detailSidebar" class="detail">
     </div>
     <div id="search" class="search">
-        <form autocomplete="off">
+        <div class="filter" id="active_filter"></div>
+        <form tabindex="1" autocomplete="off">
             <div id="search_result" class="search_result"></div>
-            <input type="text" name="q" id="q" onKeyUp="showResults(this)"><span style="font-weight: 400;"></span>
+            <label for="q"></label><input type="text" style="z-index: 9000" name="q" id="q"><span
+                style="font-weight: 400;"></span>
         </form>
     </div>
     <div id="graph_container" class="graph_container">

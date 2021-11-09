@@ -70,23 +70,6 @@ async function make_node_divs(rule: any) {
 }
 
 
-document.addEventListener("DOMContentLoaded", function () {
-    fetch(`rules`).then(function (r) {
-        if (r.ok) {
-            r.json().then(async function (rules) {
-                const graph_container = document.getElementById("graph_container")
-                const facts = await make_facts_container();
-                graph_container.insertAdjacentHTML("beforeend", facts)
-                for (const rule of rules) {
-                    const node_child = await make_rule_container(rule);
-                    graph_container.insertAdjacentHTML('beforeend', node_child);
-                }
-            })
-                .then(_ => drawEdges())
-        }
-    })
-})
-
 var checkbox = document.querySelector("input[type=checkbox]");
 checkbox.addEventListener('change', function () {
     fetch(`
@@ -201,7 +184,6 @@ function drawEdges() {
                         ele1: src,
                         ele2: tgt,
                         lineStyle: "5px solid red",
-                        // defaultGap: -35
                     });
                     connectors.push(conn);
                     conn.link()
@@ -292,8 +274,8 @@ class muConnector {
 
         // Append the div that is the link line into the DOM
         this.lineID = "L" + this.id;
-        document.body.innerHTML +=
-            "<div id='" + this.lineID + "' class='" + className + "' style=  ></div>";
+        document.getElementById("content").insertAdjacentHTML('beforeend',
+            "<div id='" + this.lineID + "' class='" + className + "' style=pointer-events:none;  ></div>");
         this.line = document.getElementById("L" + this.id);
 
         this.line.style.position = "absolute";
@@ -452,9 +434,11 @@ function refreshEdges() {
 
 ////////////////////// SEARCH BAR
 
-function showResults(val: HTMLInputElement) {
+function showResults(event) {
+    console.log(event)
     /// STOLEN FROM https://www.algolia.com/blog/engineering/how-to-implement-autocomplete-with-javascript-on-your-website/
-
+    console.log("SHowing results..")
+    let val = document.getElementById("q") as HTMLInputElement;
     const res = document.getElementById("search_result");
 
     const query = val.value
@@ -468,7 +452,7 @@ function showResults(val: HTMLInputElement) {
             return response.json();
         }).then(function (data) {
         for (let i = 0; i < data.length; i++) {
-            //console.log(`GETTING ${JSON.stringify(data[i])}`);
+            console.log(`GETTING ${JSON.stringify(data[i])}`);
             if (data[i]._type == "Node") {
                 resultList += `<li class="search_row search_set" id="result_${data[i]._type}_${data[i].uuid}" onclick="setFilter(this)">${make_atoms_string(data[i].atoms)}</li>`
             } else {
@@ -486,6 +470,24 @@ function showResults(val: HTMLInputElement) {
 function clearFilter(): void {
     document.getElementById("q").nodeValue = ""
     Array.from(document.getElementsByClassName("search_row")).map(e => e.remove())
+}
+
+//
+// function showActiveNodeFilter(uuid: string): void {
+//     fetch()
+// }
+
+function initializeSearchBar(): void {
+    let searchBar = document.getElementById("q")
+
+    console.log(`Adding event listener to ${searchBar}`)
+    searchBar.onkeyup = function (event) {
+        showResults(event)
+    }
+
+    console.log(searchBar.nodeType)
+    console.log(searchBar.hidden)
+    console.log(`Added event listener to ${searchBar}`)
 }
 
 function setFilter(elem: HTMLInputElement): void {
@@ -512,3 +514,21 @@ function setFilter(elem: HTMLInputElement): void {
 function inverseToggleRow(row_id) {
     Array.from(document.getElementsByClassName("row_container")).filter(e => e.id != row_id).forEach(e => toggleRow(e.id))
 }
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    fetch(`rules`).then(function (r) {
+        if (r.ok) {
+            r.json().then(async function (rules) {
+                const graph_container = document.getElementById("graph_container")
+                const facts = await make_facts_container();
+                graph_container.insertAdjacentHTML("beforeend", facts)
+                for (const rule of rules) {
+                    const node_child = await make_rule_container(rule);
+                    graph_container.insertAdjacentHTML('beforeend', node_child);
+                }
+            })
+                .then(_ => drawEdges()).then(initializeSearchBar)
+        }
+    })
+})
