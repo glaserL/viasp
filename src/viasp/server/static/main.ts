@@ -483,10 +483,16 @@ function showResults(val: HTMLInputElement) {
     });
 }
 
+function clearFilter(): void {
+    document.getElementById("q").nodeValue = ""
+    Array.from(document.getElementsByClassName("search_row")).map(e => e.remove())
+}
+
 function setFilter(elem: HTMLInputElement): void {
     let tmp = elem.id.split("_")
     let type = tmp[1]
     let uuid = tmp[2]
+    clearFilter()
     if (type == "Transformation") {
         inverseToggleRow(`row_${uuid}`)
     } else if (type == "Node") {
