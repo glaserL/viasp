@@ -433,11 +433,49 @@ function refreshEdges() {
 //
 
 ////////////////////// SEARCH BAR
+var currentFocus = -1;
 
-function showResults(event) {
-    console.log(event)
-    /// STOLEN FROM https://www.algolia.com/blog/engineering/how-to-implement-autocomplete-with-javascript-on-your-website/
-    console.log("SHowing results..")
+function clearActives(options: HTMLCollectionOf<Element>) {
+    Array.from(options).map(opt => opt.classList.remove("active"))
+}
+
+function updateSelection(options) {
+
+
+    console.log(`Updating ${options.length} options ${currentFocus}`)
+
+    if (!options) return false;
+    clearActives(options)
+    if (currentFocus >= options.length) currentFocus = 0
+    if (currentFocus < 0) currentFocus = (options.length - 1)
+    options[currentFocus].classList.add("active")
+}
+
+async function handleKeyPress(event) {
+    var options = document.getElementsByClassName("search_row")
+    if (event.key === "ArrowUp") {
+        currentFocus--;
+        updateSelection(options)
+    } else if (event.key == "ArrowDown") {
+        currentFocus++;
+        updateSelection(options)
+    } else if (event.key == "Enter") {
+        event.preventDefault();
+        if (currentFocus > -1) {
+            if (options) {
+                const toBeClicked = options[currentFocus] as HTMLElement;
+                toBeClicked.click();
+            }
+        }
+    } else {
+        showResults();
+    }
+}
+
+function showResults() {
+
+/// STOLEN FROM https://www.algolia.com/blog/engineering/how-to-implement-autocomplete-with-javascript-on-your-website/
+    console.log("Showing results..")
     let val = document.getElementById("q") as HTMLInputElement;
     const res = document.getElementById("search_result");
 
@@ -452,14 +490,14 @@ function showResults(event) {
             return response.json();
         }).then(function (data) {
         for (let i = 0; i < data.length; i++) {
-            console.log(`GETTING ${JSON.stringify(data[i])}`);
+            // console.log(`GETTING ${JSON.stringify(data[i])}`);
             if (data[i]._type == "Node") {
-                resultList += `<li class="search_row search_set" id="result_${data[i]._type}_${data[i].uuid}" onclick="setFilter(this)">${make_atoms_string(data[i].atoms)}</li>`
+                resultList += `<li class="search_row search_set" id="result_${data[i]._type}_${data[i].uuid}" onmouseover="{asdfg}" onclick="setFilter(this)">${make_atoms_string(data[i].atoms)}</li>`
             } else {
-                resultList += `<li class="search_row search_rule"  id="result_${data[i]._type}_${data[i].id}" onclick="setFilter(this)">${make_rules_string(data[i].rules)}</li>`
+                resultList += `<li class="search_row search_rule"  id="result_${data[i]._type}_${data[i].id}" onmouseover="{asdfg}"  onclick="setFilter(this)">${make_rules_string(data[i].rules)}</li>`
             }
         }
-        res.innerHTML = '<ul class="search_result_list">' + resultList + '</ul>';
+        res.innerHTML = '<ul class="search_result_list" onmouseover="asdfg">' + resultList + '</ul>';
         return true;
     }).catch(function (err) {
         console.warn('Something went wrong.', err);
@@ -479,15 +517,30 @@ function clearFilter(): void {
 
 function initializeSearchBar(): void {
     let searchBar = document.getElementById("q")
+    let form = document.getElementsByTagName("form")[0];
 
+    form.onsubmit = async function (event) {
+        event.preventDefault();
+    }
+    // form.onmouseover = function (event) {
+    //
+    // }
     console.log(`Adding event listener to ${searchBar}`)
     searchBar.onkeyup = function (event) {
-        showResults(event)
+        handleKeyPress(event)
     }
+    searchBar.onmouseover
+}
 
-    console.log(searchBar.nodeType)
-    console.log(searchBar.hidden)
-    console.log(`Added event listener to ${searchBar}`)
+function focus(element: HTMLElement) {
+    console.log("Focussing")
+    var options = document.getElementsByClassName("search_row")
+    clearActives(options)
+    element.classList.add("active");
+}
+
+function asdfg() {
+    console.log("MOUSOVER")
 }
 
 function setFilter(elem: HTMLInputElement): void {

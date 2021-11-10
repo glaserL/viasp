@@ -219,13 +219,6 @@ input:checked + .slider:before {
     left: 0;
 }
 
-.search_set {
-    font-family: monospace;
-}
-
-.search_set:hover {
-    cursor: pointer
-}
 
 .search_set:before {
     content: "{}";
@@ -234,13 +227,6 @@ input:checked + .slider:before {
     color: #FF1C89;
 }
 
-.search_rule {
-    font-family: monospace;
-}
-
-.search_rule:hover {
-    cursor: pointer
-}
 
 .search_rule:before {
     content: ":-";
@@ -251,7 +237,18 @@ input:checked + .slider:before {
 
 .search_row {
     list-style-type: none;
+    font-family: monospace;
+    cursor: pointer;
 }
+
+.search_row.active {
+    background-color: lightblue;
+}
+
+.search_row:hover {
+    background-color: lightblue;
+}
+
 
 .search_result_list {
     position: relative;
