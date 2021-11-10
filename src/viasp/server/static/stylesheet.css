@@ -255,5 +255,28 @@ input:checked + .slider:before {
     list-style: none;
     margin-left: 0;
     padding-left: 1.2em;
+    margin-bottom: 0;
 
+}
+
+.filter {
+    cursor: pointer;
+    font-family: monospace;
+    border-radius: 500px;
+    background-color: #cccccc;
+}
+
+.close {
+    color: black;
+    float: right;
+    opacity: .3;
+    padding-right: 5px;
+}
+
+.close:hover {
+    opacity: 1;
+}
+
+form {
+    padding-top: 0;
 }

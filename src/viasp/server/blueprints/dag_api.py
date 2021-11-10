@@ -3,13 +3,14 @@ from collections import defaultdict
 from typing import Union
 
 import networkx as nx
-from flask import Blueprint, request, render_template, Response, make_response, jsonify
+from flask import Blueprint, request, render_template, Response, make_response, jsonify, abort
 
 from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder
 from ...shared.model import Transformation
 from ...shared.util import get_start_node_from_graph
 
-bp = Blueprint("dag_api", __name__, template_folder='../templates', static_folder='../static/', static_url_path='/static')
+bp = Blueprint("dag_api", __name__, template_folder='../templates', static_folder='../static/',
+               static_url_path='/static')
 
 
 class GraphDataBaseKEKL:
@@ -88,7 +89,21 @@ def get_edges():
 
 @bp.route("/rule/<uuid>", methods=["GET"])
 def get_rule(uuid):
-    return NotImplementedError
+    graph = get_database().load(as_json=False)
+    for _, _, edge in graph.edges(data=True):
+        transformation: Transformation = edge["transformation"]
+        if transformation.id == uuid:
+            return jsonify(transformation)
+    abort(404)
+
+
+@bp.route("/node/<uuid>", methods=["GET"])
+def get_node(uuid):
+    graph = get_database().load(as_json=False)
+    for node in graph.nodes():
+        if node.uuid == uuid:
+            return jsonify(node)
+    abort(404)
 
 
 @bp.route("/facts", methods=["GET"])

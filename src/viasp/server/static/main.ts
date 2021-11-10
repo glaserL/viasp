@@ -432,6 +432,28 @@ function refreshEdges() {
 // });
 //
 
+////////////////////// ACTIVE FILTER PILL
+
+function showFilterPill(uuid, type) {
+    const target = document.getElementById("active_filter")
+    if (type == "Node") {
+        fetch("/node/" + uuid)
+            .then(r => r.json())
+            .then(n => {
+                target.innerHTML = `${make_atoms_string(n.atoms)}<span class='close'>X</span>`
+            })
+            .catch(e => console.error(e))
+    }
+}
+
+function clearFilterPill() {
+    const filterPill = document.getElementById("active_filter")
+    filterPill.innerHTML = ""
+    filterPill.classList.remove("search_set", "search_rule")
+
+
+}
+
 ////////////////////// SEARCH BAR
 var currentFocus = -1;
 
@@ -522,14 +544,10 @@ function initializeSearchBar(): void {
     form.onsubmit = async function (event) {
         event.preventDefault();
     }
-    // form.onmouseover = function (event) {
-    //
-    // }
     console.log(`Adding event listener to ${searchBar}`)
     searchBar.onkeyup = function (event) {
         handleKeyPress(event)
     }
-    searchBar.onmouseover
 }
 
 function focus(element: HTMLElement) {
@@ -562,6 +580,7 @@ function setFilter(elem: HTMLInputElement): void {
     } else {
         throw TypeError("Unknown type to set filter: " + type);
     }
+    showFilterPill(uuid, type)
 }
 
 function inverseToggleRow(row_id) {

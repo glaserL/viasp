@@ -18,10 +18,10 @@
     <div id="detailSidebar" class="detail">
     </div>
     <div id="search" class="search">
-        <div class="filter" id="active_filter"></div>
         <div id="search_result" class="search_result"></div>
+        <div class="filter" id="active_filter" onclick="clearFilterPill()"></div>
         <form tabindex="1" autocomplete="off">
-            <label for="q"></label><input type="text" style="z-index: 9000" name="q" id="q"><span
+            <input type="text" style="z-index: 9000" name="q" id="q"><span
                 style="font-weight: 400;"></span>
         </form>
     </div>
