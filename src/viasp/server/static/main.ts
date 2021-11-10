@@ -450,8 +450,13 @@ function clearFilterPill() {
     const filterPill = document.getElementById("active_filter")
     filterPill.innerHTML = ""
     filterPill.classList.remove("search_set", "search_rule")
+    return fetch("/filter", {
+        method: "DELETE"
+    }).catch(e => console.error("Couldn't redraw graph when clearing filter." + e));
+}
 
-
+function clearFilterPillAndRedraw() {
+    return clearFilterPill().then(redrawGraph);
 }
 
 ////////////////////// SEARCH BAR
@@ -571,12 +576,7 @@ function setFilter(elem: HTMLInputElement): void {
     } else if (type == "Node") {
         fetch("/filter?uuid=" + uuid, {
             method: "POST"
-        }).then(r => {
-                if (!r.ok) {
-                    console.log(`Could not set filter for ${uuid}`)
-                }
-            }
-        )
+        }).then(redrawGraph).catch(e => console.error(e))
     } else {
         throw TypeError("Unknown type to set filter: " + type);
     }
@@ -587,9 +587,8 @@ function inverseToggleRow(row_id) {
     Array.from(document.getElementsByClassName("row_container")).filter(e => e.id != row_id).forEach(e => toggleRow(e.id))
 }
 
-
-document.addEventListener("DOMContentLoaded", function () {
-    fetch(`rules`).then(function (r) {
+function drawGraph(): Promise<any> {
+    return fetch(`rules`).then(function (r) {
         if (r.ok) {
             r.json().then(async function (rules) {
                 const graph_container = document.getElementById("graph_container")
@@ -600,7 +599,23 @@ document.addEventListener("DOMContentLoaded", function () {
                     graph_container.insertAdjacentHTML('beforeend', node_child);
                 }
             })
-                .then(_ => drawEdges()).then(initializeSearchBar)
+                .then(_ => drawEdges())
         }
     })
+}
+
+function clearGraph(): Promise<any> {
+    return new Promise<any>((resolve) => {
+        const graph_container = document.getElementById("graph_container")
+        graph_container.textContent = ""
+        resolve(null)
+    });
+}
+
+function redrawGraph(): Promise<any> {
+    return clearGraph().then(drawGraph)
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    clearFilterPill().then(drawGraph).then(initializeSearchBar);
 })
