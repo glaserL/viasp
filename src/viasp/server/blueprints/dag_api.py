@@ -3,11 +3,12 @@ from collections import defaultdict
 from typing import Union
 
 import networkx as nx
-from flask import Blueprint, request, render_template, Response, make_response, jsonify, abort
+from flask import Blueprint, request, jsonify, abort
 
 from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder
 from ...shared.model import Transformation
-from ...shared.util import get_start_node_from_graph
+from ...shared.util import get_start_node_from_graph, get_leafs_from_graph, pairwise
+from .app import storage
 
 bp = Blueprint("dag_api", __name__, template_folder='../templates', static_folder='../static/',
                static_url_path='/static')
@@ -42,10 +43,26 @@ def get_database():
     return GraphDataBaseKEKL()
 
 
+def prune_graph(graph, uuid):
+    start = get_start_node_from_graph(graph)
+    filtered = nx.DiGraph()
+    for node in graph.nodes:
+        if graph.out_degree(node) == 0:
+            path = nx.shortest_path(graph, start, node)
+            if any(node.uuid == uuid for node in path):
+                for src, tgt in pairwise(path):
+                    filtered.add_edge(src, tgt, transformation=graph[src][tgt]["transformation"])
+    return filtered
+
+
 def handle_request_for_children(data):
     graph = get_database().load(as_json=False)
     rule_id = data["rule_id"]
     children = list()
+    if storage.has("filter"):
+        node_filter = storage.get("filter")
+        graph = prune_graph(graph, node_filter)
+
     for u, v, d in graph.edges(data=True):
         edge: Transformation = d['transformation']
         print(f"{u}-[{d}]->{v}")
@@ -64,7 +81,7 @@ def get_children():
 
 
 def get_src_tgt_mapping_from_graph(ids=None):
-    ids = set(ids) if ids != None else None
+    ids = set(ids) if ids is not None else None
     graph = get_database().load(as_json=False)
     nodes = set(graph.nodes)
     to_be_deleted = set(existing for existing in nodes if existing.uuid not in ids)
@@ -129,7 +146,7 @@ def get_all_rules():
 
 
 @bp.route("/graph", methods=["POST", "GET"])
-def graph():
+def entire_graph():
     if request.method == "POST":
         data = request.json
         print(f"Saving {data}")

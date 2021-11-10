@@ -14,6 +14,10 @@ def get_end_node_from_path(graph: nx.DiGraph) -> Any:
     return end[0]
 
 
+def get_leafs_from_graph(graph: nx.DiGraph) -> Iterable[Any]:
+    return filter(lambda deg: deg[1] == 0, graph.out_degree())
+
+
 def get_sorted_path_from_path_graph(graph: nx.DiGraph) -> Any:
     start = get_start_node_from_graph(graph)
     end = get_end_node_from_path(graph)
