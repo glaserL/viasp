@@ -1,3 +1,32 @@
+import {printFun} from "./thisisfun";
+
+class Signature {
+    name: String;
+    args: number;
+}
+
+class State {
+    private cache: Map<String, any>;
+
+    getFilter(): Signature {
+        if (this.cache.has("FILTER")) {
+            return this.cache.get("FILTER");
+        }
+    }
+
+    clearFilter() {
+        if ((this.cache.has("FILTER"))) {
+            this.cache.delete("FILTER");
+        }
+    }
+
+    setFilter(signature: Signature) {
+        this.cache.set("FILTER", signature);
+    }
+}
+
+const STORAGE = State
+
 function make_atoms_string(atoms) {
     // console.log(`IN: ${JSON.stringify(atoms)}`)
     if (atoms instanceof Array) {
@@ -617,5 +646,6 @@ function redrawGraph(): Promise<any> {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+    printFun()
     clearFilterPill().then(drawGraph).then(initializeSearchBar);
 })
