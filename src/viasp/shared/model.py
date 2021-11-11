@@ -1,7 +1,8 @@
 from copy import copy
 from dataclasses import dataclass, field
-from inspect import Signature
-from typing import Any, Sequence, Dict, Union, Collection, Set, FrozenSet
+from enum import Enum, unique
+from inspect import Signature as inspect_Signature
+from typing import Any, Sequence, Dict, Union, Collection, Set, FrozenSet, TypeVar
 from uuid import UUID, uuid4
 
 from clingo import Symbol
@@ -75,13 +76,24 @@ class Transformation:
 
 
 @dataclass
+class Signature:
+    name: str
+    args: int
+
+
+@dataclass
+class Filter:
+    on: Union[Signature, Node, Transformation]
+
+
+@dataclass
 class ClingoMethodCall:
     name: str
     kwargs: Dict[str, Any]
     uuid: Union[UUID, None] = field(default_factory=uuid4)
 
     @classmethod
-    def merge(cls, name: str, signature: Signature, args: Sequence[Any], kwargs: Dict[str, Any]):
+    def merge(cls, name: str, signature: inspect_Signature, args: Sequence[Any], kwargs: Dict[str, Any]):
         args_dict = copy(kwargs)
         param_names = list(signature.parameters)
         for index, arg in enumerate(args):
