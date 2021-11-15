@@ -1,7 +1,8 @@
 import './style.css';
-import {backendURL, make_atoms_string} from "../util";
+import {backendURL, make_atoms_string, make_rules_string} from "../util";
 import {Model, Transformation} from "../types";
 import {drawEdges} from "./edges";
+import {showDetail} from "../detail/detail";
 
 
 export function redrawGraph(): Promise<any> {
@@ -15,10 +16,13 @@ function drawGraph(): Promise<any> {
             r.json().then(async function (rules) {
                 const graph_container = document.getElementById("graph_container")
                 const facts = await make_facts_container();
-                graph_container.insertAdjacentHTML("beforeend", facts)
+                console.log(facts)
+                graph_container.appendChild(facts)
                 for (const rule of rules) {
-                    const node_child = await make_rule_container(rule);
-                    graph_container.insertAdjacentHTML('beforeend', node_child);
+                    console.log(rule)
+                    const rule_container = await make_rule_container(rule);
+                    console.log(`Waited ${rule_container}`)
+                    graph_container.appendChild(rule_container);
                 }
             })
                 .then(_ => drawEdges())
@@ -43,51 +47,93 @@ export function collectNodesShown() {
 }
 
 
-async function make_rule_container(rules: Transformation) {
-    let nodes = await make_node_divs(rules)
-    return `<div id="row_${rules.id}" style="cursor: pointer" class=row_container>
-<div class="row_header" style="cursor: pointer" onclick="toggleRow('row_${rules.id}')">${rules.rules}</div>
-<div class="row_row">
-${nodes.join("")}
-</div>
-</div>`
-}
-
-function makeNodeDiv(child: Model): string {
+function makeNodeDiv(child: Model): HTMLElement {
     var atomString = make_atoms_string(child.atoms);
     atomString = atomString.length == 0 ? "Ø" : atomString;
-    return `<div id="${child.uuid}" style="cursor: pointer" onclick="showDetail( this )"
-                             class=set_container>
-                             <div class="set_header">
+    let div = document.createElement("div");
+    div.id = child.uuid;
+    div.style.cursor = "pointer";
+    div.onclick = () => showDetail(child.uuid);
+    div.classList.add("set_container")
+    div.innerHTML = `<div class="set_header">
                                 ${child.uuid}
                              </div>
                             <div class="set_value">
                                 ${atomString}
-                            </div>
-                        </div>`
+                            </div>`
+    return div;
+}
+
+function thisisprobablyrefactorable(fact_node: HTMLElement): HTMLElement {
+    const fact_row = document.createElement("div")
+    fact_row.id = "row_facts"
+    fact_row.classList.add("row_container");
+    const facts_header = document.createElement("div");
+    facts_header.classList.add("row_header")
+    facts_header.style.cursor = "pointer";
+    facts_header.onclick = () => toggleRow('row_facts');
+    facts_header.innerText = "Facts";
+    const actual_container = document.createElement("div")
+    actual_container.classList.add("row_row");
+    actual_container.append(fact_node)
+    fact_row.appendChild(facts_header);
+    fact_row.appendChild(actual_container);
+    return fact_row;
+
+}
+
+async function make_rule_container(rules: Transformation): Promise<HTMLElement> {
+    const row = document.createElement("div")
+    row.id = `row_${rules.id}`
+    row.classList.add("row_container")
+    const header = document.createElement("div")
+    header.classList.add("row_header")
+    header.style.cursor = "pointer";
+    header.onclick = () => toggleRow(`row_${rules.id}`)
+    header.innerText = make_rules_string(rules.rules);
+
+    const actual_container = document.createElement("div")
+    actual_container.classList.add("row_row");
+    row.appendChild(header);
+    let nodes = await make_node_divs(rules)
+    for (const node of nodes) {
+        actual_container.appendChild(node);
+    }
+    row.appendChild(actual_container)
+    return row;
+
 }
 
 async function make_facts_container() {
     const facts_node = await fetch(backendURL("facts"))
         .then(r => r.json())
         .then(facts => makeNodeDiv(facts))
-    return `<div id="row_facts" style="cursor: pointer" class=row_container>
-<div class="row_header" style="cursor: pointer" onclick="toggleRow('row_facts')">Facts</div>
-<div class="row_row">
-${facts_node}
-</div>
-</div>`
+    return thisisprobablyrefactorable(facts_node);
 }
 
-async function make_node_divs(rule: any) {
-    return fetch(`${backendURL("children")}/?rule_id=${rule.id}`)
+async function make_node_divs(rule: any): Promise<HTMLElement[]> {
+    var nodes: any[] = []
+    await fetch(`${backendURL("children")}/?rule_id=${rule.id}`)
         .then((r) => r.json())
         .then(async function (children) {
             //console.log(`Drawing for ${JSON.stringify(rule)} (${children.length}) children ${JSON.stringify(children)}`)
-            var nodes = []
+
             for (const child of children) {
                 nodes.push(makeNodeDiv(child))
             }
-            return nodes;
         })
+    return Promise.all(nodes);
+}
+
+export function toggleRow(row_id: string): void {
+    //console.log(`Toggling ${row_id}`);
+    const thingToToggle: HTMLElement = document.getElementById(row_id).querySelector(".row_row");
+    if (thingToToggle.style.display === "none") {
+        thingToToggle.style.display = "flex";
+
+    } else {
+        thingToToggle.style.display = "none";
+    }
+
+    // setTimeout(drawEdges, 100);
 }
