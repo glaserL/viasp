@@ -31,10 +31,6 @@
     background-color: lightblue;
 }
 
-.search_row:hover {
-    background-color: lightblue;
-}
-
 
 .search_result_list {
     position: relative;

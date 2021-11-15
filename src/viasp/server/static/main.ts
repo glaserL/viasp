@@ -77,18 +77,6 @@ async function make_node_divs(rule: any) {
 }
 
 
-function toggleRow(row_id) {
-    //console.log(`Toggling ${row_id}`);
-    const thingToToggle: HTMLElement = document.getElementById(row_id).querySelector(".row_row");
-    if (thingToToggle.style.display === "none") {
-        thingToToggle.style.display = "flex";
-
-    } else {
-        thingToToggle.style.display = "none";
-    }
-
-    setTimeout(drawEdges, 100);
-}
 
 function toggleDetailContent(container) {
     const thingToToggle = container.parentNode.getElementsByClassName("detail_atom_view_content")[0];
@@ -459,11 +447,6 @@ function clearFilterPillAndRedraw() {
 ////////////////////// SEARCH BAR
 
 
-function clearFilter(): void {
-    document.getElementById("q").nodeValue = ""
-    Array.from(document.getElementsByClassName("search_row")).map(e => e.remove())
-}
-
 //
 // function showActiveNodeFilter(uuid: string): void {
 //     fetch()
@@ -476,30 +459,6 @@ function focus(element: HTMLElement) {
     element.classList.add("active");
 }
 
-function asdfg() {
-    console.log("MOUSOVER")
-}
-
-function setFilter(elem: HTMLInputElement): void {
-    let tmp = elem.id.split("_")
-    let type = tmp[1]
-    let uuid = tmp[2]
-    clearFilter()
-    if (type == "Transformation") {
-        inverseToggleRow(`row_${uuid}`)
-    } else if (type == "Node") {
-        fetch("/filter?uuid=" + uuid, {
-            method: "POST"
-        }).then(redrawGraph).catch(e => console.error(e))
-    } else {
-        throw TypeError("Unknown type to set filter: " + type);
-    }
-    showFilterPill(uuid, type)
-}
-
-function inverseToggleRow(row_id) {
-    Array.from(document.getElementsByClassName("row_container")).filter(e => e.id != row_id).forEach(e => toggleRow(e.id))
-}
 
 function drawGraph(): Promise<any> {
     return fetch(`rules`).then(function (r) {

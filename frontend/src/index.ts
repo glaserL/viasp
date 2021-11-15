@@ -1,22 +1,7 @@
 import './style.css';
 import './header.css';
-import printMe from "./cool";
-import {initializeSearchBar} from './search';
+import {initializeSearchBar} from './search/search';
 import {backendURL} from "./util";
-
-function component() {
-    const element = document.createElement('div');
-    element.innerHTML = "FINNNLY"
-
-    element.classList.add('hello');
-
-    const btn = document.createElement('button');
-    btn.innerHTML = 'Click me and check the console!';
-    btn.onclick = printMe;
-    element.appendChild(btn);
-
-    return element;
-}
 
 
 function initCheckBox() {

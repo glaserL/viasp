@@ -10,7 +10,6 @@ module.exports = {
     },
     entry: {
         index: './src/index.ts',
-        print: './src/cool.ts',
     },
     output: {
         filename: '[name].bundle.js',
