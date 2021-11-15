@@ -38,6 +38,7 @@ def create_app(config=None):
     # app.config.from_envvar('LAPRINT_SETTINGS', silent=True)
 
     register_blueprints(app)
-    CORS(app, resources={r"/settings/*": {"origins": "http://localhost:8080"}})
+    CORS(app, resources={r"/settings/*": {"origins": "http://localhost:8080"},
+                         r"/query": {"origins": "http://localhost:8080"}})
 
     return app

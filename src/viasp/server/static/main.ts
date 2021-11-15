@@ -27,28 +27,6 @@ class State {
 
 const STORAGE = State
 
-function make_atoms_string(atoms) {
-    // console.log(`IN: ${JSON.stringify(atoms)}`)
-    if (atoms instanceof Array) {
-        // console.log(`An array ${atoms}`)
-        return atoms.map(make_atoms_string).join(" ")
-    }
-    switch (atoms["_type"]) {
-        case "Number":
-            // console.log(`A number ${JSON.stringify(atoms)}`)
-            return atoms["number"]
-        case "Function":
-            // console.log(`A func ${JSON.stringify(atoms)}`)
-            let args = atoms["arguments"].map(make_atoms_string).join(",")
-            return `${atoms["name"]}(${args})`
-    }
-}
-
-function
-make_rules_string(rules): string {
-    return rules.join(" ")
-}
-
 async function make_facts_container() {
     const facts_node = await fetch("facts")
         .then(r => r.json())
@@ -97,7 +75,6 @@ async function make_node_divs(rule: any) {
             return nodes;
         })
 }
-
 
 
 function toggleRow(row_id) {
@@ -480,77 +457,7 @@ function clearFilterPillAndRedraw() {
 }
 
 ////////////////////// SEARCH BAR
-var currentFocus = -1;
 
-function clearActives(options: HTMLCollectionOf<Element>) {
-    Array.from(options).map(opt => opt.classList.remove("active"))
-}
-
-function updateSelection(options) {
-
-
-    console.log(`Updating ${options.length} options ${currentFocus}`)
-
-    if (!options) return false;
-    clearActives(options)
-    if (currentFocus >= options.length) currentFocus = 0
-    if (currentFocus < 0) currentFocus = (options.length - 1)
-    options[currentFocus].classList.add("active")
-}
-
-async function handleKeyPress(event) {
-    var options = document.getElementsByClassName("search_row")
-    if (event.key === "ArrowUp") {
-        currentFocus--;
-        updateSelection(options)
-    } else if (event.key == "ArrowDown") {
-        currentFocus++;
-        updateSelection(options)
-    } else if (event.key == "Enter") {
-        event.preventDefault();
-        if (currentFocus > -1) {
-            if (options) {
-                const toBeClicked = options[currentFocus] as HTMLElement;
-                toBeClicked.click();
-            }
-        }
-    } else {
-        showResults();
-    }
-}
-
-function showResults() {
-
-/// STOLEN FROM https://www.algolia.com/blog/engineering/how-to-implement-autocomplete-with-javascript-on-your-website/
-    console.log("Showing results..")
-    let val = document.getElementById("q") as HTMLInputElement;
-    const res = document.getElementById("search_result");
-
-    const query = val.value
-    if (query == '') {
-        res.innerHTML = '';
-        return;
-    }
-    let resultList = '';
-    fetch('/query?q=' + query).then(
-        function (response) {
-            return response.json();
-        }).then(function (data) {
-        for (let i = 0; i < data.length; i++) {
-            // console.log(`GETTING ${JSON.stringify(data[i])}`);
-            if (data[i]._type == "Node") {
-                resultList += `<li class="search_row search_set" id="result_${data[i]._type}_${data[i].uuid}" onmouseover="{asdfg}" onclick="setFilter(this)">${make_atoms_string(data[i].atoms)}</li>`
-            } else {
-                resultList += `<li class="search_row search_rule"  id="result_${data[i]._type}_${data[i].id}" onmouseover="{asdfg}"  onclick="setFilter(this)">${make_rules_string(data[i].rules)}</li>`
-            }
-        }
-        res.innerHTML = '<ul class="search_result_list" onmouseover="asdfg">' + resultList + '</ul>';
-        return true;
-    }).catch(function (err) {
-        console.warn('Something went wrong.', err);
-        return false;
-    });
-}
 
 function clearFilter(): void {
     document.getElementById("q").nodeValue = ""
@@ -561,19 +468,6 @@ function clearFilter(): void {
 // function showActiveNodeFilter(uuid: string): void {
 //     fetch()
 // }
-
-function initializeSearchBar(): void {
-    let searchBar = document.getElementById("q")
-    let form = document.getElementsByTagName("form")[0];
-
-    form.onsubmit = async function (event) {
-        event.preventDefault();
-    }
-    console.log(`Adding event listener to ${searchBar}`)
-    searchBar.onkeyup = function (event) {
-        handleKeyPress(event)
-    }
-}
 
 function focus(element: HTMLElement) {
     console.log("Focussing")
