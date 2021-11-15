@@ -99,15 +99,6 @@ async function make_node_divs(rule: any) {
 }
 
 
-var checkbox = document.querySelector("input[type=checkbox]");
-checkbox.addEventListener('change', function () {
-    fetch(`
-    settings/?${this.getAttribute("value")}=${this.checked}`, {
-        method: "POST"
-    }).then(function (r) {
-        console.log(r);
-    })
-});
 
 function toggleRow(row_id) {
     //console.log(`Toggling ${row_id}`);
@@ -644,8 +635,3 @@ function clearGraph(): Promise<any> {
 function redrawGraph(): Promise<any> {
     return clearGraph().then(drawGraph)
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-    printFun()
-    clearFilterPill().then(drawGraph).then(initializeSearchBar);
-})
