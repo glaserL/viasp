@@ -1,6 +1,9 @@
 import './search.css'
 import {backendURL, make_atoms_string, make_rules_string} from "../util";
 import {Model, Transformation} from "../types";
+import {redrawGraph} from "../graph/graph";
+import {drawEdges} from "../graph/edges";
+import {showFilterPill} from "../filter/filter";
 
 var currentFocus = -1;
 
@@ -54,14 +57,15 @@ function setFilter(id: string): void {
     clearFilter()
     if (type == "Transformation") {
         inverseToggleRow(`row_${uuid}`)
+        drawEdges();
     } else if (type == "Node") {
-        fetch("/filter?uuid=" + uuid, {
+        fetch(`${backendURL("filter")}?uuid=` + uuid, {
             method: "POST"
-        })//.then(redrawGraph).catch(e => console.error(e))
+        }).then(redrawGraph).catch(e => console.error(e))
     } else {
         throw TypeError("Unknown type to set filter: " + type);
     }
-    // showFilterPill(uuid, type)
+    showFilterPill(uuid, type)
 }
 
 function makeModelRow(model: Model, index: number): HTMLElement {

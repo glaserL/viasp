@@ -2,6 +2,8 @@ import './style.css';
 import './header.css';
 import {initializeSearchBar} from './search/search';
 import {backendURL} from "./util";
+import {clearFilterPill} from "./filter/filter";
+import {redrawGraph} from "./graph/graph";
 
 
 function initCheckBox() {
@@ -21,5 +23,5 @@ function initCheckBox() {
 document.addEventListener("DOMContentLoaded", function () {
     initCheckBox();
     initializeSearchBar();
-    // clearFilterPill().then(drawGraph).then(initializeSearchBar);
+    clearFilterPill().then(redrawGraph).then(initializeSearchBar);
 })

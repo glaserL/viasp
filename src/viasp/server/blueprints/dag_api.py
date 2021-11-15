@@ -6,7 +6,7 @@ import networkx as nx
 from flask import Blueprint, request, jsonify, abort
 
 from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder
-from ...shared.model import Transformation
+from ...shared.model import Transformation, Filter, Node
 from ...shared.util import get_start_node_from_graph, get_leafs_from_graph, pairwise
 from .app import storage
 
