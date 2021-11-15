@@ -1,11 +1,9 @@
-import _ from 'lodash';
 import './style.css';
-import printMe from './cool.js'
+import printMe from "./cool";
 
 function component() {
     const element = document.createElement('div');
-    // Lodash, currently included via a script, is required for this line to work
-    element.innerHTML = _.join(['Hello', 'webpack'], ' ');
+    element.innerHTML = "FINNNLY"
 
     element.classList.add('hello');
 
@@ -13,6 +11,7 @@ function component() {
     btn.innerHTML = 'Click me and check the console!';
     btn.onclick = printMe;
     element.appendChild(btn);
+
     return element;
 }
 
