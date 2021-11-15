@@ -1,14 +1,8 @@
 import './style.css';
 import './header.css';
 import printMe from "./cool";
-
-function backendURL(route: string): string {
-    let domain = window.location.hostname; //http://someurl.com
-    let port = 5000;
-    let url = `http://${domain}:${port}/${route}`;
-    console.log(`Returning url ${url}`)
-    return url
-}
+import {initializeSearchBar} from './search';
+import {backendURL} from "./util";
 
 function component() {
     const element = document.createElement('div');
@@ -41,5 +35,6 @@ function initCheckBox() {
 
 document.addEventListener("DOMContentLoaded", function () {
     initCheckBox();
+    initializeSearchBar();
     // clearFilterPill().then(drawGraph).then(initializeSearchBar);
 })
