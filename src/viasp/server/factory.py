@@ -3,6 +3,7 @@ import os
 from flask import Flask
 from werkzeug.utils import find_modules, import_string
 
+from flask_cors import CORS
 from viasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder
 
 
@@ -18,9 +19,13 @@ def register_blueprints(app):
 
 
 def create_app(config=None):
+    if not config:
+        config = {}
     app = Flask('api', static_folder=None)  # flask object
     app.json_encoder = DataclassJSONEncoder
     app.json_decoder = DataclassJSONDecoder
+    app.config['CORS_HEADERS'] = 'Content-Type'
+
     # app.config.from_object(__name__) #load configs from here, could be another config file
     # app.config.update(dict(
     #     DATABASE=os.path.join(app.root_path, 'laprint.db'),
@@ -33,5 +38,6 @@ def create_app(config=None):
     # app.config.from_envvar('LAPRINT_SETTINGS', silent=True)
 
     register_blueprints(app)
+    CORS(app, resources={r"/settings/*": {"origins": "http://localhost:8080"}})
 
     return app
