@@ -1,7 +1,7 @@
 import './search.css'
 import {backendURL, make_atoms_string, make_rules_string} from "../util";
 import {Model, Transformation} from "../types";
-import {redrawGraph} from "../graph/graph";
+import {redrawGraph, toggleRow} from "../graph/graph";
 import {drawEdges} from "../graph/edges";
 import {showFilterPill} from "../filter/filter";
 
@@ -33,18 +33,6 @@ function clearFilter(): void {
     Array.from(document.getElementsByClassName("search_row")).map(e => e.remove())
 }
 
-function toggleRow(row_id: string): void {
-    //console.log(`Toggling ${row_id}`);
-    const thingToToggle: HTMLElement = document.getElementById(row_id).querySelector(".row_row");
-    if (thingToToggle.style.display === "none") {
-        thingToToggle.style.display = "flex";
-
-    } else {
-        thingToToggle.style.display = "none";
-    }
-
-    // setTimeout(drawEdges, 100);
-}
 
 function inverseToggleRow(row_id: string) {
     Array.from(document.getElementsByClassName("row_container")).filter(e => e.id != row_id).forEach(e => toggleRow(e.id))
