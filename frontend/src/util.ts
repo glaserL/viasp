@@ -1,31 +1,4 @@
-export type NumberSymbol = {
-    _type: string,
-    number: number
-}
-export type FunctionSymbol = {
-    _type: string,
-    name: string,
-    arguments: Array<FunctionSymbol | NumberSymbol>
-}
-
-export type ClingoSymbol = FunctionSymbol | NumberSymbol
-
-export type Model = {
-    _type: string,
-    uuid: string,
-    atoms: ClingoSymbol[]
-}
-
-export type Transformation = {
-    _type: string,
-    id: string,
-    rules: Rule[]
-}
-
-export type Rule = {
-    head: ClingoSymbol,
-    body: ClingoSymbol[]
-}
+import {ClingoSymbol, FunctionSymbol, NumberSymbol, Rule} from "./types";
 
 export function make_atoms_string(atoms: ClingoSymbol[] | ClingoSymbol): string {
     // console.log(`IN: ${JSON.stringify(atoms)}`)
@@ -50,6 +23,7 @@ export function make_atoms_string(atoms: ClingoSymbol[] | ClingoSymbol): string 
 }
 
 export function make_rules_string(rule: Rule[]): string {
+    // TODO: This is pretty bad. Adjust types for this.
     return rule.join(" ")
 }
 

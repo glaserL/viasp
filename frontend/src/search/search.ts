@@ -1,5 +1,6 @@
 import './search.css'
-import {backendURL, make_atoms_string, make_rules_string, Model, Transformation} from "../util";
+import {backendURL, make_atoms_string, make_rules_string} from "../util";
+import {Model, Transformation} from "../types";
 
 var currentFocus = -1;
 
