@@ -12,7 +12,7 @@ export function clearConnections() {
 
 export function refreshEdges() {
     connectors.forEach((c) => {
-
+        c.refresh();
     });
 
 }
