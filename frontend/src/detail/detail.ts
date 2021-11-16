@@ -1,5 +1,6 @@
-import {backendURL, make_atoms_string} from "../util";
-import {ClingoSymbol, Model} from "../types";
+import './style.css';
+import {backendURL, make_atoms_string, make_rules_string} from "../util";
+import {ClingoSymbol, Model, Rule, Transformation} from "../types";
 import {drawEdges} from "../graph/edges";
 
 function isClosed(id: string) {
@@ -21,18 +22,20 @@ function toggleDetailContent(container: HTMLElement) {
     }
 }
 
-function createTogglableDetailDivForAtoms(header: string, elem: ClingoSymbol): HTMLElement {
+function createTogglableDetailDivForAtoms(header: Rule[], elem: ClingoSymbol): HTMLElement {
     const heading = document.createElement("div")
     heading.classList.add("detail_atom_view_heading")
     heading.onclick = () => toggleDetailContent(heading)
     const state_span = document.createElement("span")
     state_span.classList.add("detail_atom_view_heading_state")
     state_span.innerHTML = "&or; "
-    heading.appendChild(state_span)
-    heading.innerHTML = header;
+    heading.append(state_span);
+    heading.append("WHO CARES") // TODO: this should be the rule header
     const detail = document.createElement("div")
     detail.classList.add("detail_atom_view_content")
     detail.innerText = make_atoms_string(elem);
+    heading.append(detail)
+
     return heading;
 
 }
@@ -45,11 +48,19 @@ export function showDetail(nodeID: string) {
         .then((r) => r.json())
         .catch(reason => console.log(reason))
         .then(function (data) {
-            const sth = data as Array<[string, ClingoSymbol]>
+            const sth = data as Array<[Rule[], ClingoSymbol]>
             const detail = document.getElementById("detailSidebar");
+            detail.innerText = ""
             console.log(data)
-            var pretty = sth.map(elem => createTogglableDetailDivForAtoms(elem[0], elem[1])).join("")
-            detail.innerHTML = `<h3 onclick="closeNav()">Stable Model</h3><p>${pretty}</p>`
+            const header = document.createElement("h3")
+            header.innerText = "Stable Model"
+            header.style.cursor = "pointer"
+            header.onclick = () => closeNav
+            const content = document.createElement("p")
+            sth.map(elem => createTogglableDetailDivForAtoms(elem[0], elem[1])).map(p => content.appendChild(p))
+
+            detail.appendChild(header)
+            detail.appendChild(content)
         });
 }
 
@@ -60,6 +71,7 @@ function openNav() {
 }
 
 function closeNav() {
+    console.log("I HATE MY LIFE")
     document.getElementById("detailSidebar").style.width = "0"
     setTimeout(drawEdges, 100);
 }

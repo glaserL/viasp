@@ -9,3 +9,17 @@ body {
     /*display: flex;*/
     flex-flow: column;
 }
+
+#mainDisplay {
+    background-color: #FF1C89;
+    flex: 1 1 auto;
+    margin: 0;
+}
+
+.graph_container {
+    /*display: flex;*/
+    justify-content: space-around;
+    /*float: left;*/
+    background: transparent;
+    flex-direction: column;
+}

@@ -43,6 +43,7 @@ def create_app(config=None):
                          r"/filter/*": {"origins": "http://localhost:8080"},
                          r"/facts/*": {"origins": "http://localhost:8080"},
                          r"/edges/*": {"origins": "http://localhost:8080"},
+                         r"/model/*": {"origins": "http://localhost:8080"},
                          r"/node/*": {"origins": "http://localhost:8080"},
                          r"/children/*": {"origins": "http://localhost:8080"},
                          r"/rules": {"origins": "http://localhost:8080"}})
