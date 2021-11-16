@@ -86,8 +86,9 @@ function showResults() {
     const res = document.getElementById("search_result");
 
     const query = val.value
+    res.innerHTML = '';
+        
     if (query == '') {
-        res.innerHTML = '';
         return;
     }
 
