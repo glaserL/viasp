@@ -56,7 +56,6 @@ function makeNodeDiv(child: Model): HTMLElement {
     div.onclick = () => showDetail(child.uuid);
     div.classList.add("set_container")
     div.innerHTML = `<div class="set_header">
-                                ${child.uuid}
                              </div>
                             <div class="set_value">
                                 ${atomString}
@@ -116,8 +115,6 @@ async function make_node_divs(rule: any): Promise<HTMLElement[]> {
     await fetch(`${backendURL("children")}/?rule_id=${rule.id}`)
         .then((r) => r.json())
         .then(async function (children) {
-            //console.log(`Drawing for ${JSON.stringify(rule)} (${children.length}) children ${JSON.stringify(children)}`)
-
             for (const child of children) {
                 nodes.push(makeNodeDiv(child))
             }
