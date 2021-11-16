@@ -1,4 +1,4 @@
 .PHONY: test
 test:
 	PYTHONPATH=. pytest tests/pyt
-	npm test
+	(cd frontend; npm test)
