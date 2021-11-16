@@ -131,6 +131,5 @@ export function toggleRow(row_id: string): void {
     } else {
         thingToToggle.style.display = "none";
     }
-
-    // setTimeout(drawEdges, 100);
+    drawEdges();
 }

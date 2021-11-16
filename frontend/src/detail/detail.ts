@@ -1,7 +1,7 @@
 import './style.css';
 import {backendURL, make_atoms_string, make_rules_string} from "../util";
 import {ClingoSymbol, Model, Rule, Transformation} from "../types";
-import {drawEdges} from "../graph/edges";
+import {drawEdges, refreshEdges} from "../graph/edges";
 
 function isClosed(id: string) {
     const width = document.getElementById(id).style.width;
@@ -76,12 +76,12 @@ export function showDetail(nodeID: string) {
 
 function openNav() {
     document.getElementById("detailSidebar").style.width = "250px";
-    setTimeout(drawEdges, 100);
+    setTimeout(refreshEdges, 100);
 }
 
 function closeNav() {
     console.log("I HATE MY LIFE")
     document.getElementById("detailSidebar").style.width = "0"
-    setTimeout(drawEdges, 100);
+    setTimeout(refreshEdges, 100);
 }
 
