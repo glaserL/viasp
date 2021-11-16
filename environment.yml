@@ -11,3 +11,4 @@ dependencies:
   - python=3.8
   - python-clingox=1.0.1
   - requests=2.26.0
+  - flask-cors
