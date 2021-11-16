@@ -49,7 +49,7 @@ storage = Settings()
 
 @bp.route("/", methods=["GET"])
 def hello_world():
-    return render_template("base.html", settings=storage.get("show_all"))
+    return "ok"
 
 
 def change_setting(key: str, value: Any):

@@ -30,13 +30,6 @@
     border-radius: 0 10px 10px 10px;
 }
 
-.graph_container {
-    /*display: flex;*/
-    justify-content: space-around;
-    /*float: left;*/
-    background: transparent;
-    flex-direction: column;
-}
 
 .row_header {
     background-color: black;
