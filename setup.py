@@ -24,7 +24,8 @@ setuptools.setup(
         "networkx>=2.4",
         "flask>=2",
         "dataclasses>=0.8",
-        "clingo>=5.5"
+        "clingo>=5.5",
+        "flask-cors>=3.0"
     ],
     entry_points={
         "console_scripts": [
