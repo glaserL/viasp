@@ -34,6 +34,10 @@
 .row_header {
     background-color: black;
     color: whitesmoke;
+    padding: 5px;
+    font-family: monospace;
+    font-size: 14pt;
+    width: fit-content;
 }
 
 .row_row {
@@ -46,4 +50,10 @@
 .row_container {
     justify-content: space-around;
     background: transparent;
+}
+
+.faded {
+    opacity: 0.6;
+    filter: grayscale(100%);
+
 }

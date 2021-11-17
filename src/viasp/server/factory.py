@@ -40,6 +40,7 @@ def create_app(config=None):
     register_blueprints(app)
     CORS(app, resources={r"/settings/*": {"origins": "http://localhost:8080"},
                          r"/query/*": {"origins": "http://localhost:8080"},
+                         r"/trace/*": {"origins": "http://localhost:8080"},
                          r"/filter/*": {"origins": "http://localhost:8080"},
                          r"/facts/*": {"origins": "http://localhost:8080"},
                          r"/edges/*": {"origins": "http://localhost:8080"},

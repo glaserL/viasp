@@ -134,3 +134,7 @@ class ClingoModelEncoder(JSONEncoder):
             x = symbol_to_dict(o)
             return x
         return super().default(o)
+
+
+def deserialize(data: str, *args, **kwargs):
+    return json.loads(data, *args, cls=DataclassJSONDecoder, **kwargs)

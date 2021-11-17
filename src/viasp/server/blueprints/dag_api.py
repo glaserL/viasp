@@ -5,7 +5,7 @@ from typing import Union
 import networkx as nx
 from flask import Blueprint, request, jsonify, abort
 
-from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder
+from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder, deserialize
 from ...shared.model import Transformation, Filter, Node
 from ...shared.util import get_start_node_from_graph, get_leafs_from_graph, pairwise
 from .app import storage
@@ -158,17 +158,14 @@ def entire_graph():
 
 def get_atoms_in_path_by_signature(uuid: str):
     graph = get_database().load(as_json=False)
-    beginning = get_start_node_from_graph(graph)
 
     matching_nodes = [x for x, y in graph.nodes(data=True) if x.uuid == uuid]
     assert len(matching_nodes) == 1
-    end = matching_nodes[0]
-    path = nx.shortest_path(graph, beginning, end)
-    signature_to_atom_mapping = defaultdict(list)
-    for node in path:
-        for symbol in node.atoms:
-            signature = (symbol.name, len(symbol.arguments))
-            signature_to_atom_mapping[signature] = symbol
+    signature_to_atom_mapping = defaultdict(set)
+    node = matching_nodes[0]
+    for symbol in node.atoms:
+        signature = (symbol.name, len(symbol.arguments))
+        signature_to_atom_mapping[signature].add(symbol)
     return [(f"{s[0]}/{s[1]}", signature_to_atom_mapping[s])
             for s in signature_to_atom_mapping.keys()]
 
@@ -197,3 +194,22 @@ def search():
                 result.append(transformation)
         return jsonify(result[:3])
     return jsonify([])
+
+
+@bp.route("/trace", methods=["GET", "POST"])
+def trace():
+    graph = get_database().load(as_json=False)
+    beginning = get_start_node_from_graph(graph)
+    symbol = deserialize(request.data)
+    uuid = request.args["uuid"]
+    matching_nodes = [x for x, y in graph.nodes(data=True) if x.uuid == uuid]
+    assert len(matching_nodes) == 1
+    end = matching_nodes[0]
+    path: [Node] = nx.shortest_path(graph, beginning, end)
+    trace = []
+    for step in path:
+        if symbol in step.diff:
+            trace.append(step.uuid)
+            break
+        trace.append(step.uuid)
+    return jsonify(trace), 200
