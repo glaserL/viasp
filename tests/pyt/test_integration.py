@@ -1,13 +1,8 @@
 import pytest
 from clingo import Control
-from flask import Flask
-from flask.testing import FlaskClient
 
 from src.viasp.server.database import CallCenter
 from src.viasp.asp.replayer import apply_multiple
-from src.viasp.server.blueprints.api import bp as api_bp
-from src.viasp.server.blueprints.app import bp as app_bp
-from src.viasp.server.blueprints.dag_api import bp as dag_bp
 from tests.pyt.test_replayer import run_sample
 from src.viasp.shared.io import model_to_json
 
@@ -20,22 +15,6 @@ def test_calls_are_filtered_after_application():
     _ = apply_multiple(db.get_all())
     assert len(db.get_all()) == 4, "Get all should still return all of them after application."
     assert len(db.get_pending()) == 0, "The call objects should be marked as used after application."
-
-
-def create_app_with_registered_blueprints(*bps) -> Flask:
-    app = Flask(__name__)
-    for bp in bps:
-        app.register_blueprint(bp)
-
-    return app
-
-
-@pytest.fixture
-def client() -> FlaskClient:
-    app = create_app_with_registered_blueprints(app_bp, api_bp, dag_bp)
-
-    with app.test_client() as client:
-        yield client
 
 
 def test_client_works(client):

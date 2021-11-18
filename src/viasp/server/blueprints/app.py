@@ -3,8 +3,10 @@ from pathlib import Path
 from typing import Any
 
 import networkx as nx
-from flask import render_template, Blueprint, request, abort
+from flask import render_template, Blueprint, request, abort, jsonify
 
+from ...shared.io import DataclassJSONEncoder, DataclassJSONDecoder
+from ...shared.model import Filter
 from ...shared.simple_logging import info, log
 
 bp = Blueprint("app", __name__, template_folder='../templates', static_folder='../static/', static_url_path='/static')
@@ -21,14 +23,17 @@ class Settings:
 
     def _save(self, path, data):
         with open(path, "w", encoding="utf-8") as f:
-            json.dump(data, f)
+            json.dump(data, f, cls=DataclassJSONEncoder)
 
     def _load(self):
         with open(self.path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            return json.load(f, cls=DataclassJSONDecoder)
 
-    def get(self, key):
-        return self._load()[key]
+    def get(self, key, default=None):
+        if default is None:
+            return self._load()[key]
+        else:
+            return self._load().get(key, default)
 
     def has(self, key):
         return key in self._load()
@@ -65,15 +70,38 @@ def settings():
     return "ok"
 
 
-@bp.route("/filter", methods=["POST", "DELETE"])
-def filter():
-    if request.method == "POST":
-        if "uuid" in request.args.keys():
-            storage.set("filter", request.args["uuid"])
-            return "ok"
-        else:
-            raise Exception
-    elif request.method == "DELETE":
-        storage.clear("filter")
-        return "ok"
-    abort(405)
+@bp.route("/filter", methods=["DELETE"])
+def delete_filter():
+    fltr = request.json
+
+    if not isinstance(fltr, Filter):
+        abort(400)
+    tmp = storage.get("filter")
+    if fltr not in tmp:
+        abort(400)
+    tmp.remove(fltr)
+    storage.set("filter", tmp)
+    return "ok"
+
+
+@bp.route("/filter", methods=["POST"])
+def add_filter():
+    fltr = request.json
+    if not isinstance(fltr, Filter):
+        abort(400)
+
+    tmp = storage.get("filter", [])
+    tmp.append(fltr)
+    storage.set("filter", tmp)
+    return "ok"
+
+
+@bp.route("/filter", methods=["GET"])
+def get_filters():
+    return jsonify(storage.get("filter"))
+
+
+@bp.route("/filter/clear", methods=["DELETE"])
+def clear_filters():
+    storage.set("filter", [])
+    return "", 200

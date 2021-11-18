@@ -1,5 +1,3 @@
-import json
-
 from clingo import Control
 
 from src.viasp.shared.io import model_to_json
