@@ -1,6 +1,6 @@
 import './search.css'
 import {backendURL, make_atoms_string, make_rules_string} from "../util";
-import {Model, Transformation} from "../types";
+import {Filter, Model, Signature, Transformation} from "../types";
 import {redrawGraph, toggleRow} from "../graph/graph";
 import {drawEdges} from "../graph/edges";
 import {showFilterPill} from "../filter/filter";
@@ -38,22 +38,26 @@ function inverseToggleRow(row_id: string) {
     Array.from(document.getElementsByClassName("row_container")).filter(e => e.id != row_id).forEach(e => toggleRow(e.id))
 }
 
-function setFilter(id: string): void {
-    let tmp = id.split("_")
-    let type = tmp[1]
-    let uuid = tmp[2]
+function setFilter(on: Model | Transformation | Signature): void {
     clearFilter()
-    if (type == "Transformation") {
-        inverseToggleRow(`row_${uuid}`)
+    const fltr = {"on": on, "_type": "Filter"}
+    if (on._type == "Transformation") {
+        const transformation = on as Transformation
+        inverseToggleRow(`row_${transformation.id}`)
         drawEdges();
-    } else if (type == "Node") {
-        fetch(`${backendURL("filter")}?uuid=` + uuid, {
-            method: "POST"
+    } else if (on._type == "Node") {
+        fetch(`${backendURL("filter")}`, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(fltr)
         }).then(redrawGraph).catch(e => console.error(e))
     } else {
-        throw TypeError("Unknown type to set filter: " + type);
+        throw TypeError("Unknown type to set filter: " + on._type);
     }
-    showFilterPill(uuid, type)
+    showFilterPill(fltr)
 }
 
 function makeModelRow(model: Model, index: number): HTMLElement {
@@ -61,7 +65,7 @@ function makeModelRow(model: Model, index: number): HTMLElement {
     row.classList.add("search_row", "search_set")
     row.id = `result_${model._type}_${model.uuid}`
     row.onmouseover = () => hoverOverThing(index)
-    row.onclick = () => setFilter(row.id)
+    row.onclick = () => setFilter(model)
     row.innerHTML = make_atoms_string(model.atoms);
     return row;
 
@@ -72,7 +76,7 @@ function makeTransformationRow(transformation: Transformation, index: number): H
     row.classList.add("search_row", "search_rule")
     row.id = `result_${transformation._type}_${transformation.id}`
     row.onmouseover = () => hoverOverThing(index)
-    row.onclick = () => setFilter(row.id)
+    row.onclick = () => setFilter(transformation)
     row.innerHTML = make_rules_string(transformation.rules);
     return row;
 
@@ -87,7 +91,7 @@ function showResults() {
 
     const query = val.value
     res.innerHTML = '';
-        
+
     if (query == '') {
         return;
     }

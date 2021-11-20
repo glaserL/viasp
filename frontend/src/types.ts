@@ -12,6 +12,13 @@ export type Rule = {
     head: ClingoSymbol,
     body: ClingoSymbol[]
 }
+
+export type Signature = {
+    _type: string
+    name: string
+    args: number
+}
+
 export type Transformation = {
     _type: string,
     id: string,
@@ -21,4 +28,9 @@ export type Model = {
     _type: string,
     uuid: string,
     atoms: ClingoSymbol[]
+}
+
+export type Filter = {
+    _type: string,
+    on: Transformation | Model | Signature
 }
