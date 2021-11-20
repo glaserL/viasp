@@ -48,12 +48,25 @@ class DataclassJSONDecoder(JSONDecoder):
         return obj
 
 
+def dataclass_to_dict(o):
+    if isinstance(o, Filter):
+        return {"_type": "Filter", "on": o.on}
+    if isinstance(o, Node):
+        return {"_type": "Node", "atoms": o.atoms, "diff": o.diff, "uuid": o.uuid,
+                "rule_nr": o.rule_nr}
+    if isinstance(o, Signature):
+        return {"_type": "Signature", "name": o.name, "args": o.args}
+    if isinstance(o, Transformation):
+        return {"_type": "Transformation", "id": o.id, "rules": o.rules}
+    if isinstance(o, Model):
+        return {"_type": "Model", "atoms": o.atoms, "_prev": o._prev}
+
+
 class DataclassJSONEncoder(JSONEncoder):
     def default(self, o):
         if is_dataclass(o):
-            result = asdict(o)
-            print(o)
-            result["_type"] = repr(o).split("(")[0]
+            result = dataclass_to_dict(o)
+            print(f"Saving {result}")
             return result
         elif isinstance(o, UUID):
             return o.hex

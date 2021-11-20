@@ -98,7 +98,8 @@ def add_filter():
 
 @bp.route("/filter", methods=["GET"])
 def get_filters():
-    return jsonify(storage.get("filter"))
+    result = jsonify(storage.get("filter"))
+    return result, 200
 
 
 @bp.route("/filter/clear", methods=["DELETE"])

@@ -43,13 +43,14 @@ def get_database():
     return GraphDataBaseKEKL()
 
 
-def prune_graph(graph, uuid):
+def prune_graph(graph, fltr: Filter):
+    uuids = [f.on.uuid for f in fltr]
     start = get_start_node_from_graph(graph)
     filtered = nx.DiGraph()
     for node in graph.nodes:
         if graph.out_degree(node) == 0:
             path = nx.shortest_path(graph, start, node)
-            if any(node.uuid == uuid for node in path):
+            if any(node.uuid in uuids for node in path):
                 for src, tgt in pairwise(path):
                     filtered.add_edge(src, tgt, transformation=graph[src][tgt]["transformation"])
     return filtered
@@ -60,8 +61,9 @@ def handle_request_for_children(data):
     rule_id = data["rule_id"]
     children = list()
     if storage.has("filter"):
-        node_filter = storage.get("filter")
-        graph = prune_graph(graph, node_filter)
+        node_filters = [fltr for fltr in storage.get("filter") if isinstance(fltr.on, Node)]
+        if len(node_filters):
+            graph = prune_graph(graph, node_filters)
 
     for u, v, d in graph.edges(data=True):
         edge: Transformation = d['transformation']

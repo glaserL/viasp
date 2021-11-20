@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 def test_writing_to_server():
     program = "c(1). c(2). b(X) :- c(X). a(X) :- b(X). {d(X)} :- b(X). {e(X)} :- a(X)."
     # program = "a(1). a(2). {b(X)} :- a(X). d(X) :- b(X). {c(X)} :- b(X)."
-    program = "a(1). {b(X)} :- a(X). d(X) :- b(X). {c(X)} :- b(X)."
+    program = "a(1..2). {b(X)} :- a(X). d(X) :- b(X). {c(X)} :- b(X)."
     transformed = transform(program)
     saved_models = get_stable_models_for_program(program)
     g = build_graph(saved_models, transformed, program)
