@@ -1,4 +1,5 @@
-import {ClingoSymbol, FunctionSymbol, NumberSymbol, Rule} from "./types";
+import {ClingoSymbol, Filter, FunctionSymbol, NumberSymbol, Rule, Signature} from "./types";
+import {Func} from "mocha";
 
 export function make_atoms_string(atoms: ClingoSymbol[] | ClingoSymbol): string {
     // console.log(`IN: ${JSON.stringify(atoms)}`)

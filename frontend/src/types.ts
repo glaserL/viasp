@@ -27,7 +27,8 @@ export type Transformation = {
 export type Model = {
     _type: string,
     uuid: string,
-    atoms: ClingoSymbol[]
+    atoms: ClingoSymbol[],
+    diff: ClingoSymbol[]
 }
 
 export type Filter = {

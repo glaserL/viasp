@@ -1,8 +1,9 @@
 import './style.css';
 import {backendURL, make_atoms_string, make_rules_string} from "../util";
-import {Model, Transformation} from "../types";
+import {Filter, Model, Transformation} from "../types";
 import {drawEdges} from "./edges";
 import {showDetail} from "../detail/detail";
+import {getFromSessionStorage} from "../index";
 
 
 export function redrawGraph(): Promise<any> {
@@ -48,7 +49,9 @@ export function collectNodesShown() {
 
 
 function makeNodeDiv(child: Model): HTMLElement {
-    var atomString = make_atoms_string(child.atoms);
+    const showAtoms = getFromSessionStorage("showFullModel", true)
+    const value = showAtoms ? child.atoms : child.diff
+    var atomString = make_atoms_string(value);
     atomString = atomString.length == 0 ? "Ø" : atomString;
     let div = document.createElement("div");
     div.id = child.uuid;
