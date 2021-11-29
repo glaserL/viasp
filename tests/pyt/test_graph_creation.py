@@ -3,7 +3,6 @@ from typing import List, Iterable
 import networkx as nx
 import pytest
 from clingo import Control, Function
-import matplotlib.pyplot as plt
 from clingo.ast import AST
 
 from src.viasp.asp.justify import save_model, build_graph, make_reason_path_from_facts_to_stable_model, get_facts, \

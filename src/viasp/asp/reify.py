@@ -6,9 +6,8 @@ import networkx as nx
 from clingo import ast, Symbol
 from clingo.ast import Transformer, parse_string, Rule, ASTType, AST, Literal
 
-from viasp.asp.utils import merge_cycles, remove_loops
+from ..asp.utils import merge_cycles, remove_loops
 from ..shared.model import Node, Transformation
-from viasp.shared.simple_logging import info
 
 
 def is_constraint(rule: Rule):

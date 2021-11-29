@@ -1,13 +1,10 @@
 """Mostly graph utility functions."""
 import networkx as nx
 
-from viasp.shared.simple_logging import info
-
 
 def merge_cycles(g: nx.Graph) -> nx.Graph:
     mapping = {}
     for cycle in nx.algorithms.components.strongly_connected_components(g):
-        info(f"Cycle: {cycle}")
         merge_node = merge_nodes(cycle)
         mapping.update({old_node: merge_node for old_node in cycle})
     return nx.relabel_nodes(g, mapping)

@@ -2,7 +2,6 @@ import clingo
 import pytest
 from clingo.ast import Rule, parse_string, ASTType
 from src.viasp.asp.reify import transform, ProgramReifier, ProgramAnalyzer
-from tests.pyt.helper import traveling_salesperson
 
 
 def assertProgramEqual(actual, expected, message=None):

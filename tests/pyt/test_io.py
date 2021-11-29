@@ -9,7 +9,7 @@ from src.viasp.shared.model import Model, CostableModel
 from tests.pyt.helper import example_graph
 from tests.pyt.test_graph_creation import get_stable_models_for_program
 from src.viasp.asp.justify import build_graph
-from src.viasp.asp.reify import transform, ProgramAnalyzer, reify_list
+from src.viasp.asp.reify import ProgramAnalyzer, reify_list
 
 examples = [Model(set(), {"a", "b"}),
             CostableModel({"a"}, {"b"}, 42)]

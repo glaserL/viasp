@@ -1,5 +1,6 @@
 import json
 from collections import defaultdict
+from functools import lru_cache as f_cache
 from typing import Union, Collection
 
 import networkx as nx
@@ -27,6 +28,7 @@ class GraphDataBaseKEKL:
         with open(self.path, "w", encoding="utf-8") as f:
             json.dump(serializable_graph, f, cls=DataclassJSONEncoder, ensure_ascii=False, indent=2)
 
+    @f_cache
     def load(self, as_json=True) -> Union[nx.DiGraph, dict]:
         try:
             with open(self.path, encoding="utf-8") as f:
@@ -67,7 +69,7 @@ def handle_request_for_children(data) -> Collection[Node]:
 
     for u, v, d in graph.edges(data=True):
         edge: Transformation = d['transformation']
-        print(f"{u}-[{d}]->{v}")
+        # print(f"{u}-[{d}]->{v}")
         if str(edge.id) == rule_id:
             children.append(v)
     print(f"Returning {children} as children of {data}")
@@ -138,11 +140,11 @@ def get_all_rules():
     graph = get_database().load(as_json=False)
     returning = []
     for u, v in graph.edges:
-        print(f"Looking at {u.uuid}-[{graph[u][v]['transformation']}->{v.uuid}")
+        # print(f"Looking at {u.uuid}-[{graph[u][v]['transformation']}->{v.uuid}")
         transformation = graph[u][v]["transformation"]
         if transformation not in returning:
             returning.append(transformation)
-    print(f"kekekjdgkjdhfkljsfek {returning}")
+    # print(f"kekekjdgkjdhfkljsfek {returning}")
     r = jsonify(returning)
     return r
 
@@ -151,8 +153,9 @@ def get_all_rules():
 def entire_graph():
     if request.method == "POST":
         data = request.json
-        print(f"Saving {data}")
-        get_database().save(data)
+        database = get_database()
+        database.load.cache_clear()
+        database.save(data)
         return "ok"
     elif request.method == "GET":
         return get_database().load()
@@ -177,7 +180,7 @@ def model():
     if "uuid" in request.args.keys():
         key = request.args["uuid"]
     path = get_atoms_in_path_by_signature(key)
-    print(f"Returning {path}")
+    # print(f"Returning {path}")
     return jsonify(path)
 
 

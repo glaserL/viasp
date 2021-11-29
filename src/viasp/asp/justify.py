@@ -3,7 +3,7 @@ from collections import defaultdict
 from typing import List, Collection, Tuple, Dict, Iterable
 
 import networkx as nx
-from tqdm import tqdm
+
 from clingo import Control, Symbol, Model
 
 from clingo.ast import AST, Function
@@ -119,7 +119,7 @@ def build_graph(wrapped_stable_models: Collection[str], transformed_prg: Collect
         single_node_graph = nx.DiGraph()
         single_node_graph.add_node(fact_node)
         return single_node_graph
-    for model in tqdm(wrapped_stable_models):
+    for model in wrapped_stable_models:
         h_symbols = get_h_symbols_from_model(model, transformed_prg, facts, analyzer.get_constants())
         new_path = make_reason_path_from_facts_to_stable_model(model, mapping, fact_node, h_symbols)
         paths.append(new_path)
