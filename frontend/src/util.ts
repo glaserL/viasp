@@ -16,7 +16,7 @@ export function make_atoms_string(atoms: ClingoSymbol[] | ClingoSymbol): string 
             // console.log(`A func ${JSON.stringify(atoms)}`)
             const func = atoms as FunctionSymbol;
             let args = func.arguments.map(make_atoms_string).join(",")
-            return `${func.name}(${args})`
+            return args.length > 0 ? `${func.name}(${args})` : `${func.name}`
         default:
             throw TypeError(`Unimplemented type ${atoms._type}`)
 

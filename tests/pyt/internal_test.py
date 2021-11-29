@@ -5,7 +5,7 @@ import requests
 from networkx import node_link_data
 
 from src.viasp.asp.justify import build_graph
-from src.viasp.asp.reify import transform
+from src.viasp.asp.reify import transform, ProgramAnalyzer, reify_list
 from tests.pyt.test_graph_creation import get_stable_models_for_program
 from src.viasp.shared.io import DataclassJSONEncoder
 import networkx as nx
@@ -17,9 +17,13 @@ def test_writing_to_server():
     program = "c(1). c(2). b(X) :- c(X). a(X) :- b(X). {d(X)} :- b(X). {e(X)} :- a(X)."
     # program = "a(1). a(2). {b(X)} :- a(X). d(X) :- b(X). {c(X)} :- b(X)."
     program = "a(1..2). {b(X)} :- a(X). d(X) :- b(X). {c(X)} :- b(X)."
-    transformed = transform(program)
+    program = "a. b :- not c, a. c :- not b, a."
+    analyzer = ProgramAnalyzer()
+    sorted_program = analyzer.sort_program(program)
     saved_models = get_stable_models_for_program(program)
-    g = build_graph(saved_models, transformed, program)
+    reified = reify_list(sorted_program)
+
+    g = build_graph(saved_models, reified, sorted_program, analyzer.get_facts())
 
     backend_url = "http://127.0.0.1:5000/"
     serializable_graph = node_link_data(g)

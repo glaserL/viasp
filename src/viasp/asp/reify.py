@@ -1,47 +1,124 @@
-from typing import Dict, List, Collection, Tuple
+from collections import defaultdict
+from typing import Dict, List, Collection, Tuple, Optional, Iterable, Set
 
 import clingo
-from clingo import ast
-from clingo.ast import Transformer, parse_string, Rule, ASTType
+import networkx as nx
+from clingo import ast, Symbol
+from clingo.ast import Transformer, parse_string, Rule, ASTType, AST, Literal
+
+from viasp.asp.utils import merge_cycles, remove_loops
+from ..shared.model import Node, Transformation
+from viasp.shared.simple_logging import info
 
 
-def is_fact(rule):
-    return len(rule.body) == 0
+def is_fact(rule, depedants, conditions):
+    return len(rule.body) == 0 and not len(depedants) and not len(conditions)
 
 
-class IdentityTransformAsReferenceForMe(Transformer):
-
-    def visit_Rule(self, rule: clingo.ast.AST, *args, **kwargs):
-        print(f"Visiting {rule=}")
-        return Rule(rule.location, self.visit(rule.head, *args, **kwargs),
-                    self.visit_sequence(rule.body, *args, **kwargs))
-
-    #
-    # def visit_Head(self, head: clingo.ast.AST, *args, **kwargs):
-    #     print(f"Visiting {head=}")
-    #     return head
-    #
-    # def visit_Literal(self, literal, *args, **kwargs):
-    #     print(f"Visiting {literal=}")
-    #     return literal
-
-    #
-    # def visit_Aggregate(self, aggregate):
-    #     print(f"Visiting {aggregate=}")
-    #     a = aggregate.left_guard
-    #     b = aggregate.elements
-    #     c = aggregate.right_guard
-    #     return aggregate
-
-    def visit_HeadAggregate(self, head_aggregate):
-        print(f"Visiting {head_aggregate=}")
-        return head_aggregate
+def make_signature(literal: clingo.ast.Literal) -> Tuple[str, int]:
+    unpacked = literal.atom.symbol
+    return unpacked.name, len(unpacked.arguments) if hasattr(unpacked, "arguments") else 0
 
 
-class sasa(Transformer):
+class ProgramAnalyzer(Transformer):
+    """
+    Receives a ASP program and finds it's dependencies within, can sort a program by it's dependencies.
+    Will merge recursive rules and rules that produce the same head into a Transformation.
+    """
 
     def __init__(self):
-        self.rule_nr = 1
+        self.dependencies = nx.DiGraph()
+        self.dependants: Dict[Tuple[str, int], Set[Rule]] = defaultdict(set)
+        self.conditions: Dict[Tuple[str, int], Set[Rule]] = defaultdict(set)
+        self.rule2signatures = defaultdict(set)
+        self.facts: Set[Symbol] = set()
+
+    def get_facts(self):
+        return extract_symbols(self.facts)
+
+    def visit_Aggregate(self, aggregate, in_head=True, dependants=[], conditions=[]):
+        conditional_literals = aggregate.elements
+        print(f"Visiting {str(aggregate)=}, {in_head=}")
+        for elem in conditional_literals:
+            self.visit(elem, dependants=dependants, conditions=conditions)
+        return aggregate
+
+    def visit_ConditionalLiteral(self, conditional_literal, in_head=True, dependants=[], conditions=[]):
+        print(f"Visiting {str(conditional_literal)=}, {in_head=}")
+        self.visit(conditional_literal.literal)
+        dependants.append(conditional_literal.literal)
+        for condition in conditional_literal.condition:
+            conditions.append(condition)
+        return conditional_literal
+
+    def register_symbolic_dependencies(self, dependants, conditions):
+        for u in conditions:
+            for v in dependants:
+                self.dependencies.add_edge(u, v)
+
+    def register_rule_dependencies(self, rule: Rule,
+                                   dependants: Collection[Literal],
+                                   conditions: Collection[Literal]) -> None:
+        for u in conditions:
+            u_sig = make_signature(u)
+            self.conditions[u_sig].add(rule)
+        for v in dependants:
+            v_sig = make_signature(v)
+            self.dependants[v_sig].add(rule)
+
+    def visit_Rule(self, rule: Rule):
+
+        dependants, conditions = [], []
+        _ = self.visit(rule.head, in_head=True, dependants=dependants, conditions=conditions)
+        conditions.extend(rule.body)
+        if is_fact(rule, dependants, conditions):
+            self.facts.add(rule.head)
+        if not len(dependants) and len(rule.body):
+            dependants.append(rule.head)
+        self.register_symbolic_dependencies(dependants, conditions)
+        self.register_rule_dependencies(rule, dependants, conditions)
+
+    def sort_program(self, program) -> List[Transformation]:
+        parse_string(program, lambda rule: self.visit(rule))
+        sorted_program = self.sort_program_by_dependencies()
+        return [Transformation(i, prg) for i, prg in enumerate(sorted_program)]
+
+    def make_dependency_graph(self, head_dependencies: Dict[Tuple[str, int], Iterable[clingo.ast.AST]],
+                              body_dependencies: Dict[Tuple[str, int], Iterable[clingo.ast.AST]]) -> nx.DiGraph:
+        """
+        We draw a dependency graph based on which rule head contains which literals.
+        That way we know, that in order to have a rule r with a body containing literal l, all rules that have l in their
+        heads must come before r.
+        :param head_dependencies: Mapping from a signature to all rules containing them in the head
+        :param body_dependencies: mapping from a signature to all rules containing them in the body
+        :return:
+        """
+        g = nx.DiGraph()
+        # Add dependents
+        for head_signature, rules_with_head in head_dependencies.items():
+            dependent_rules = body_dependencies.get(head_signature, [])
+            for parent_rule in rules_with_head:
+                for dependent_rule in dependent_rules:
+                    g.add_edge(frozenset([parent_rule]), frozenset([dependent_rule]))
+
+            if len(dependent_rules) == 0:
+                for rule in rules_with_head:
+                    g.add_node(frozenset([rule]))
+
+        return g
+
+    def sort_program_by_dependencies(self):
+        deps = self.make_dependency_graph(self.dependants, self.conditions)
+        deps = merge_cycles(deps)
+        deps = remove_loops(deps)
+        program = list(nx.topological_sort(deps))
+        return program
+
+
+class ProgramReifier(Transformer):
+
+    def __init__(self, rule_nr=1):
+        self.rule_nr = rule_nr
 
     def _nest_rule_head_in_h(self, loc, dependants):
         loc_fun = ast.Function(loc, str(self.rule_nr), [], False)
@@ -85,16 +162,17 @@ class sasa(Transformer):
             conditions.append(condition)
         return conditional_literal
 
-    def visit_Rule(self, rule: clingo.ast.AST):
+    def visit_Rule(self, rule: clingo.ast.Rule):
         print(f"Visiting rule {rule}")
         # Embed the head
         dependants, conditions = [], []
         loc = rule.location
-        visited_head = self.visit(rule.head, in_head=True, dependants=dependants, conditions=conditions)
+        _ = self.visit(rule.head, in_head=True, dependants=dependants, conditions=conditions)
 
-        if is_fact(rule) and not dependants and not conditions:
+        if is_fact(rule, dependants, conditions):
             return rule
         if not dependants:
+            # if it's a "simple head"
             dependants.append(rule.head)
 
         new_head_s = self._nest_rule_head_in_h(rule.location, dependants)
@@ -106,26 +184,8 @@ class sasa(Transformer):
 
         # Add switch statement for the head
         head_switches = [self._make_head_switch(head, loc) for head in dependants]
-        self.rule_nr += 1
         new_rules.extend(head_switches)
         return new_rules
-    #
-    # def visit_Literal(self, literal: clingo.ast.AST, body):
-    #     print(f"Visiting {literal=} {literal.sign=}")
-    #     if body and literal.sign == ast.Sign.NoSign:
-    #         model_fun = ast.Function(literal.location, "model", [literal], False)
-    #         model_atm = ast.SymbolicAtom(model_fun)
-    #         model_lit = ast.Literal(literal.location, literal.sign, model_atm)
-    #         return model_lit
-    #     else:
-    #         return literal
-
-
-# def register_rules(rule_or_list_of_rules, rulez):
-#     if isinstance(rule_or_list_of_rules, list):
-#         rulez.extend(rule_or_list_of_rules)
-#     else:
-#         rulez.append(rule_or_list_of_rules)
 
 
 def register_rules(rule_or_list_of_rules, rulez):
@@ -138,48 +198,34 @@ def register_rules(rule_or_list_of_rules, rulez):
             rulez.append(rule_or_list_of_rules)
 
 
-def transform(program: str):
-    itarfm = sasa()
+def transform(program: str, visitor=None):
+    if visitor is None:
+        visitor = ProgramReifier()
     rulez = []
-    parse_string(program, lambda rule: register_rules(itarfm.visit(rule), rulez))
+    parse_string(program, lambda rule: register_rules(visitor.visit(rule), rulez))
     return rulez
 
 
-def add_to_dict_and_increment(dct: Dict[int, clingo.ast.AST], elem: clingo.ast.AST, counter: int):
-    dct[counter] = elem
-    counter += 1
+def reify(transformation: Transformation):
+    visitor = ProgramReifier(transformation.id)
+    result = []
+    for rule in transformation.rules:
+        result.extend(visitor.visit(rule))
+    return result
 
 
-class JustTheRulesTransformer(Transformer):
-
-    def __init__(self):
-        self.rule_nr = 1
-
-    def visit_Rule(self, rule):
-        if is_fact(rule):
-            return rule
-        else:
-            rule_nr = self.rule_nr
-            self.rule_nr += 1
-
-            return rule_nr, rule
+def reify_list(transformations: Iterable[Transformation]) -> List[AST]:
+    reified = []
+    for part in transformations:
+        reified.extend(reify(part))
+    return reified
 
 
 def extract_symbols(facts):
     ctl = clingo.Control()
-    ctl.add("INTERNAL", [], "".join(str(f) for f in facts))
+    ctl.add("INTERNAL", [], "".join(f"{str(f)}." for f in facts))
     ctl.ground([("INTERNAL", [])])
     result = []
     for fact in ctl.symbolic_atoms:
         result.append(fact.symbol)
     return result
-
-
-def line_nr_to_rule_mapping_and_facts(program: str) -> Tuple[Dict[int, clingo.ast.AST], Collection[clingo.Symbol]]:
-    jtrt = JustTheRulesTransformer()
-    all_rules: List[clingo.ast.AST] = []
-    parse_string(program, lambda rule: all_rules.append(jtrt.visit(rule)))
-    mappings = {nr: rule for nr, rule in filter(lambda e: isinstance(e, tuple), all_rules)}
-    facts = [fact for fact in filter(lambda e: not isinstance(e, tuple) and e.ast_type != ASTType.Program, all_rules)]
-    facts = extract_symbols(facts)
-    return mappings, facts

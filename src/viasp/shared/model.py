@@ -75,7 +75,7 @@ class Transformation:
         return hash(tuple(self.rules))
 
 
-@dataclass
+@dataclass(frozen=True)
 class Signature:
     name: str
     args: int

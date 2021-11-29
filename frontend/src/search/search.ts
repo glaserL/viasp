@@ -54,6 +54,15 @@ function setFilter(on: Model | Transformation | Signature): void {
             },
             body: JSON.stringify(fltr)
         }).then(redrawGraph).catch(e => console.error(e))
+    } else if (on._type == "Signature") {
+        fetch(`${backendURL("filter")}`, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(fltr)
+        }).then(redrawGraph).catch(e => console.error(e))
     } else {
         throw TypeError("Unknown type to set filter: " + on._type);
     }
@@ -82,6 +91,27 @@ function makeTransformationRow(transformation: Transformation, index: number): H
 
 }
 
+function makeSignatureRow(signature: Signature, index: number): HTMLLIElement {
+    let row = document.createElement("li")
+    row.classList.add("search_row", "search_signature")
+    row.onmouseover = () => hoverOverThing(index)
+    row.onclick = () => setFilter(signature)
+    row.innerHTML = `${signature.name}/${signature.args}`
+    return row
+}
+
+function make_suggestion_row(data: Array<Model | Transformation | Signature>, i: number) {
+    if (data[i]._type == "Node") {
+        return makeModelRow(data[i] as Model, i);
+    } else if (data[i]._type == "Transformation") {
+        return makeTransformationRow(data[i] as Transformation, i);
+    } else if (data[i]._type == "Signature") {
+        return makeSignatureRow(data[i] as Signature, i);
+    } else {
+        console.error(`Unsupported type ${data[i]._type}`)
+    }
+}
+
 function showResults() {
 
 
@@ -102,17 +132,9 @@ function showResults() {
     fetch(`${backendURL("query")}?q=` + query).then(
         function (response) {
             return response.json();
-        }).then(function (data: Array<Model | Transformation>) {
+        }).then(function (data: Array<Model | Transformation | Signature>) {
         for (let i = 0; i < data.length; i++) {
-            if (data[i]._type == "Node") {
-                let elem = makeModelRow(data[i] as Model, i);
-                resultList.appendChild(elem);
-            } else if (data[i]._type == "Transformation") {
-                let elem = makeTransformationRow(data[i] as Transformation, i);
-                resultList.appendChild(elem);
-            } else {
-                console.error(`Unsupported type ${data[i]._type}`)
-            }
+            resultList.appendChild(make_suggestion_row(data, i));
         }
         res.appendChild(resultList);
         console.log(`Displaying ${resultList}`)

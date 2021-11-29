@@ -1,7 +1,7 @@
 import clingo
 import pytest
 from clingo.ast import Rule, parse_string, ASTType
-from src.viasp.asp.reify import transform, line_nr_to_rule_mapping_and_facts
+from src.viasp.asp.reify import transform, ProgramReifier, ProgramAnalyzer
 from tests.pyt.helper import traveling_salesperson
 
 
@@ -59,7 +59,7 @@ def test_normal_rule_with_negation_is_transformed_correctly():
 
 def test_multiple_rules_with_same_head_do_not_lead_to_duplicate_h_with_wildcard():
     rule = "b(X) :- c(X), not a(X). b(X) :- a(X), not c(X)."
-    expected = "h(1, b(X)) :- model(b(X)), c(X), not a(X).h(2, b(X)) :- model(b(X)), a(X), not c(X).b(X) :- h(_,b(X))."
+    expected = "h(1, b(X)) :- model(b(X)), c(X), not a(X).h(1, b(X)) :- model(b(X)), a(X), not c(X).b(X) :- h(_,b(X))."
     assertProgramEqual(transform(rule), parse_program_to_ast(expected))
 
 
@@ -76,16 +76,11 @@ def extract_rule_nrs_from_parsed_program(prg):
 
 
 def test_programs_with_facts_result_in_matching_program_mappings():
-    program = "c(1). c(2). f. b(X) :- c(X), not a(X). b(X) :- a(X), not c(X)."
-    expected = "c(1). c(2). f. h(1, b(X)) :- model(b(X)), c(X), not a(X).h(2, b(X)) :- model(b(X)), a(X), not c(X).b(X) :- h(_,b(X))."
+    program = "b(X) :- c(X), not a(X). b(X) :- a(X), not c(X)."
+    expected = "h(1, b(X)) :- model(b(X)), c(X), not a(X).h(1, b(X)) :- model(b(X)), a(X), not c(X).b(X) :- h(_,b(X))."
     parsed = parse_program_to_ast(expected)
     transformed = transform(program)
     assertProgramEqual(transformed, parsed)
-    mapping_keys = extract_rule_nrs_from_parsed_program(parsed)
-    mapping, facts = line_nr_to_rule_mapping_and_facts(program)
-    assert len(facts) == 3
-
-    assert list(mapping.keys()) == mapping_keys
 
 
 def test_choice_rule_is_transformed_correctly():
@@ -106,11 +101,46 @@ def test_head_aggregate_is_transformed_correctly():
     assertProgramEqual(transform(rule), parse_program_to_ast(expected))
 
 
-def test_program_mappings_work():
-    rule = "a. x(1). d :- c. y(X) :- x(X). {z(X)} :- not d(X)."  # {z(1..3)}."
-    rule_mapping, facts = line_nr_to_rule_mapping_and_facts(rule)
-    assert len(rule_mapping) == 3
-    assert len(facts) == 2
+def test_dependency_graph_creation():
+    program = "a. b :- a. c :- a."
+
+    analyzer = ProgramAnalyzer()
+    result = analyzer.sort_program(program)
+    assert len(result) == 2, "Facts should not be in the sorted program."
+    assert len(analyzer.dependants) == 2, "Facts should not be in the dependency graph."
+
+
+def test_negative_recursion_gets_grouped():
+    program = "a. b :- not c, a. c :- not b, a."
+
+    analyzer = ProgramAnalyzer()
+    result = analyzer.sort_program(program)
+    assert len(result) == 1, "Negative recursions should be grouped into one transformation."
+
+
+def multiple_non_recursive_rules_with_same_head_should_not_be_grouped():
+    program = "f(B) :- x(B). f(B) :- f(A), rel(A,B)."
+
+    analyzer = ProgramAnalyzer()
+    result = analyzer.sort_program(program)
+    assert len(result) == 2, "Multiple rules with same head that are not recursive should not be grouped."
+
+
+def sorting_works():
+    program = "d :- c. b :- a. a. c :- b. "
+    transformer = ProgramReifier()
+    _ = transform(program, transformer)
+
+
+def test_data_type_is_correct():
+    program = "d :- c. b :- a. a. c :- b."
+    transformer = ProgramAnalyzer()
+    result = transformer.sort_program(program)
+    assert len(result) > 0 and len(
+        result[0].rules) > 0, "Transformation should return something and the transformation should contain a rule."
+    a_rule = next(iter(result[0].rules))
+    data_type = type(a_rule)
+    assert data_type == clingo.ast.AST, f"{a_rule} should be an ASTType, not {data_type}"
 
 
 def get_reasons(prg, model):
@@ -126,9 +156,7 @@ def get_reasons(prg, model):
 
 @pytest.mark.skip(reason="Not implemented yet.")
 def test_traveling_salesperson_works():
-    program = traveling_salesperson()
-    rule_mapping, facts = line_nr_to_rule_mapping_and_facts(program)
-    transformed = transform(program)
+    pass
 
 
 @pytest.mark.skip(reason="Not implemented yet.")

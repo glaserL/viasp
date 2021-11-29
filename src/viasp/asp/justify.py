@@ -5,18 +5,22 @@ from typing import List, Collection, Tuple, Dict, Iterable
 import networkx as nx
 from clingo import Control, Symbol, Model
 
-from clingo.ast import AST
+from clingo.ast import AST, Function
 
-from .reify import line_nr_to_rule_mapping_and_facts
 from ..shared.model import Node, Transformation
 from ..shared.simple_logging import info, warn
-from ..shared.util import pairwise, get_sorted_path_from_path_graph, get_start_node_from_graph
+from ..shared.util import pairwise
 
 
-def get_h_symbols_from_model(wrapped_stable_model: Iterable[Symbol], transformed_prg) -> List[Symbol]:
+def stringify_fact(fact: Function) -> str:
+    return f"{str(fact)}."
+
+
+def get_h_symbols_from_model(wrapped_stable_model: Iterable[Symbol], transformed_prg, facts) -> List[Symbol]:
     rules_that_are_reasons_why = []
     ctl = Control()
     stringified = "".join(map(str, transformed_prg))
+    ctl.add("base", [], "".join(map(stringify_fact, facts)))
     ctl.add("base", [], stringified)
     ctl.add("base", [], "".join(map(str, wrapped_stable_model)))
     ctl.ground([("base", [])])
@@ -63,12 +67,12 @@ def insert_atoms_into_nodes(path: List[Node]):
 
 
 def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, transformed_prg, rule_mapping: Dict[int, AST],
-                                                facts: Node, pad=True) -> nx.DiGraph:
-    h_syms = get_h_symbols_from_model(wrapped_stable_model, transformed_prg)
+                                                fact_node: Node, facts, pad=True) -> nx.DiGraph:
+    h_syms = get_h_symbols_from_model(wrapped_stable_model, transformed_prg, facts)
 
     h_syms = collect_h_symbols_and_create_nodes(h_syms, rule_mapping.keys(), pad)
     h_syms.sort(key=lambda node: node.rule_nr)
-    h_syms.insert(0, facts)
+    h_syms.insert(0, fact_node)
 
     insert_atoms_into_nodes(h_syms)
     g = nx.DiGraph()
@@ -76,12 +80,12 @@ def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, transforme
         # If there is a stable model that is exactly the same as the facts.
         warn(f"Adding a model without reasons {wrapped_stable_model}")
         g.add_edge(facts, Node(frozenset(), min(rule_mapping.keys()), frozenset(facts.diff)),
-                   transformation=Transformation(min(rule_mapping.keys()), [rule_mapping[min(rule_mapping.keys())]]))
+                   transformation=rule_mapping[min(rule_mapping.keys())])
         return g
     # g.add_edge(facts, h_syms[0],
     #           transformation=Transformation(min(rule_mapping.keys()), rule_mapping[min(rule_mapping.keys())]))
     for a, b in pairwise(h_syms):
-        g.add_edge(a, b, transformation=Transformation(b.rule_nr, [rule_mapping[b.rule_nr]]))
+        g.add_edge(a, b, transformation=rule_mapping[b.rule_nr])
 
     return g
 
@@ -98,18 +102,22 @@ def join_paths_with_facts(paths: Collection[nx.DiGraph]) -> nx.DiGraph:
     return combined
 
 
-def build_graph(wrapped_stable_models: Collection[str], transformed_prg: Collection[str],
-                orig_program: str) -> nx.DiGraph:
+def list_of_transformations_to_mapping_prob_u_can_throw_this_away(transformations: Iterable[Transformation]):
+    return {t.id: t for t in transformations}
+
+
+def build_graph(wrapped_stable_models: Collection[str], transformed_prg: Collection[AST],
+                sorted_program: Collection[Transformation], facts: Collection[Symbol]) -> nx.DiGraph:
     paths: List[nx.DiGraph] = []
-    mapping, facts = line_nr_to_rule_mapping_and_facts(orig_program)
-    facts = Node(frozenset(facts), 0, frozenset(facts))
+    mapping = list_of_transformations_to_mapping_prob_u_can_throw_this_away(sorted_program)
+    fact_node = Node(frozenset(facts), 0, frozenset(facts))
     if not len(mapping):
-        info(f"Program only contains facts. {facts}")
+        info(f"Program only contains facts. {fact_node}")
         single_node_graph = nx.DiGraph()
-        single_node_graph.add_node(facts)
+        single_node_graph.add_node(fact_node)
         return single_node_graph
     for model in wrapped_stable_models:
-        new_path = make_reason_path_from_facts_to_stable_model(model, transformed_prg, mapping, facts)
+        new_path = make_reason_path_from_facts_to_stable_model(model, transformed_prg, mapping, fact_node, facts)
         paths.append(new_path)
 
     result_graph = join_paths_with_facts(paths)

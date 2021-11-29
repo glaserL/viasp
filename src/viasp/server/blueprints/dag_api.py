@@ -1,12 +1,12 @@
 import json
 from collections import defaultdict
-from typing import Union
+from typing import Union, Collection
 
 import networkx as nx
 from flask import Blueprint, request, jsonify, abort
 
 from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder, deserialize
-from ...shared.model import Transformation, Filter, Node
+from ...shared.model import Transformation, Filter, Node, Signature
 from ...shared.util import get_start_node_from_graph, get_leafs_from_graph, pairwise
 from .app import storage
 
@@ -56,7 +56,7 @@ def prune_graph(graph, fltr: Filter):
     return filtered
 
 
-def handle_request_for_children(data):
+def handle_request_for_children(data) -> Collection[Node]:
     graph = get_database().load(as_json=False)
     rule_id = data["rule_id"]
     children = list()
@@ -181,12 +181,22 @@ def model():
     return jsonify(path)
 
 
+def get_all_signatures(graph: nx.Graph):
+    signatures = set()
+    for n in graph.nodes():
+        for a in n.diff:
+            signatures.add(Signature(a.name, len(a.arguments)))
+    return signatures
+
+
 @bp.route("/query", methods=["GET"])
 def search():
     if "q" in request.args.keys():
         query = request.args["q"]
         graph = get_database().load(as_json=False)
         result = []
+        signatures = get_all_signatures(graph)
+        result.extend(signatures)
         for node in graph.nodes():
             if any(query in str(atm) for atm in node.atoms) and node not in result:
                 result.append(node)
@@ -194,7 +204,7 @@ def search():
             transformation = edge["transformation"]
             if any(query in r for r in transformation.rules) and transformation not in result:
                 result.append(transformation)
-        return jsonify(result[:3])
+        return jsonify(result[:10])
     return jsonify([])
 
 
