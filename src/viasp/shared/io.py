@@ -66,7 +66,6 @@ class DataclassJSONEncoder(JSONEncoder):
     def default(self, o):
         if is_dataclass(o):
             result = dataclass_to_dict(o)
-            print(f"Saving {result}")
             return result
         elif isinstance(o, UUID):
             return o.hex

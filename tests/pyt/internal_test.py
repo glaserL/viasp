@@ -1,4 +1,5 @@
 import json
+from random import sample
 
 import pytest
 import requests
@@ -17,17 +18,22 @@ def test_writing_to_server():
     program = "c(1). c(2). b(X) :- c(X). a(X) :- b(X). {d(X)} :- b(X). {e(X)} :- a(X)."
     # program = "a(1). a(2). {b(X)} :- a(X). d(X) :- b(X). {c(X)} :- b(X)."
     program = "a(1..2). {b(X)} :- a(X). d(X) :- b(X). {c(X)} :- b(X)."
-    program = "a. b :- not c, a. c :- not b, a."
+    # program = "a. b :- not c, a. c :- not b, a."
+    with open("../sudoku.lp", encoding="UTF-8") as f:
+        program = "\n".join(f.readlines())
     analyzer = ProgramAnalyzer()
-    sorted_program = analyzer.sort_program(program)
+    analyzer.add_program(program)
+    sorted_program = analyzer.get_sorted_program()
     saved_models = get_stable_models_for_program(program)
     reified = reify_list(sorted_program)
 
-    g = build_graph(saved_models, reified, sorted_program, analyzer.get_facts())
+    g = build_graph(saved_models, reified, analyzer)
 
     backend_url = "http://127.0.0.1:5000/"
+
     serializable_graph = node_link_data(g)
     serialized = json.dumps(serializable_graph, cls=DataclassJSONEncoder, ensure_ascii=False, indent=2)
+
     r = requests.post(f"{backend_url}graph",
                       data=serialized,
                       headers={'Content-Type': 'application/json'})
@@ -38,6 +44,6 @@ def test_viz_with_nx():
     program = "c(1). c(2). b(X) :- c(X). a(X) :- b(X). {d(X)} :- b(X). {e(X)} :- a(X)."
     transformed = transform(program)
     saved_models = get_stable_models_for_program(program)
-    g = build_graph(saved_models, transformed, program)
+    g = build_graph(saved_models, transformed, )
     nx.draw(g)
     plt.show()

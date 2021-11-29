@@ -3,10 +3,12 @@ from collections import defaultdict
 from typing import List, Collection, Tuple, Dict, Iterable
 
 import networkx as nx
+from tqdm import tqdm
 from clingo import Control, Symbol, Model
 
 from clingo.ast import AST, Function
 
+from .reify import ProgramAnalyzer
 from ..shared.model import Node, Transformation
 from ..shared.simple_logging import info, warn
 from ..shared.util import pairwise
@@ -16,10 +18,11 @@ def stringify_fact(fact: Function) -> str:
     return f"{str(fact)}."
 
 
-def get_h_symbols_from_model(wrapped_stable_model: Iterable[Symbol], transformed_prg, facts) -> List[Symbol]:
+def get_h_symbols_from_model(wrapped_stable_model: Iterable[Symbol], transformed_prg, facts, constants) -> List[Symbol]:
     rules_that_are_reasons_why = []
     ctl = Control()
     stringified = "".join(map(str, transformed_prg))
+    ctl.add("base", [], "".join(map(str, constants)))
     ctl.add("base", [], "".join(map(stringify_fact, facts)))
     ctl.add("base", [], stringified)
     ctl.add("base", [], "".join(map(str, wrapped_stable_model)))
@@ -66,10 +69,8 @@ def insert_atoms_into_nodes(path: List[Node]):
         v.atoms = frozenset(state)
 
 
-def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, transformed_prg, rule_mapping: Dict[int, AST],
-                                                fact_node: Node, facts, pad=True) -> nx.DiGraph:
-    h_syms = get_h_symbols_from_model(wrapped_stable_model, transformed_prg, facts)
-
+def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, rule_mapping: Dict[int, AST],
+                                                fact_node: Node, h_syms, pad=True) -> nx.DiGraph:
     h_syms = collect_h_symbols_and_create_nodes(h_syms, rule_mapping.keys(), pad)
     h_syms.sort(key=lambda node: node.rule_nr)
     h_syms.insert(0, fact_node)
@@ -79,7 +80,7 @@ def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, transforme
     if len(h_syms) == 1:
         # If there is a stable model that is exactly the same as the facts.
         warn(f"Adding a model without reasons {wrapped_stable_model}")
-        g.add_edge(facts, Node(frozenset(), min(rule_mapping.keys()), frozenset(facts.diff)),
+        g.add_edge(fact_node, Node(frozenset(), min(rule_mapping.keys()), frozenset(fact_node.diff)),
                    transformation=rule_mapping[min(rule_mapping.keys())])
         return g
     # g.add_edge(facts, h_syms[0],
@@ -107,8 +108,10 @@ def list_of_transformations_to_mapping_prob_u_can_throw_this_away(transformation
 
 
 def build_graph(wrapped_stable_models: Collection[str], transformed_prg: Collection[AST],
-                sorted_program: Collection[Transformation], facts: Collection[Symbol]) -> nx.DiGraph:
+                analyzer: ProgramAnalyzer) -> nx.DiGraph:
     paths: List[nx.DiGraph] = []
+    facts = analyzer.get_facts()
+    sorted_program = analyzer.get_sorted_program()
     mapping = list_of_transformations_to_mapping_prob_u_can_throw_this_away(sorted_program)
     fact_node = Node(frozenset(facts), 0, frozenset(facts))
     if not len(mapping):
@@ -116,8 +119,9 @@ def build_graph(wrapped_stable_models: Collection[str], transformed_prg: Collect
         single_node_graph = nx.DiGraph()
         single_node_graph.add_node(fact_node)
         return single_node_graph
-    for model in wrapped_stable_models:
-        new_path = make_reason_path_from_facts_to_stable_model(model, transformed_prg, mapping, fact_node, facts)
+    for model in tqdm(wrapped_stable_models):
+        h_symbols = get_h_symbols_from_model(model, transformed_prg, facts, analyzer.get_constants())
+        new_path = make_reason_path_from_facts_to_stable_model(model, mapping, fact_node, h_symbols)
         paths.append(new_path)
 
     result_graph = join_paths_with_facts(paths)

@@ -46,7 +46,7 @@ def test_other_graph_is_isomorphic_after_dumping_and_loading_again():
     saved_models = get_stable_models_for_program(orig_program)
     reified = reify_list(sorted_program)
 
-    graph = build_graph(saved_models, reified, sorted_program, analyzer.get_facts())
+    graph = build_graph(saved_models, reified, analyzer)
     assert len(graph.nodes()) > 0, "The graph to check serialization should contain nodes."
     assert len(graph.edges()) > 0, "The graph to check serialization should contain edges."
     serializable_graph = node_link_data(graph)

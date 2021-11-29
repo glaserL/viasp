@@ -11,6 +11,10 @@ from ..shared.model import Node, Transformation
 from viasp.shared.simple_logging import info
 
 
+def is_constraint(rule: Rule):
+    return "atom" in rule.head.child_keys and rule.head.atom.ast_type == ASTType.BooleanConstant
+
+
 def is_fact(rule, depedants, conditions):
     return len(rule.body) == 0 and not len(depedants) and not len(conditions)
 
@@ -18,6 +22,10 @@ def is_fact(rule, depedants, conditions):
 def make_signature(literal: clingo.ast.Literal) -> Tuple[str, int]:
     unpacked = literal.atom.symbol
     return unpacked.name, len(unpacked.arguments) if hasattr(unpacked, "arguments") else 0
+
+
+def filter_body_arithmetic(elem: clingo.ast.Literal):
+    return elem.atom.ast_type != ASTType.Comparison
 
 
 class ProgramAnalyzer(Transformer):
@@ -32,9 +40,13 @@ class ProgramAnalyzer(Transformer):
         self.conditions: Dict[Tuple[str, int], Set[Rule]] = defaultdict(set)
         self.rule2signatures = defaultdict(set)
         self.facts: Set[Symbol] = set()
+        self.constants: Set[Symbol] = set()
 
     def get_facts(self):
-        return extract_symbols(self.facts)
+        return extract_symbols(self.facts, self.constants)
+
+    def get_constants(self):
+        return self.constants
 
     def visit_Aggregate(self, aggregate, in_head=True, dependants=[], conditions=[]):
         conditional_literals = aggregate.elements
@@ -47,7 +59,7 @@ class ProgramAnalyzer(Transformer):
         print(f"Visiting {str(conditional_literal)=}, {in_head=}")
         self.visit(conditional_literal.literal)
         dependants.append(conditional_literal.literal)
-        for condition in conditional_literal.condition:
+        for condition in filter(filter_body_arithmetic, conditional_literal.condition):
             conditions.append(condition)
         return conditional_literal
 
@@ -67,19 +79,32 @@ class ProgramAnalyzer(Transformer):
             self.dependants[v_sig].add(rule)
 
     def visit_Rule(self, rule: Rule):
+        if not str(rule).startswith("initial"):
+            x = 2
 
         dependants, conditions = [], []
         _ = self.visit(rule.head, in_head=True, dependants=dependants, conditions=conditions)
-        conditions.extend(rule.body)
+        conditions.extend(filter(filter_body_arithmetic, rule.body))
         if is_fact(rule, dependants, conditions):
             self.facts.add(rule.head)
-        if not len(dependants) and len(rule.body):
+        if not len(dependants) and len(rule.body) and not is_constraint(rule):
             dependants.append(rule.head)
         self.register_symbolic_dependencies(dependants, conditions)
         self.register_rule_dependencies(rule, dependants, conditions)
 
+    def visit_Definition(self, definition):
+        self.constants.add(definition)
+        return definition
+
+    def add_program(self, program: str) -> None:
+        parse_string(program, lambda statement: self.visit(statement))
+
     def sort_program(self, program) -> List[Transformation]:
         parse_string(program, lambda rule: self.visit(rule))
+        sorted_program = self.sort_program_by_dependencies()
+        return [Transformation(i, prg) for i, prg in enumerate(sorted_program)]
+
+    def get_sorted_program(self) -> List[Transformation]:
         sorted_program = self.sort_program_by_dependencies()
         return [Transformation(i, prg) for i, prg in enumerate(sorted_program)]
 
@@ -169,8 +194,8 @@ class ProgramReifier(Transformer):
         loc = rule.location
         _ = self.visit(rule.head, in_head=True, dependants=dependants, conditions=conditions)
 
-        if is_fact(rule, dependants, conditions):
-            return rule
+        if is_fact(rule, dependants, conditions) or is_constraint(rule):
+            return [rule]
         if not dependants:
             # if it's a "simple head"
             dependants.append(rule.head)
@@ -221,9 +246,10 @@ def reify_list(transformations: Iterable[Transformation]) -> List[AST]:
     return reified
 
 
-def extract_symbols(facts):
+def extract_symbols(facts, constants=[]):
     ctl = clingo.Control()
     ctl.add("INTERNAL", [], "".join(f"{str(f)}." for f in facts))
+    ctl.add("INTERNAL", [], "".join(f"{str(c)}" for c in constants))
     ctl.ground([("INTERNAL", [])])
     result = []
     for fact in ctl.symbolic_atoms:
