@@ -48,6 +48,7 @@ class ClingoReconstructor:
     @handles("ground", "add")
     def identity(self, ctl: Control, call: ClingoMethodCall) -> Control:
         func = getattr(ctl, call.name)  # TODO: Error handling
+        # TODO: Do you even need ground here?
         func(**call.kwargs)
         return ctl
 
