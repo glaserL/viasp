@@ -3,13 +3,12 @@ from clingo import Control
 
 from src.viasp.server.database import CallCenter
 from src.viasp.asp.replayer import apply_multiple
-from tests.pyt.test_replayer import run_sample
 from src.viasp.shared.io import model_to_json
 
 
-def test_calls_are_filtered_after_application():
+def test_calls_are_filtered_after_application(clingo_call_run_sample):
     db = CallCenter()
-    db.extend(run_sample())
+    db.extend(clingo_call_run_sample)
     assert len(db.get_all()) == 4, "There should be four unused calls before reconstruction."
     assert len(db.get_pending()) == 4, "There should be four unused calls before reconstruction."
     _ = apply_multiple(db.get_all())

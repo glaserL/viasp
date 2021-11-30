@@ -1,11 +1,10 @@
 from copy import copy
 from dataclasses import dataclass, field
-from enum import Enum, unique
 from inspect import Signature as inspect_Signature
-from typing import Any, Sequence, Dict, Union, Collection, Set, FrozenSet, TypeVar
+from typing import Any, Sequence, Dict, Union, FrozenSet, Collection
 from uuid import UUID, uuid4
 
-from clingo import Symbol
+from clingo import Symbol, ModelType
 
 
 @dataclass()
@@ -23,47 +22,6 @@ class Node:
 
     def __repr__(self):
         return f"Node(diff={{{'. '.join(map(str, self.diff))}}}, rule_nr={self.rule_nr}, atoms={{{'. '.join(map(str, self.atoms))}}}, uuid={self.uuid})"
-
-
-@dataclass(frozen=True, eq=True)
-class Model:
-    atoms: Set[str]
-    _prev: Set[str]
-
-    def __hash__(self):
-        return hash((frozenset(self.atoms), frozenset(self._prev)))
-
-    @classmethod
-    def from_previous_union(cls, new: Collection[str], prev: Collection[str]):
-        """Here new is ONLY the added one, without the stuff in prev"""
-        new, prev = set(new), set(prev)
-        return cls(new | prev, prev)
-
-    @classmethod
-    def from_previous_diff(cls, new: Collection[str], prev: Collection[str]):
-        """Here new is the entire new model, including the stuff in prev"""
-        new, prev = set(new), set(prev)
-        return cls(new, prev - new)
-
-
-@dataclass(frozen=True)
-class CostableModel(Model):
-    cost: int
-
-    def __hash__(self):
-        return hash((frozenset(self.atoms), frozenset(self._prev), self.cost))
-
-    @classmethod
-    def from_previous_union_cost(cls, new: Collection[str], prev: Collection[str], cost: int):
-        """Here new is ONLY the added one, without the stuff in prev"""
-        new, prev = set(new), set(prev)
-        return cls(new | prev, prev, cost)
-
-    @classmethod
-    def from_previous_diff_cost(cls, new: Collection[str], prev: Collection[str], cost: int):
-        """Here new is the entire new model, including the stuff in prev"""
-        new, prev = set(new), set(prev)
-        return cls(new, prev - new, cost)
 
 
 @dataclass(frozen=True)
@@ -100,22 +58,20 @@ class ClingoMethodCall:
             args_dict[param_names[index]] = arg
         return cls(name, args_dict)
 
+    #
+    # model_dict = {"cost": model.cost, "optimality_proven": model.optimality_proven, "type": model.type,
+    #               "atoms": model.symbols(atoms=True), "terms": model.symbols(terms=True),
+    #               "shown": model.symbols(shown=True), "csp": model.symbols(csp=True),
+    #               "theory": model.symbols(theory=True), "_type": "Model"}
 
-def fromPrev(new: Union[Model, Collection[str]], prev: Union[Model, Collection[str]], mode: str = "union",
-             cost: int = None) -> Union[Model, CostableModel]:
-    if isinstance(new, Model):
-        new = new.atoms
-    if isinstance(prev, Model):
-        prev = prev.atoms
-    if mode == "diff":
-        if cost is not None:
-            return CostableModel.from_previous_diff_cost(new, prev, cost)
-        else:
-            return Model.from_previous_diff(new, prev)
-    elif mode == "union":
-        if cost is not None:
-            return CostableModel.from_previous_union_cost(new, prev, cost)
-        else:
-            return Model.from_previous_union(new, prev)
-    else:
-        raise TypeError
+
+@dataclass
+class StableModel:
+    cost: int
+    optimality_proven: bool
+    type: ModelType
+    atoms: Collection[Symbol]
+    terms: Collection[Symbol]
+    shown: Collection[Symbol]
+    csp: Collection[Symbol]
+    theory: Collection[Symbol]

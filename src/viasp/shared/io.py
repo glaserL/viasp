@@ -1,4 +1,5 @@
 import json
+import sys
 from enum import IntEnum
 from json import JSONEncoder, JSONDecoder
 from dataclasses import is_dataclass, asdict
@@ -6,67 +7,90 @@ from typing import Any, Union, Collection
 from uuid import UUID
 
 import clingo
+import networkx as nx
 from _clingo.lib import clingo_model_type_brave_consequences, clingo_model_type_cautious_consequences, \
     clingo_model_type_stable_model
 from clingo import Model as clingo_Model, ModelType, Symbol
-from clingo.ast import AST
+from clingo.ast import AST, Function
 
-from .model import Model, CostableModel, Node, Transformation, Signature, Filter
+from .model import Node, Transformation, Signature, Filter, StableModel, ClingoMethodCall
 
 
 def model_to_json(model: Union[clingo_Model, Collection[clingo_Model]], *args, **kwargs) -> str:
-    return json.dumps(model, *args, cls=ClingoModelEncoder, **kwargs)
+    return json.dumps(model, *args, cls=DataclassJSONEncoder, **kwargs)
+
+
+def object_hook(obj):
+    print(f"PARSING {obj}")
+    if '_type' not in obj:
+        return obj
+    type = obj['_type']
+    del obj['_type']
+    sys.stderr.write(f"Parsing type {type}\n")
+    if type == "Function":
+        return clingo.Function(**obj)
+    elif type == "Number":
+        return clingo.Number(**obj)
+    elif type == "Node":
+        obj['atoms'] = frozenset(obj['atoms'])
+        obj['diff'] = frozenset(obj['diff'])
+        return Node(**obj)
+    elif type == "Transformation":
+        return Transformation(**obj)
+    elif type == "Signature":
+        return Signature(**obj)
+    elif type == "Filter":
+        return Filter(**obj)
+    elif type == "Graph":
+        return nx.node_link_graph(obj["_graph"])
+    elif type == "StableModel":
+        return StableModel(**obj)
+    elif type == "ClingoMethodCall":
+        return ClingoMethodCall(**obj)
+    return obj
 
 
 class DataclassJSONDecoder(JSONDecoder):
     def __init__(self, *args, **kwargs):
-        JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
-
-    def object_hook(self, obj):
-        if '_type' not in obj:
-            return obj
-        type = obj['_type']
-        del obj['_type']
-        if type == 'Model':
-            return Model(**obj)
-        elif type == 'CostableModel':
-            return CostableModel(**obj)
-        elif type == "Function":
-            return clingo.Function(**obj)
-        elif type == "Number":
-            return clingo.Number(**obj)
-        elif type == "Node":
-            obj['atoms'] = frozenset(obj['atoms'])
-            obj['diff'] = frozenset(obj['diff'])
-            return Node(**obj)
-        elif type == "Transformation":
-            return Transformation(**obj)
-        elif type == "Signature":
-            return Signature(**obj)
-        elif type == "Filter":
-            return Filter(**obj)
-        return obj
+        print("INIT")
+        JSONDecoder.__init__(self, object_hook=object_hook, *args, **kwargs)
+        print("INITED")
 
 
 def dataclass_to_dict(o):
     if isinstance(o, Filter):
         return {"_type": "Filter", "on": o.on}
-    if isinstance(o, Node):
+    elif isinstance(o, Node):
         return {"_type": "Node", "atoms": o.atoms, "diff": o.diff, "uuid": o.uuid,
                 "rule_nr": o.rule_nr}
-    if isinstance(o, Signature):
+    elif isinstance(o, Signature):
         return {"_type": "Signature", "name": o.name, "args": o.args}
-    if isinstance(o, Transformation):
+    elif isinstance(o, Transformation):
         return {"_type": "Transformation", "id": o.id, "rules": o.rules}
-    if isinstance(o, Model):
-        return {"_type": "Model", "atoms": o.atoms, "_prev": o._prev}
+    elif isinstance(o, StableModel):
+        return {"_type": "StableModel", "cost": o.cost, "optimality_proven": o.optimality_proven, "type": o.type,
+                "atoms": o.atoms, "terms": o.terms, "shown": o.shown, "csp": o.csp, "theory": o.theory}
+    elif isinstance(o, ClingoMethodCall):
+        return {"_type": "ClingoMethodCall", "name": o.name, "kwargs": o.kwargs, "uuid": o.uuid}
+    else:
+        raise Exception(f"I/O for {type(o)} not implemented!")
 
 
 class DataclassJSONEncoder(JSONEncoder):
     def default(self, o):
-        if is_dataclass(o):
+        if isinstance(o, clingo_Model):
+            x = model_to_dict(o)
+            return x
+        elif isinstance(o, ModelType):
+            return {"__enum__": str(o)}
+        elif isinstance(o, Symbol):
+            x = symbol_to_dict(o)
+            return x
+        elif is_dataclass(o):
             result = dataclass_to_dict(o)
             return result
+        elif isinstance(o, nx.Graph):
+            return {"_type": "Graph", "_graph": nx.node_link_data(o)}
         elif isinstance(o, UUID):
             return o.hex
         elif isinstance(o, frozenset):
@@ -75,16 +99,6 @@ class DataclassJSONEncoder(JSONEncoder):
             return list(o)
         elif isinstance(o, AST):
             return str(o)
-        elif isinstance(o, clingo_Model):
-            x = model_to_dict(o)
-            return x
-        elif isinstance(o, ModelType):
-            if o in [ModelType.CautiousConsequences, ModelType.BraveConsequences, ModelType.StableModel]:
-                return {"__enum__": str(o)}
-            return super().default(o)
-        elif isinstance(o, Symbol):
-            x = symbol_to_dict(o)
-            return x
         return super().default(o)
 
 
@@ -92,8 +106,24 @@ def model_to_dict(model: clingo_Model) -> dict:
     model_dict = {"cost": model.cost, "optimality_proven": model.optimality_proven, "type": model.type,
                   "atoms": model.symbols(atoms=True), "terms": model.symbols(terms=True),
                   "shown": model.symbols(shown=True), "csp": model.symbols(csp=True),
-                  "theory": model.symbols(theory=True)}
+                  "theory": model.symbols(theory=True), "_type": "StableModel"}
     return model_dict
+
+
+def hae(s):
+    if isinstance(s, list):
+        return [hae(e) for e in s]
+    if isinstance(s, Symbol):
+        if s.type == clingo.SymbolType.Function:
+            return clingo.Function(s.name, hae(s.arguments), s.positive)
+        if s.type == clingo.SymbolType.Number:
+            return clingo.Number(s.number)
+
+
+def clingo_model_to_stable_model(model: clingo_Model) -> StableModel:
+    return StableModel(model.cost, model.optimality_proven, model.type, hae(model.symbols(atoms=True)),
+                       hae(model.symbols(terms=True)), hae(model.symbols(shown=True)), hae(model.symbols(csp=True)),
+                       hae(model.symbols(theory=True)))
 
 
 def symbol_to_dict(symbol: clingo.Symbol) -> dict:
