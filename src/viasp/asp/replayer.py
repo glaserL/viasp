@@ -2,6 +2,8 @@ from typing import Sequence, Optional, Callable
 
 from clingo import Control
 
+from .reify import ProgramAnalyzer
+from ..server.database import ProgramDatabase
 from ..shared.event import Event, publish
 from ..shared.model import ClingoMethodCall
 from ..shared.simple_logging import info, warn
@@ -45,11 +47,19 @@ class ClingoReconstructor:
     def no_op(self, ctl, _) -> Control:
         return ctl
 
-    @handles("ground", "add")
+    @handles("ground")
     def identity(self, ctl: Control, call: ClingoMethodCall) -> Control:
         func = getattr(ctl, call.name)  # TODO: Error handling
         # TODO: Do you even need ground here?
         func(**call.kwargs)
+        return ctl
+
+    @handles("add")
+    def add(self, ctl: Control, call: ClingoMethodCall) -> Control:
+        db = ProgramDatabase()
+        db.add_to_program(call.kwargs["program"])
+        func = getattr(ctl, call.name)  # TODO: Error handling
+        func(**call.kwargs)  # TODO: DO WE NEED THIS WITH NEW ARCHITECTURE?
         return ctl
 
     @handles("__init__")

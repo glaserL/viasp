@@ -3,13 +3,13 @@ from inspect import signature
 from typing import List
 
 import requests
-from clingo import Control as InnerControl
+from clingo import Control as InnerControl, Model
 from dataclasses import asdict, is_dataclass
 
 from .clingoApiClient import ClingoClient
 from .server.database import ClingoMethodCall
-from .shared.io import model_to_json
-from .shared.model import Model
+from .shared.io import model_to_json, model_to_dict, clingo_model_to_stable_model
+from .shared.model import StableModel
 from .shared.simple_logging import warn
 
 
@@ -28,7 +28,7 @@ def is_non_cython_function_call(attr: classmethod):
 class PaintConnector:
 
     def __init__(self, **kwargs):
-        self._marked: List[Model] = []
+        self._marked: List[StableModel] = []
         self._database = ClingoClient(**kwargs)
         self._connection = None
 
@@ -36,13 +36,15 @@ class PaintConnector:
         if not backend_is_running():
             raise Exception("Server is not available")
         self._database.set_target_stable_model(self._marked)
+        self._database.paint()
+
 
     def unmark(self, model: Model):
-        serialized = model_to_json(model)
+        serialized = clingo_model_to_stable_model(model)
         self._marked.remove(serialized)
 
     def mark(self, model: Model):
-        serialized = model_to_json(model)
+        serialized = clingo_model_to_stable_model(model)
         self._marked.append(serialized)
 
     def clear(self):

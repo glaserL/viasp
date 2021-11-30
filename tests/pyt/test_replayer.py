@@ -1,8 +1,4 @@
-from inspect import signature
-
-from clingo import Control
 from src.viasp.asp.replayer import apply_multiple
-from src.viasp.shared.model import ClingoMethodCall
 
 
 def test_run(clingo_call_run_sample):

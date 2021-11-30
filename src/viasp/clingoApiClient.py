@@ -6,7 +6,7 @@ import requests
 from clingo import Model
 
 from .shared.io import DataclassJSONEncoder
-from .shared.model import ClingoMethodCall
+from .shared.model import ClingoMethodCall, StableModel
 from .shared.simple_logging import log, Level, warn, error
 
 
@@ -51,10 +51,29 @@ class ClingoClient(Client):
             # TODO: only log once or sometimes, look at TTLCache
             warn(f"Backend dead.")
 
-    def set_target_stable_model(self, jsonified_models: Collection[str]):
+    def set_target_stable_model(self, stable_models: Collection[StableModel]):
         if backend_is_running() and not self.headless:
-            r = requests.post(f"{self.backend_url}control/models", json=jsonified_models)
+            serialized = json.dumps(stable_models, cls=DataclassJSONEncoder)
+            r = requests.post(f"{self.backend_url}control/models", data=serialized,
+                              headers={'Content-Type': 'application/json'})
             if r.ok:
                 log(f"Set models.")
             else:
                 error(f"Setting models failed [{r.status_code}] ({r.reason})")
+
+    def paint(self):
+        self._reconstruct()
+        if backend_is_running() and not self.headless:
+            r = requests.post(f"{self.backend_url}control/paint")
+            if r.ok:
+                log(f"Painting in progress.")
+            else:
+                error(f"Painting failed [{r.status_code}] ({r.reason})")
+
+    def _reconstruct(self):
+        if backend_is_running() and not self.headless:
+            r = requests.get(f"{self.backend_url}control/solve")
+            if r.ok:
+                log(f"Solving in progress.")
+            else:
+                error(f"Painting failed [{r.status_code}] ({r.reason})")

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from os import PathLike
 from typing import Optional, Set, List
 from uuid import UUID
 
@@ -27,6 +28,33 @@ class Database(ABC):
     @abstractmethod
     def mark_call_as_used(self, call: ClingoMethodCall):
         pass
+
+
+class ProgramDatabase:
+    def __init__(self, path="prg.lp"):
+        self.path: str = path
+
+    def get_program(self):
+        prg = ""
+        try:
+            with open(self.path, "r", encoding="utf-8") as f:
+                prg = "\n".join(f.readlines())
+        except FileNotFoundError:
+            self.save_program("")
+        return prg
+
+    def add_to_program(self, program: str):
+        current = self.get_program()
+        current = current + program
+        self.save_program(current)
+
+    def save_program(self, program: str):
+        with open(self.path, "w", encoding="utf-8") as f:
+            f.writelines(program.split("\n"))
+
+    def clear_program(self):
+        with open(self.path, "w", encoding="utf-8") as f:
+            f.write("")
 
 
 class CallCenter(Database):

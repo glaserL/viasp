@@ -4,7 +4,8 @@ from functools import lru_cache as f_cache
 from typing import Union, Collection
 
 import networkx as nx
-from flask import Blueprint, request, jsonify, abort
+from flask import Blueprint, request, jsonify, abort, session
+from networkx import DiGraph
 
 from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder, deserialize
 from ...shared.model import Transformation, Filter, Node, Signature
@@ -13,6 +14,8 @@ from .app import storage
 
 bp = Blueprint("dag_api", __name__, template_folder='../templates', static_folder='../static/',
                static_url_path='/static')
+
+GRAPH = None
 
 
 class GraphDataBaseKEKL:
@@ -28,7 +31,6 @@ class GraphDataBaseKEKL:
         with open(self.path, "w", encoding="utf-8") as f:
             json.dump(serializable_graph, f, cls=DataclassJSONEncoder, ensure_ascii=False, indent=2)
 
-    @f_cache
     def load(self, as_json=True) -> Union[nx.DiGraph, dict]:
         try:
             with open(self.path, encoding="utf-8") as f:
@@ -45,6 +47,16 @@ def get_database():
     return GraphDataBaseKEKL()
 
 
+def get_graph():
+    global GRAPH
+    if GRAPH is None:
+        print(f"CACHE MISS")
+        GRAPH = GraphDataBaseKEKL().load(False)
+    else:
+        print("CACHE HIT")
+    return GRAPH
+
+
 def prune_graph(graph, fltr: Filter):
     uuids = [f.on.uuid for f in fltr]
     start = get_start_node_from_graph(graph)
@@ -59,7 +71,7 @@ def prune_graph(graph, fltr: Filter):
 
 
 def handle_request_for_children(data) -> Collection[Node]:
-    graph = get_database().load(as_json=False)
+    graph = get_graph()
     rule_id = data["rule_id"]
     children = list()
     if storage.has("filter"):
@@ -72,7 +84,7 @@ def handle_request_for_children(data) -> Collection[Node]:
         # print(f"{u}-[{d}]->{v}")
         if str(edge.id) == rule_id:
             children.append(v)
-    print(f"Returning {children} as children of {data}")
+
     return children
 
 
@@ -110,7 +122,7 @@ def get_edges():
 
 @bp.route("/rule/<uuid>", methods=["GET"])
 def get_rule(uuid):
-    graph = get_database().load(as_json=False)
+    graph = get_graph()
     for _, _, edge in graph.edges(data=True):
         transformation: Transformation = edge["transformation"]
         if transformation.id == uuid:
@@ -120,7 +132,7 @@ def get_rule(uuid):
 
 @bp.route("/node/<uuid>", methods=["GET"])
 def get_node(uuid):
-    graph = get_database().load(as_json=False)
+    graph = get_graph()
     for node in graph.nodes():
         if node.uuid == uuid:
             return jsonify(node)
@@ -129,7 +141,7 @@ def get_node(uuid):
 
 @bp.route("/facts", methods=["GET"])
 def get_facts():
-    graph = get_database().load(as_json=False)
+    graph = get_graph()
     facts = get_start_node_from_graph(graph)
     r = jsonify(facts)
     return r
@@ -137,7 +149,7 @@ def get_facts():
 
 @bp.route("/rules", methods=["GET"])
 def get_all_rules():
-    graph = get_database().load(as_json=False)
+    graph = get_graph()
     returning = []
     for u, v in graph.edges:
         # print(f"Looking at {u.uuid}-[{graph[u][v]['transformation']}->{v.uuid}")
@@ -153,16 +165,21 @@ def get_all_rules():
 def entire_graph():
     if request.method == "POST":
         data = request.json
-        database = get_database()
-        database.load.cache_clear()
-        database.save(data)
+        set_graph(data)
         return "ok"
     elif request.method == "GET":
-        return get_database().load()
+        return get_graph()
+
+
+def set_graph(data: DiGraph):
+    database = get_database()
+    database.save(data)
+    global GRAPH
+    GRAPH = None
 
 
 def get_atoms_in_path_by_signature(uuid: str):
-    graph = get_database().load(as_json=False)
+    graph = get_graph()
 
     matching_nodes = [x for x, y in graph.nodes(data=True) if x.uuid == uuid]
     assert len(matching_nodes) == 1
@@ -196,7 +213,7 @@ def get_all_signatures(graph: nx.Graph):
 def search():
     if "q" in request.args.keys():
         query = request.args["q"]
-        graph = get_database().load(as_json=False)
+        graph = get_graph()
         result = []
         signatures = get_all_signatures(graph)
         result.extend(signatures)
@@ -213,7 +230,7 @@ def search():
 
 @bp.route("/trace", methods=["GET", "POST"])
 def trace():
-    graph = get_database().load(as_json=False)
+    graph = get_graph()
     beginning = get_start_node_from_graph(graph)
     symbol = deserialize(request.data)
     uuid = request.args["uuid"]

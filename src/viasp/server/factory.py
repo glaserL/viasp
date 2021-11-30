@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from werkzeug.middleware.profiler import ProfilerMiddleware
 from werkzeug.utils import find_modules, import_string
 
 from flask_cors import CORS
@@ -49,4 +50,9 @@ def create_app(config=None):
                          r"/children/*": {"origins": "http://localhost:8080"},
                          r"/rules": {"origins": "http://localhost:8080"}})
 
+    app.json_encoder = DataclassJSONEncoder
+    app.json_decoder = DataclassJSONDecoder
+    #
+    # app.config['PROFILE'] = True
+    # app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[30])
     return app

@@ -21,12 +21,10 @@ def model_to_json(model: Union[clingo_Model, Collection[clingo_Model]], *args, *
 
 
 def object_hook(obj):
-    print(f"PARSING {obj}")
     if '_type' not in obj:
         return obj
     type = obj['_type']
     del obj['_type']
-    sys.stderr.write(f"Parsing type {type}\n")
     if type == "Function":
         return clingo.Function(**obj)
     elif type == "Number":
