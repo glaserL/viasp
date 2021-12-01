@@ -49,7 +49,6 @@ class ProgramAnalyzer(Transformer):
 
     def visit_Aggregate(self, aggregate, in_head=True, dependants=[], conditions=[]):
         conditional_literals = aggregate.elements
-        print(f"Visiting {str(aggregate)=}, {in_head=}")
         for elem in conditional_literals:
             self.visit(elem, dependants=dependants, conditions=conditions)
         return aggregate

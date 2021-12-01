@@ -156,7 +156,6 @@ class viasp_ModelType(IntEnum):
 
     @classmethod
     def from_clingo_ModelType(cls, clingo_ModelType: ModelType):
-        print(f"In: {clingo_ModelType} with {clingo_ModelType.name=}")
         if clingo_ModelType.name == cls.BraveConsequences.name:
             return cls.BraveConsequences
         elif clingo_ModelType.name == cls.StableModel.name:
