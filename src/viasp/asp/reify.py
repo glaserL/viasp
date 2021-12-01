@@ -54,7 +54,6 @@ class ProgramAnalyzer(Transformer):
         return aggregate
 
     def visit_ConditionalLiteral(self, conditional_literal, in_head=True, dependants=[], conditions=[]):
-        print(f"Visiting {str(conditional_literal)=}, {in_head=}")
         self.visit(conditional_literal.literal)
         dependants.append(conditional_literal.literal)
         for condition in filter(filter_body_arithmetic, conditional_literal.condition):
