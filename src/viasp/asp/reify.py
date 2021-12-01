@@ -171,13 +171,11 @@ class ProgramReifier(Transformer):
 
     def visit_Aggregate(self, aggregate, in_head=True, dependants=[], conditions=[]):
         conditional_literals = aggregate.elements
-        print(f"Visiting {str(aggregate)=}, {in_head=}")
         for elem in conditional_literals:
             self.visit(elem, dependants=dependants, conditions=conditions)
         return aggregate
 
     def visit_ConditionalLiteral(self, conditional_literal, in_head=True, dependants=[], conditions=[]):
-        print(f"Visiting {str(conditional_literal)=}, {in_head=}")
         self.visit(conditional_literal.literal)
         dependants.append(conditional_literal.literal)
         for condition in conditional_literal.condition:
