@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="viasp",
-    version="0.1.1",
+    version="0.0.1",
     author="Luis Glaser",
     author_email="Luis.Glaser@uni-potsdam.de",
     description="A small example package",
@@ -20,6 +20,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
+    license = 'MIT',
     install_requires=[
         "networkx>=2.4",
         "flask>=2",
@@ -32,9 +33,10 @@ setuptools.setup(
             "viasp-start = viasp.__main__:start"
         ],
     },
-    # package_dir={
-    #     "python": "src.viasp"
-    # },
+    packages=["viasp"],
+    package_dir={
+        "python": "src"
+    },
     test_suite="pytest",
     tests_require="pytest"
 )
