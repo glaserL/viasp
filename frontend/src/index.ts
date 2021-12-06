@@ -4,7 +4,9 @@ import {initializeSearchBar} from './search/search';
 import {backendURL} from "./util";
 import {clearFilterPills, refreshFiltersFromBackend} from "./filter/filter";
 import {redrawGraph} from "./graph/graph";
-import {connectButton} from "./graph/textentry"
+import {drawEdges} from "./graph/edges";
+
+const {ipcRenderer} = require('src/main')
 
 export function getFromSessionStorage<T>(key: string, default_value?: T): T | null {
     let returnValue = sessionStorage.getItem('showFullModel')
@@ -24,7 +26,7 @@ function initCheckBox() {
     })
 }
 
-
+window.onresize = drawEdges
 document.addEventListener("DOMContentLoaded", function () {
     initCheckBox();
     initializeSearchBar();
