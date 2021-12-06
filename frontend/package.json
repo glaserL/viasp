@@ -1,32 +1,39 @@
 {
-  "name": "frontend",
-  "version": "1.0.0",
+  "name": "@glaserl/viasp-frontend-test",
+  "version": "0.0.2-alpha.3",
   "description": "",
-  "private": true,
+  "private": false,
   "scripts": {
     "test": "instant-mocha --webpack-config webpack.config.js",
     "build": "webpack",
     "watch": "webpack --watch",
-    "start": "webpack serve --open"
+    "start": "webpack serve --open",
+    "prerelease": "npm version prerelease && npm publish --access public",
+    "elec": "npm run build && electron ./dist/main.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
+  "prepublishOnly": "webpack --mode=production",
+  "main": "./dist/index.bundle.js",
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@types/mocha": "^9.0.0",
     "css-loader": "^6.5.1",
+    "electron": "^16.0.4",
     "html-webpack-plugin": "^5.5.0",
     "instant-mocha": "^1.4.0",
     "mocha": "^8.4.0",
-    "style-loader": "^3.3.1",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.4",
     "webpack": "^5.64.1",
     "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.5.0"
+    "webpack-dev-server": "^4.5.0",
+    "style-loader": "^3.3.1"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
   }
 }
