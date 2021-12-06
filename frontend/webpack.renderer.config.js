@@ -1,22 +1,14 @@
 const path = require("path");
-const {merge} = require('webpack-merge');
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+const rules = require('./webpack.rules');
+const plugins = require('./webpack.plugins');
 
-const base = require("./webpack.base.config");
-const buildPath = path.resolve(__dirname, "./dist");
-const renderer = merge(base, {
-    mode: 'development',
-    target: "electron-renderer",
-    entry: "./src/renderer.ts",
-    output: {
-        filename: "renderer.js",
-        path: buildPath
+
+module.exports = {
+    module: {
+        rules,
     },
-    plugins: [
-        new HtmlWebpackPlugin({
-            template: "./src/main.html"
-        })
-    ],
-});
-
-module.exports = renderer;
+    plugins: plugins,
+    resolve: {
+        extensions: ['.js', '.ts', '.jsx', '.tsx', '.css']
+    },
+};
