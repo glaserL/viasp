@@ -6,7 +6,7 @@ import {node} from "webpack";
 export function clearFilterPills() {
     const filterPill = document.getElementById("active_filters")
     filterPill.innerHTML = ""
-    return fetch(`${backendURL("filter")}`, {
+    return fetch(`${backendURL("filter/clear")}`, {
         method: "DELETE"
     }).catch(e => console.error("Couldn't clear the filter pills." + e));
 }

@@ -30,8 +30,19 @@ export function make_rules_string(rule: Rule[]): string {
 
 export function backendURL(route: string): string {
     let domain = window.location.hostname; //http://someurl.com
-    let port = 5000;
+    if (domain.length == 0) {
+        domain = "localhost"
+    }
+    let port = 8080;
     let url = `http://${domain}:${port}/${route}`;
     console.log(`Returning url ${url}`)
     return url
+}
+
+export function getFromSessionStorage<T>(key: string, default_value?: T): T | null {
+    let returnValue = sessionStorage.getItem('showFullModel')
+    if (returnValue === null && default_value !== undefined) {
+        return default_value;
+    }
+    return JSON.parse(returnValue);
 }
