@@ -6,6 +6,7 @@ const childProcess = require("child_process")
 const PY_DIST_FOLDER = "dist-python"; // python distributable folder
 const PY_SRC_FOLDER = "../../src"; // path to the python source
 const PY_MODULE = "../../src/viasp/electron_starter.py"; // the name of the main module
+declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 
 const isRunningInBundle = () => {
     return require("fs").existsSync(path.join(__dirname, PY_DIST_FOLDER));
@@ -88,7 +89,7 @@ const createWindow = () => {
 
     // Load app
     // and load the index.html of the app.
-    win.loadFile('index.html');
+    win.loadFile(MAIN_WINDOW_WEBPACK_ENTRY);
     win.webContents.openDevTools()
 }
 
