@@ -38,7 +38,7 @@ export function drawEdges() {
                     var conn = new muConnector({
                         ele1: src,
                         ele2: tgt,
-                        lineStyle: "1px dotted black",
+                        lineStyle: "1px solid black",
                     });
                     connectors.push(conn);
                     conn.link()
