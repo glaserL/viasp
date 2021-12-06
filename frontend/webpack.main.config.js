@@ -1,20 +1,16 @@
-const path = require("path");
-const {merge} = require('webpack-merge');
-
-const base = require("./webpack.base.config");
-const buildPath = path.resolve(__dirname, "./dist");
-const main = merge(base, {
-    mode: 'development',
-    entry: "./src/main.ts",
+module.exports = {
+    /**
+     * This is the main entry point for your application, it's the first file
+     * that runs in the main process.
+     */
+    entry: './src/index.ts',
     target: "electron-main",
-    output: {
-        filename: 'main.js',
-        path: buildPath
+    devtool: 'inline-source-map',
+    // Put your normal webpack config below here
+    module: {
+        rules: require('./webpack.rules'),
     },
-    node: {
-        __dirname: false,
-        __filename: false
-    }
-});
-
-module.exports = main;
+    resolve: {
+        extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json']
+    },
+};
