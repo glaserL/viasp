@@ -2,6 +2,7 @@ import json
 from typing import Tuple, Any, Dict, Iterable
 
 from flask import request, Blueprint, jsonify, abort
+from flask_cors import cross_origin
 from networkx import node_link_data
 
 from .dag_api import set_graph
@@ -47,6 +48,7 @@ def get_by_name_or_index_from_args_or_kwargs(name: str, index: int, *args: Tuple
 
 
 @bp.route("/control/solve", methods=["GET"])
+@cross_origin()
 def reconstruct():
     if calls:
         global ctl
@@ -67,6 +69,7 @@ def handle_models_recieved(parsed_models):
 
 
 @bp.route("/control/models", methods=["GET", "POST"])
+@cross_origin()
 def set_stable_models():
     if request.method == "POST":
         try:
@@ -80,6 +83,7 @@ def set_stable_models():
 
 
 @bp.route("/control/models/clear", methods=["POST"])
+@cross_origin()
 def models_clear():
     if request.method == "POST":
         dc.hihi.clear()
@@ -98,6 +102,7 @@ def someshithandling(marked_models: Iterable[StableModel]):
 
 
 @bp.route("/control/paint", methods=["POST"])
+@cross_origin()
 def paint_model():
     marked_models = dc.hihi
     marked_models = someshithandling(marked_models)

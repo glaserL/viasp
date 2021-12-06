@@ -1,3 +1,4 @@
+import logging
 import os
 
 from flask import Flask
@@ -6,6 +7,8 @@ from werkzeug.utils import find_modules, import_string
 
 from flask_cors import CORS
 from viasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder
+
+logging.getLogger('flask_cors').level = logging.DEBUG
 
 
 def register_blueprints(app):
@@ -16,6 +19,7 @@ def register_blueprints(app):
         if hasattr(mod, 'bp'):
             print(f"Adding blueprint {mod.bp}.?")
             app.register_blueprint(mod.bp)
+
     return None
 
 
@@ -37,19 +41,25 @@ def create_app(config=None):
     # ))
     # app.config.update(config or {})
     # app.config.from_envvar('LAPRINT_SETTINGS', silent=True)
+    # FIXME: This is very bad.
+    cors_resources = {r"/settings*": {"origins": "http://localhost:3000/"},
+                      r"/query*": {"origins": "http://localhost:3000/"},
+                      r"/trace*": {"origins": "http://localhost:3000/"},
+                      r"/filter*": {"origins": "http://localhost:3000/"},
+                      r"/facts*": {"origins": "http://localhost:3000/"},
+                      r"/edges*": {"origins": "http://localhost:3000/"},
+                      r"/model*": {"origins": "http://localhost:3000/"},
+                      r"/node*": {"origins": "http://localhost:3000/"},
+                      r"/children*": {"origins": "http://localhost:3000/"},
+                      r"/rules": {"origins": "http://localhost:3000/"}}
 
     register_blueprints(app)
-    CORS(app, resources={r"/settings/*": {"origins": "http://localhost:8080"},
-                         r"/query/*": {"origins": "http://localhost:8080"},
-                         r"/trace/*": {"origins": "http://localhost:8080"},
-                         r"/filter/*": {"origins": "http://localhost:8080"},
-                         r"/facts/*": {"origins": "http://localhost:8080"},
-                         r"/edges/*": {"origins": "http://localhost:8080"},
-                         r"/model/*": {"origins": "http://localhost:8080"},
-                         r"/node/*": {"origins": "http://localhost:8080"},
-                         r"/children/*": {"origins": "http://localhost:8080"},
-                         r"/rules": {"origins": "http://localhost:8080"}})
+    print(f"Configuring cors as : {cors_resources}")
 
+    CORS(app, resources=cors_resources)
+
+    # app.url_map.strict_slashes = False
+    print(f"False")
     app.json_encoder = DataclassJSONEncoder
     app.json_decoder = DataclassJSONDecoder
     #

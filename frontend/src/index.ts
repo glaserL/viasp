@@ -28,7 +28,6 @@ const getPythonScriptPath = () => {
 
 const startPythonSubprocess = () => {
     let script = getPythonScriptPath();
-    console.log(`Script is a ${script}`)
     let subpy;
     subpy = childProcess.spawn("viasp-start");
     subpy.on('error', (error: string) => {
@@ -50,18 +49,20 @@ const startPythonSubprocess = () => {
 };
 
 const killPythonSubprocesses = (main_pid: any) => {
-    const python_script_name = path.basename(getPythonScriptPath());
+    const python_script_name = path.basename("viasp-start");
     let cleanup_completed = false;
     psTree(main_pid, function (err: any, children: any[]) {
         let python_pids = children
             .filter(function (el) {
                 return el.COMMAND == python_script_name;
+
             })
             .map(function (p) {
                 return p.PID;
             });
         // kill all the spawned python processes
         python_pids.forEach(function (pid) {
+            console.log("KILLING " + pid)
             process.kill(pid);
         });
         let subpy = null;
@@ -77,7 +78,7 @@ const killPythonSubprocesses = (main_pid: any) => {
 
 const createWindow = () => {
     // Create the browser window.
-    let win = new BrowserWindow({
+    let mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
@@ -87,10 +88,11 @@ const createWindow = () => {
         }
     });
 
-    // Load app
     // and load the index.html of the app.
-    win.loadFile(MAIN_WINDOW_WEBPACK_ENTRY);
-    win.webContents.openDevTools()
+    mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+
+    // Open the DevTools.
+    mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
@@ -110,10 +112,9 @@ app.whenReady().then(() => {
 app.on("window-all-closed", () => {
     // On macOS it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== "darwin") {
-        let main_process_pid = process.pid;
-        killPythonSubprocesses(main_process_pid).then(() => {
-            app.quit();
-        });
-    }
+    let main_process_pid = process.pid;
+    killPythonSubprocesses(main_process_pid).then(() => {
+        app.quit();
+    });
+
 });

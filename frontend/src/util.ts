@@ -30,9 +30,7 @@ export function make_rules_string(rule: Rule[]): string {
 
 export function backendURL(route: string): string {
     let domain = window.location.hostname; //http://someurl.com
-    if (domain.length == 0) {
-        domain = "localhost"
-    }
+    domain = "localhost"
     let port = 8080;
     let url = `http://${domain}:${port}/${route}`;
     console.log(`Returning url ${url}`)

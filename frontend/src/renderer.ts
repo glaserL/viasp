@@ -2,7 +2,7 @@ import {initializeSearchBar} from "./search/search";
 import {redrawGraph} from "./graph/graph";
 import {drawEdges} from "./graph/edges";
 import {clearFilterPills, refreshFiltersFromBackend} from "./filter/filter";
-import {getFromSessionStorage} from "./util";
+import {backendURL, getFromSessionStorage} from "./util";
 import './header.css';
 import './style.css';
 
@@ -32,8 +32,14 @@ function initCheckBox() {
 
 document.addEventListener("DOMContentLoaded", function () {
     console.log("Initializing from rendering process..")
+    const bck = backendURL("");
+    console.log(bck)
+    fetch(backendURL("")).then(e => console.log("Nice"))
+    console.log("NICE")
     initCheckBox();
+    console.log("NICER")
     clearFilterPills().then(redrawGraph).then(initializeSearchBar);
-    refreshFiltersFromBackend()
-    console.log("Done initializing from rendering process.")
+    console.log("NICEST")
+    // refreshFiltersFromBackend()
+    // console.log("Done initializing from rendering process.")
 })

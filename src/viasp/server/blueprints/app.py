@@ -1,9 +1,11 @@
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
 import networkx as nx
 from flask import render_template, Blueprint, request, abort, jsonify
+from flask_cors import cross_origin
 
 from ...shared.io import DataclassJSONEncoder, DataclassJSONDecoder
 from ...shared.model import Filter
@@ -53,6 +55,7 @@ storage = Settings()
 
 
 @bp.route("/", methods=["GET"])
+@cross_origin()
 def hello_world():
     return "ok"
 
@@ -63,6 +66,7 @@ def change_setting(key: str, value: Any):
 
 
 @bp.route("/settings/", methods=["GET", "POST"])
+@cross_origin()
 def settings():
     if request.method == "POST":
         for key, value in request.args.items():
@@ -71,6 +75,7 @@ def settings():
 
 
 @bp.route("/filter", methods=["DELETE"])
+@cross_origin()
 def delete_filter():
     fltr = request.json
 
@@ -85,6 +90,7 @@ def delete_filter():
 
 
 @bp.route("/filter", methods=["POST"])
+@cross_origin()
 def add_filter():
     fltr = request.json
     if not isinstance(fltr, Filter):
@@ -97,12 +103,14 @@ def add_filter():
 
 
 @bp.route("/filter", methods=["GET"])
+@cross_origin()
 def get_filters():
     result = jsonify(storage.get("filter"))
-    return result, 200
+    return result
 
 
 @bp.route("/filter/clear", methods=["DELETE"])
+@cross_origin()
 def clear_filters():
     storage.set("filter", [])
     return "", 200

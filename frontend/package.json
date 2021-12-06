@@ -7,19 +7,27 @@
     "test": "instant-mocha --webpack-config webpack.config.js",
     "build": "webpack",
     "watch": "webpack --watch",
-    "start": "webpack serve --open",
+    "start": "electron-forge start",
     "prerelease": "npm version prerelease && npm publish --access public",
-    "elec": "npm run build && electron ./dist/main.js"
+    "elec": "npm run build && electron ./dist/main.js",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "prepublishOnly": "webpack --mode=production",
-  "main": "./dist/index.bundle.js",
+  "main": "./.webpack/main",
   "files": [
     "dist"
   ],
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.61",
+    "@electron-forge/maker-deb": "^6.0.0-beta.61",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.61",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
+    "@electron-forge/maker-zip": "^6.0.0-beta.61",
+    "@electron-forge/plugin-webpack": "^6.0.0-beta.61",
     "@types/mocha": "^9.0.0",
     "css-loader": "^6.5.1",
     "electron": "^16.0.4",
@@ -37,6 +45,54 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
-    "ps-tree": "^1.2.0"
+    "electron-squirrel-startup": "^1.0.0",
+    "ps-tree": "^1.2.0",
+    "@vercel/webpack-asset-relocator-loader": "^1.7.0"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "@glaserl/viasp_frontend_test"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ],
+      "plugins": [
+        [
+          "@electron-forge/plugin-webpack",
+          {
+            "devContentSecurityPolicy": "default-src * self blob: data: gap:; style-src * self 'unsafe-inline' blob: data: gap:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: gap:; object-src * 'self' blob: data: gap:; img-src * self 'unsafe-inline' blob: data: gap:; connect-src self * 'unsafe-inline' blob: data: gap:; frame-src * self blob: data: gap:;",
+            "mainConfig": "./webpack.main.config.js",
+            "renderer": {
+              "config": "./webpack.renderer.config.js",
+              "entryPoints": [
+                {
+                  "html": "./src/index.html",
+                  "js": "./src/renderer.ts",
+                  "name": "main_window"
+                }
+              ]
+            }
+          }
+        ]
+      ]
+    }
   }
 }
