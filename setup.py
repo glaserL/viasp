@@ -13,14 +13,13 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/glaserL/viasp",
-    # packages=setuptools.find_packages(where="src"),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
-    license = 'MIT',
+    license='MIT',
     install_requires=[
         "networkx>=2.4",
         "flask>=2",
@@ -33,10 +32,10 @@ setuptools.setup(
             "viasp-start = viasp.__main__:start"
         ],
     },
-    packages=["viasp"],
     package_dir={
-        "python": "src"
+        "": "src"
     },
+    packages=setuptools.find_packages(where="src"),
     test_suite="pytest",
     tests_require="pytest"
 )
