@@ -5,6 +5,7 @@ from typing import Union, Collection
 
 import networkx as nx
 from flask import Blueprint, request, jsonify, abort, session
+from flask_cors import cross_origin
 from networkx import DiGraph
 
 from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder, deserialize
@@ -89,6 +90,7 @@ def handle_request_for_children(data) -> Collection[Node]:
 
 
 @bp.route("/children/", methods=["GET"])
+@cross_origin()
 def get_children():
     if request.method == "GET":
         to_be_returned = handle_request_for_children(request.args)
@@ -110,6 +112,7 @@ def get_src_tgt_mapping_from_graph(ids=None):
 
 
 @bp.route("/edges", methods=["GET", "POST"])
+@cross_origin()
 def get_edges():
     if request.method == "POST":
         to_be_returned = get_src_tgt_mapping_from_graph(request.json)
@@ -121,6 +124,7 @@ def get_edges():
 
 
 @bp.route("/rule/<uuid>", methods=["GET"])
+@cross_origin()
 def get_rule(uuid):
     graph = get_graph()
     for _, _, edge in graph.edges(data=True):
@@ -131,6 +135,7 @@ def get_rule(uuid):
 
 
 @bp.route("/node/<uuid>", methods=["GET"])
+@cross_origin()
 def get_node(uuid):
     graph = get_graph()
     for node in graph.nodes():
@@ -140,6 +145,7 @@ def get_node(uuid):
 
 
 @bp.route("/facts", methods=["GET"])
+@cross_origin()
 def get_facts():
     graph = get_graph()
     facts = get_start_node_from_graph(graph)
@@ -148,6 +154,7 @@ def get_facts():
 
 
 @bp.route("/rules", methods=["GET"])
+@cross_origin()
 def get_all_rules():
     graph = get_graph()
     returning = []
@@ -162,6 +169,7 @@ def get_all_rules():
 
 
 @bp.route("/graph", methods=["POST", "GET"])
+@cross_origin()
 def entire_graph():
     if request.method == "POST":
         data = request.json
@@ -193,6 +201,7 @@ def get_atoms_in_path_by_signature(uuid: str):
 
 
 @bp.route("/model/")
+@cross_origin()
 def model():
     if "uuid" in request.args.keys():
         key = request.args["uuid"]
@@ -210,6 +219,7 @@ def get_all_signatures(graph: nx.Graph):
 
 
 @bp.route("/query", methods=["GET"])
+@cross_origin()
 def search():
     if "q" in request.args.keys():
         query = request.args["q"]
@@ -229,6 +239,7 @@ def search():
 
 
 @bp.route("/trace", methods=["GET", "POST"])
+@cross_origin()
 def trace():
     graph = get_graph()
     beginning = get_start_node_from_graph(graph)
