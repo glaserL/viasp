@@ -1,4 +1,4 @@
-const {app, BrowserWindow, dialog} = require("electron");
+const {app, BrowserWindow, dialog, crashReporter} = require("electron");
 const path = require("path");
 const psTree = require("ps-tree");
 const childProcess = require("child_process")
@@ -7,6 +7,9 @@ const PY_DIST_FOLDER = "dist-python"; // python distributable folder
 const PY_SRC_FOLDER = "../../src"; // path to the python source
 const PY_MODULE = "../../src/viasp/electron_starter.py"; // the name of the main module
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+
+const util = require('util');
+crashReporter.start({companyName: "my company", submitURL: "https://mycompany.com"});
 
 const isRunningInBundle = () => {
     return require("fs").existsSync(path.join(__dirname, PY_DIST_FOLDER));
@@ -26,26 +29,33 @@ const getPythonScriptPath = () => {
     return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE);
 };
 
+
 const startPythonSubprocess = () => {
-    let script = getPythonScriptPath();
-    let subpy;
-    subpy = childProcess.spawn("viasp-start");
-    subpy.on('error', (error: string) => {
-        dialog.showMessageBox({
-            title: 'Title',
-            type: 'warning',
-            message: 'Error occured.\r\n' + error
+    try {
+        let subpy = childProcess.spawn("viasp-start")
+
+        subpy.on('error', (error: string) => {
+            dialog.showMessageBox({
+                title: 'Title',
+                type: 'warning',
+                message: 'Error occured.\r\n' + error
+            });
         });
-    });
 
-    subpy.stdout.on('data', (data: any) => {
-        //Here is the output
-        data = data.toString();
-        console.log(data);
-    });
+        subpy.stdout.on('data', (data: any) => {
+            data = data.toString();
+            console.log(data);
+        });
+        subpy.stderr.on('data', (data: any) => {
+            data = data.toString();
+            console.error(data);
+        });
 
-
-    console.log(`Started ${subpy}`)
+        return subpy
+    } catch (e) {
+        return e.message
+        // console.log(`Started ${subpy}`)
+    }
 };
 
 const killPythonSubprocesses = (main_pid: any) => {
@@ -54,6 +64,7 @@ const killPythonSubprocesses = (main_pid: any) => {
     psTree(main_pid, function (err: any, children: any[]) {
         let python_pids = children
             .filter(function (el) {
+                console.log(`Candidate for killing: ${el}`)
                 return el.COMMAND == python_script_name;
 
             })
@@ -92,7 +103,7 @@ const createWindow = () => {
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
@@ -115,6 +126,6 @@ app.on("window-all-closed", () => {
     let main_process_pid = process.pid;
     killPythonSubprocesses(main_process_pid).then(() => {
         app.quit();
-    });
+    })
+})
 
-});
