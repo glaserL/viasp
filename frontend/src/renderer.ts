@@ -40,6 +40,6 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("NICER")
     clearFilterPills().then(redrawGraph).then(initializeSearchBar);
     console.log("NICEST")
-    // refreshFiltersFromBackend()
-    // console.log("Done initializing from rendering process.")
+    refreshFiltersFromBackend()
+    console.log("Done initializing from rendering process.")
 })
