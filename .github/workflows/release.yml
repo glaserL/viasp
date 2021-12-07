@@ -14,8 +14,10 @@ jobs:
         with:
           node-version: 14
       - name: install dependencies
+        working-directory: ./frontend
         run: npm install
       - name: publish
+        working-directory: ./frontend
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run publish
