@@ -1,7 +1,7 @@
 {
   "name": "viasp-frontend-test",
-  "version": "0.0.2-alpha.4",
-  "description": "",
+  "version": "0.0.2-alpha.5",
+  "description": "The frontend for viASP",
   "private": false,
   "scripts": {
     "test": "instant-mocha --webpack-config webpack.config.js",
@@ -16,7 +16,7 @@
     "make-mac": "electron-forge make --platform darwin"
   },
   "keywords": [],
-  "author": "",
+  "author": "Luis Glaser",
   "license": "MIT",
   "prepublishOnly": "webpack --mode=production",
   "main": "./.webpack/main",
