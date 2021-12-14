@@ -2,9 +2,12 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.egg-info
 # mac
 *DS_Store
 # dev
 *.idea
 #js
 *node_modules
+# notes
+*.md
