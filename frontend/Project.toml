@@ -1,0 +1,12 @@
+
+name = "ViaspDash"
+uuid = "1b08a953-4be3-4667-9a23-269019a7cf42"
+authors = ["Luis Glaser <Luis.Glaser@uni-potsdam.de>"]
+version = "0.0.1"
+
+[deps]
+Dash = "1b08a953-4be3-4667-9a23-3db579824955"
+
+[compat]
+julia = "1.2"
+Dash = "0.1.3"
