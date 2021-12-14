@@ -1,27 +1,27 @@
 import React, {Component} from 'react';
-import PropTypes, {func} from 'prop-types';
+import PropTypes from 'prop-types';
 import './style.css';
 
 //
-export function make_atoms_string(atoms) {
-    // console.log(`IN: ${JSON.stringify(atoms)}`)
-    if (Array.isArray(atoms)) {
-        // console.log(`An array ${atoms}`)
-        return atoms.map(make_atoms_string).join(" ")
-    }
-    switch (atoms._type) {
-        case "Number":
-            // console.log(`A number ${JSON.stringify(atoms)}`)
-            return atoms.number.toString();
-        case "Function":
-            // console.log(`A func ${JSON.stringify(atoms)}`)
-            const args = atoms.arguments.map(make_atoms_string).join(",")
-            return args.length > 0 ? `${atoms.name}(${args})` : `${atoms.name}`
-        default:
-            throw new TypeError(`Unimplemented type ${atoms._type}`)
-
-    }
-}
+// export function make_atoms_string(atoms) {
+//     // console.log(`IN: ${JSON.stringify(atoms)}`)
+//     if (Array.isArray(atoms)) {
+//         // console.log(`An array ${atoms}`)
+//         return atoms.map(make_atoms_string).join(" ")
+//     }
+//     switch (atoms._type) {
+//         case "Number":
+//             // console.log(`A number ${JSON.stringify(atoms)}`)
+//             return atoms.number.toString();
+//         case "Function":
+//             // console.log(`A func ${JSON.stringify(atoms)}`)
+//             const args = atoms.arguments.map(make_atoms_string).join(",")
+//             return args.length > 0 ? `${atoms.name}(${args})` : `${atoms.name}`
+//         default:
+//             throw new TypeError(`Unimplemented type ${atoms._type}`)
+//
+//     }
+// }
 
 // class RuleHeader extends Component {
 //     render() {
@@ -29,8 +29,8 @@ export function make_atoms_string(atoms) {
 //         return <div className="row_header" onClick={() => notifyClick(this)}>{rule}</div>
 //     }
 // }
-
-export function backendURL(route) {
+//
+function backendURL(route) {
     const domain = "localhost"
     const port = 5000;
     const url = `http://${domain}:${port}/${route}`;
@@ -38,44 +38,45 @@ export function backendURL(route) {
     return url
 }
 
-class Node extends Component {
-    state = {
-        externalData: null,
-        error: null,
-    };
-
-
-    loadMyAsyncData() {
-        const {id} = this.props;
-        return fetch(`${backendURL("node")}/${id}`).then(r => r.json())
-    }
-
-    render() {
-        if (this.state.externalData === null) {
-            return <div>Loading..</div>
-        }
-        const {notifyClick} = this.props;
-        return <div onClick={() => notifyClick(this.state.externalData)}>
-            <div className={"set_header"}>SIGNATURE</div>
-            <div className={"set_value"}>{make_atoms_string(this.state.externalData.diff)}</div>
-        </div>
-    }
-
-    componentDidMount() {
-        this._asyncRequest = this.loadMyAsyncData().then(
-            externalData => {
-                this._asyncRequest = null;
-                this.setState({externalData});
-            }
-        );
-    }
-
-    componentWillUnmount() {
-        if (this._asyncRequest) {
-            this._asyncRequest.cancel();
-        }
-    }
-}
+//
+// class Node extends Component {
+//     state = {
+//         externalData: null,
+//         error: null,
+//     };
+//
+//
+//     loadMyAsyncData() {
+//         const {id} = this.props;
+//         return fetch(`${backendURL("node")}/${id}`).then(r => r.json())
+//     }
+//
+//     render() {
+//         if (this.state.externalData === null) {
+//             return <div>Loading..</div>
+//         }
+//         const {notifyClick} = this.props;
+//         return <div onClick={() => notifyClick(this.state.externalData)}>
+//             <div className={"set_header"}>SIGNATURE</div>
+//             <div className={"set_value"}>{make_atoms_string(this.state.externalData.diff)}</div>
+//         </div>
+//     }
+//
+//     componentDidMount() {
+//         this._asyncRequest = this.loadMyAsyncData().then(
+//             externalData => {
+//                 this._asyncRequest = null;
+//                 this.setState({externalData});
+//             }
+//         );
+//     }
+//
+//     componentWillUnmount() {
+//         if (this._asyncRequest) {
+//             this._asyncRequest.cancel();
+//         }
+//     }
+// }
 
 // class NodeRow extends Component {
 //     render() {
@@ -119,60 +120,60 @@ class Node extends Component {
 //     console.log("HEHE")
 // }
 //
+//
+// class RowHeader extends Component {
+//     render() {
+//         const {rules} = this.props;
+//         return <div>{rules}</div>
+//     }
+// }
+//
+// class Row extends Component {
+//
+//     state = {
+//         externalData: null,
+//         error: null,
+//     };
+//
+//     componentDidMount() {
+//         this._asyncRequest = this.loadMyAsyncData().then(
+//             externalData => {
+//                 this._asyncRequest = null;
+//                 this.setState({externalData});
+//             }
+//         );
+//     }
+//
+//     componentWillUnmount() {
+//         if (this._asyncRequest) {
+//             this._asyncRequest.cancel();
+//         }
+//     }
+//
+//     render() {
+//         const {transformation, notifyClick} = this.props;
+//         if (this.state.externalData === null) {
+//             return (
+//                 <div className="row_container">
+//                     <RowHeader rule={transformation.rules}/>
+//                     <div>Loading Transformations..</div>
+//                 </div>
+//             )
+//         }
+//         return <div className="row_container">
+//             <RowHeader rule={transformation.rules}/>
+//             <div className="row_row">{this.state.externalData.map((childID) => <Node key={childID} id={childID}
+//                                                                                      notifyClick={notifyClick}/>)}</div>
+//         </div>
+//     }
+//
+//     loadMyAsyncData() {
+//         const {transformation} = this.props;
+//         return fetch(`${backendURL("children")}/?rule_id=${transformation.id}&ids_only=True`).then(r => r.json()).catch(error => this.setState({error}))
+//     }
+// }
 
-class RowHeader extends Component {
-    render() {
-        const {rules} = this.props;
-        return <div>{rules}</div>
-    }
-}
-
-class Row extends Component {
-
-    state = {
-        externalData: null,
-        error: null,
-    };
-
-    componentDidMount() {
-        this._asyncRequest = this.loadMyAsyncData().then(
-            externalData => {
-                this._asyncRequest = null;
-                this.setState({externalData});
-            }
-        );
-    }
-
-    componentWillUnmount() {
-        if (this._asyncRequest) {
-            this._asyncRequest.cancel();
-        }
-    }
-
-    render() {
-        const {transformation, notifyClick} = this.props;
-        if (this.state.externalData === null) {
-            return (
-                <div className="row_container">
-                    <RowHeader rule={transformation.rules}/>
-                    <div>Loading Transformations..</div>
-                </div>
-            )
-        }
-        return <div className="row_container">
-            <RowHeader rule={transformation.rules}/>
-            <div className="row_row">{this.state.externalData.map((childID) => <Node key={childID} id={childID}
-                                                                                     notifyClick={notifyClick}/>)}</div>
-        </div>
-    }
-
-    loadMyAsyncData() {
-        const {transformation} = this.props;
-        return fetch(`${backendURL("children")}/?rule_id=${transformation.id}&ids_only=True`).then(r => r.json()).catch(error => this.setState({error}))
-    }
-}
-
-export default class MyComponent extends Component {
+export default class ViaspDash extends Component {
 
     constructor(props) {
         super(props);
@@ -187,9 +188,7 @@ export default class MyComponent extends Component {
         if (this.state.externalData === null) {
             return <div>Loading..</div>
         }
-        return (<div>{this.state.externalData.map((transformation) => <Row key={transformation.id}
-                                                                           transformation={transformation}
-                                                                           notifyClick={this.notify}/>)}</div>)
+        return <div>Hello World!</div>
     }
 
 
@@ -201,7 +200,6 @@ export default class MyComponent extends Component {
     }
 
     loadMyAsyncData() {
-        const {id} = this.props
         return fetch(`${backendURL("rules")}`).then(r => r.json()).catch(error => this.setState({error}))
     }
 
@@ -220,7 +218,7 @@ export default class MyComponent extends Component {
         }
     }
 }
-MyComponent.propTypes = {
+ViaspDash.propTypes = {
     /**
      * The ID used to identify this component in Dash callbacks.
      */
