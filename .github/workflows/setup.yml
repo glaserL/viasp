@@ -34,7 +34,7 @@ jobs:
         with:
           miniforge-variant: Mambaforge
           miniforge-version: latest
-          activate-environment: anaconda-client-env
+          activate-environment: viasp_CI
           use-mamba: true
       - name: Update environment
         run: mamba env update -f ${{ inputs.path }}
