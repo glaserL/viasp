@@ -3,7 +3,7 @@ import {backendURL, make_atoms_string, make_rules_string} from "../util";
 import {Filter, Model, Transformation} from "../types";
 import {drawEdges} from "./edges";
 import {showDetail} from "../detail/detail";
-import {getFromSessionStorage} from "../index";
+import {getFromSessionStorage} from "../index_old";
 
 
 export function redrawGraph(): Promise<any> {
