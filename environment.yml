@@ -1,4 +1,4 @@
-name: viasp
+name: viasp_CI
 channels:
   - conda-forge
   - defaults
@@ -12,3 +12,6 @@ dependencies:
   - python-clingox=1.0.1
   - requests=2.26.0
   - flask-cors
+  - build
+  - dash[dev]>=1.15.0
+  - yaml
