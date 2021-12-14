@@ -35,6 +35,7 @@ jobs:
         run: npm run build
       - name: Building dash component
         working-directory: ./frontend
+        shell: bash -l {0}
         run: python -m build --sdist --wheel --outdir dist/;
 
 
