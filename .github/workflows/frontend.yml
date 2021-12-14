@@ -43,6 +43,9 @@ jobs:
     steps:
       - name: Checking out repository
         uses: actions/checkout@v2
+      - name: initialize conda
+        shell: bash
+        run: conda init bash
       - name: Activate conda environment
         shell: bash -l {0}
         run: conda activate viasp_CI
