@@ -37,19 +37,25 @@ def create_app(config=None):
     # ))
     # app.config.update(config or {})
     # app.config.from_envvar('LAPRINT_SETTINGS', silent=True)
+    # FIXME: This is very bad.
+    cors_resources = {r"/settings*": {"origins": "*"},
+                      r"/query*": {"origins": "*"},
+                      r"/trace*": {"origins": "*"},
+                      r"/filter*": {"origins": "*"},
+                      r"/facts*": {"origins": "*"},
+                      r"/edges*": {"origins": "*"},
+                      r"/model*": {"origins": "*"},
+                      r"/node*": {"origins": "*"},
+                      r"/children*": {"origins": "*"},
+                      r"/rules": {"origins": "*"}}
 
     register_blueprints(app)
-    CORS(app, resources={r"/settings/*": {"origins": "http://localhost:8080"},
-                         r"/query/*": {"origins": "http://localhost:8080"},
-                         r"/trace/*": {"origins": "http://localhost:8080"},
-                         r"/filter/*": {"origins": "http://localhost:8080"},
-                         r"/facts/*": {"origins": "http://localhost:8080"},
-                         r"/edges/*": {"origins": "http://localhost:8080"},
-                         r"/model/*": {"origins": "http://localhost:8080"},
-                         r"/node/*": {"origins": "http://localhost:8080"},
-                         r"/children/*": {"origins": "http://localhost:8080"},
-                         r"/rules": {"origins": "http://localhost:8080"}})
+    print(f"Configuring cors as : {cors_resources}")
 
+    CORS(app, resources=cors_resources)
+
+    # app.url_map.strict_slashes = False
+    print(f"False")
     app.json_encoder = DataclassJSONEncoder
     app.json_decoder = DataclassJSONDecoder
     #
