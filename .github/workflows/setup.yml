@@ -1,3 +1,5 @@
+name: "Setup python"
+
 on:
   workflow_call:
     inputs:
@@ -6,8 +8,8 @@ on:
         type: string
 
 jobs:
-  caching-example:
-    name: Caching
+  conda:
+    name: Setup conda environment
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v2
