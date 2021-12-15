@@ -14,4 +14,4 @@ dependencies:
   - flask-cors
   - build
   - dash[dev]>=1.15.0
-  - yaml
+  - pyyaml
