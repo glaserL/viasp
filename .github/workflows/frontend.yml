@@ -63,7 +63,7 @@ jobs:
       - name: Install dependencies
         working-directory: ./frontend
         run: npm install
-  build:
+  frontend:
     name: Build Frontend
     runs-on: ubuntu-latest
     needs: [ conda, node ]
@@ -109,7 +109,46 @@ jobs:
         working-directory: ./frontend
         shell: bash -l {0}
         run: python -m build --sdist --wheel --outdir dist/;
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    needs: conda
+    steps:
+      # Setup
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          activate-environment: anaconda-client-env
+          use-mamba: true
 
+      - name: Get conda from cache
+        uses: actions/cache@v2
+        with:
+          path: /usr/share/miniconda3/envs/anaconda-client-env
+          key: conda-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+        env:
+          CACHE_NUMBER: 0
+        id: cache
+      - name: Run Tests
+        shell: bash -l {0}
+        run: PYTHONPATH=. pytest tests/pyt
+      - name: Build package
+        shell: bash -l {0}
+        run: python -m build --sdist --wheel --outdir dist/;
+  publish:
+    runs-on: ubuntu-latest
+    needs: [ backend, frontend ]
+    steps:
+      - name: Upload frontend to GitHub
+        uses: actions/upload-artifact@v2
+        with:
+          name: Frontend
+          path: frontend/dist/*
 
-
-
+      - name: Upload backend to GitHub
+        uses: actions/upload-artifact@v2
+        with:
+          name: Backend
+          path: dist/*
