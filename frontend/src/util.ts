@@ -31,7 +31,7 @@ export function make_rules_string(rule: Rule[]): string {
 export function backendURL(route: string): string {
     let domain = window.location.hostname; //http://someurl.com
     let port = 5000;
-    let url = `http://${domain}:${port}/${route}`;
+    let url = `http://localhost:5000/${route}`;
     console.log(`Returning url ${url}`)
     return url
 }
