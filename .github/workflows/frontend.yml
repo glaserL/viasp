@@ -71,39 +71,6 @@ jobs:
       - name: Checking out repository
         uses: actions/checkout@v2
 
-      - name: Set cache date
-        run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
-
-      - name: Setup Mambaforge
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          miniforge-variant: Mambaforge
-          miniforge-version: latest
-          activate-environment: anaconda-client-env
-          use-mamba: true
-
-      - name: Cache conda env
-        uses: actions/cache@v2
-        with:
-          path: /usr/share/miniconda3/envs/anaconda-client-env
-          key: conda-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
-        env:
-          CACHE_NUMBER: 0
-        id: cache
-
-      - name: Update environment
-        run: mamba env update -n anaconda-client-env -f environment.yml
-        if: steps.cache.outputs.cache-hit != 'true'
-      - name: Setup node
-        uses: actions/setup-node@v2
-        with:
-          node-version: '12'
-      - name: Get node from cache
-        id: cache-node-modules
-        uses: actions/cache@v2
-        with:
-          path: ./frontend/node_modules
-          key: node-modules-${{ hashFiles('./frontend/package-lock.json') }}
       - name: Check conda is available
         shell: bash -l {0}
         run: dash-generate-components -h
