@@ -100,7 +100,7 @@ def get_src_tgt_mapping_from_graph(ids=None):
     ids = set(ids) if ids is not None else None
     graph = get_database().load(as_json=False)
     nodes = set(graph.nodes)
-    to_be_deleted = set(existing for existing in nodes if existing.uuid not in ids)
+    to_be_deleted = set(existing for existing in nodes if ids is not None and existing.uuid not in ids)
     for node in to_be_deleted:
         for source, _, _ in graph.in_edges(node, data=True):
             for _, target, _ in graph.out_edges(node, data=True):
