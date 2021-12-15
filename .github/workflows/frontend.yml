@@ -109,6 +109,12 @@ jobs:
         working-directory: ./frontend
         shell: bash -l {0}
         run: python -m build --sdist --wheel --outdir dist/;
+
+      - name: Upload frontend to GitHub
+        uses: actions/upload-artifact@v2
+        with:
+          name: Frontend
+          path: frontend/dist/*
   backend:
     name: Backend
     runs-on: ubuntu-latest
@@ -141,6 +147,12 @@ jobs:
       - name: Build package
         shell: bash -l {0}
         run: python -m build --sdist --wheel --outdir dist/;
+
+      - name: Upload backend to GitHub
+        uses: actions/upload-artifact@v2
+        with:
+          name: Backend
+          path: dist/*
   publish:
 
     runs-on: ubuntu-latest
@@ -148,14 +160,4 @@ jobs:
     steps:
       - name: Checking out repository
         uses: actions/checkout@v2
-      - name: Upload frontend to GitHub
-        uses: actions/upload-artifact@v2
-        with:
-          name: Frontend
-          path: frontend/dist/*
 
-      - name: Upload backend to GitHub
-        uses: actions/upload-artifact@v2
-        with:
-          name: Backend
-          path: dist/*
