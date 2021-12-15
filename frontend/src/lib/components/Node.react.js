@@ -1,10 +1,10 @@
 import React, {Component} from "react";
 import {backendURL} from "./util";
 import {make_atoms_string} from "./util";
+import {Line} from "react-lineto";
 import './node.css'
 
 export class Node extends Component {
-
 
     constructor(props, context) {
         super(props, context);
@@ -13,7 +13,6 @@ export class Node extends Component {
             externalData: null,
             error: null,
         };
-
     }
 
     loadMyAsyncData() {
@@ -28,7 +27,8 @@ export class Node extends Component {
         const {notifyClick} = this.props;
         let atomString = make_atoms_string(this.state.externalData.diff)
         atomString = atomString.length === 0 ? "Ø" : atomString;
-        return <div className="set_container" onClick={() => notifyClick(this.state.externalData)}>
+        const classNames = `set_container ${this.state.externalData.uuid}`
+        return <div className={classNames} onClick={() => notifyClick(this.state.externalData)}>
             <div className={"set_value"}>{atomString}</div>
         </div>
     }
