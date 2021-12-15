@@ -71,6 +71,21 @@ jobs:
       - name: Checking out repository
         uses: actions/checkout@v2
 
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          activate-environment: anaconda-client-env
+          use-mamba: true
+
+      - name: Get node from cache
+        id: cache-node-modules
+        uses: actions/cache@v2
+        with:
+          path: ./frontend/node_modules
+          key: node-modules-${{ hashFiles('./frontend/package-lock.json') }}
+
       - name: Check conda is available
         shell: bash -l {0}
         run: dash-generate-components -h
