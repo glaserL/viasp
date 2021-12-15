@@ -107,8 +107,6 @@ jobs:
       - name: Check conda is available
         shell: bash -l {0}
         run: dash-generate-components -h
-      - name: Check conda is available
-        run: dash-generate-components -h
       - name: Building react
         working-directory: ./frontend
         shell: bash -l {0}
