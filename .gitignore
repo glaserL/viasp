@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.egg-info
+dist/
+build/
 # mac
 *DS_Store
 # dev
