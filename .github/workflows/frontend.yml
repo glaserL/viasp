@@ -147,7 +147,7 @@ jobs:
     needs: [ backend, frontend ]
     steps:
       - name: Checking out repository
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
       - name: Upload frontend to GitHub
         uses: actions/upload-artifact@v2
         with:
