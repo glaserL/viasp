@@ -14,25 +14,13 @@ export default class ViaspDash extends Component {
 
         this.state = {
             externalData: null,
-            detail: "9d2f7e5e33de47f7abbc59553f13d049"
+            detail: null
         };
     }
 
     render() {
         if (this.state.externalData === null) {
             return <div>Loading..</div>
-        }
-        if (this.state.detail === null) {
-
-            return <div className="content">
-                <div className="graph_container">
-                    <Facts notifyClick={this.notify}/>
-                    {this.state.externalData.map((transformation) => <Row
-                        key={transformation.id}
-                        transformation={transformation}
-                        notifyClick={this.notify}/>)}</div>
-                {/*<Edges/>*/}
-            </div>
         }
         return <div className="content">
             <Detail shows={this.state.detail}>
@@ -53,6 +41,7 @@ export default class ViaspDash extends Component {
         console.log("CLICKED ON " + JSON.stringify(clickedOn))
         // setProps({key: clickedOn, id: clickedOn, node: clickedOn, notifyClick: this.notify})
         setProps({node: clickedOn})
+        this.setState({detail: clickedOn.uuid})
     }
 
     loadMyAsyncData() {
