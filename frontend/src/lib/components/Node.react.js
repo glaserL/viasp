@@ -15,37 +15,16 @@ export class Node extends Component {
         };
     }
 
-    loadMyAsyncData() {
-        const {id} = this.props;
-        return fetch(`${backendURL("node")}/${id.uuid}`).then(r => r.json())
-    }
 
     render() {
-        if (this.state.externalData === null) {
-            return <div>..</div>
-        }
-        const {notifyClick} = this.props;
-        let atomString = make_atoms_string(this.state.externalData.diff)
+        const {id, notifyClick} = this.props;
+        let atomString = make_atoms_string(id.diff)
         atomString = atomString.length === 0 ? "Ø" : atomString;
-        const classNames = `set_container ${this.state.externalData.uuid}`
-        return <div className={classNames} onClick={() => notifyClick(this.state.externalData)}>
+        const classNames = `set_container ${id.uuid}`
+        return <div className={classNames} onClick={() => notifyClick(id)}>
             <div className={"set_value"}>{atomString}</div>
         </div>
     }
 
-    componentDidMount() {
-        this._asyncRequest = this.loadMyAsyncData().then(
-            externalData => {
-                this._asyncRequest = null;
-                this.setState({externalData});
-            }
-        );
-    }
-
-    componentWillUnmount() {
-        if (this._asyncRequest) {
-            this._asyncRequest.cancel();
-        }
-    }
 }
 

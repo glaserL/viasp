@@ -58,3 +58,8 @@
     margin-left: 5px;
     border-radius: 10px 10px 10px 10px;
 }
+
+.closeButton {
+    font-size: 24pt;
+    cursor: pointer;
+}
