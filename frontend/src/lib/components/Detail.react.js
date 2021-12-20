@@ -48,7 +48,7 @@ export class Detail extends Component {
     }
 
     render() {
-        const {shows} = this.props;
+        const {shows, clearDetail} = this.props;
         if (shows === null) {
             return null;
         }
@@ -59,7 +59,7 @@ export class Detail extends Component {
             </div>
         }
         return <div id="detailSidebar" className="detail">
-            <h3>Stable Models</h3>
+            <h3><span aria-hidden="true" onClick={clearDetail} className="closeButton">&times;</span>Stable Models</h3>
             {this.state.externalData.map((resp) =>
                 <DetailForSignature key={resp[0]} signature={resp[0]} atoms={resp[1]} uuid={shows}/>)}
         </div>

@@ -23,7 +23,7 @@ export default class ViaspDash extends Component {
             return <div>Loading..</div>
         }
         return <div className="content">
-            <Detail shows={this.state.detail}>
+            <Detail shows={this.state.detail} clearDetail={() => this.setState({detail: null})}>
             </Detail>
             <div className="graph_container">
                 <Facts notifyClick={this.notify}/>
