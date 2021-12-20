@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import {Node} from "./Node.react";
 import {backendURL} from "./util";
 import './row.css';
+import ProgressBar from 'react-bootstrap/ProgressBar'
 
 class RowHeader extends Component {
     constructor(props, context) {
@@ -76,5 +77,40 @@ export class Row extends Component {
     loadMyAsyncData() {
         const {transformation} = this.props;
         return fetch(`${backendURL("children")}/?rule_id=${transformation.id}&ids_only=True`).then(r => r.json()).catch(error => this.setState({error}))
+    }
+}
+
+export class Facts extends Row {
+
+    constructor(props, context) {
+        super(props, context);
+    }
+
+    loadMyAsyncData() {
+        return fetch(`${backendURL("facts")}`).then(r => r.json()).catch(error => this.setState({error}))
+    }
+
+    render() {
+        const {notifyClick} = this.props;
+        if (this.state.externalData === null) {
+            return (
+                <div className="row_container">
+                    <RowHeader rule={"<Facts>"}/>
+                    <div>Loading Transformations..</div>
+                </div>
+            )
+        }
+        if (this.state.show === false) {
+            return <div className="row_container">
+                <RowHeader onToggle={this.onHeaderClick} rule={"<Facts>"}/>
+            </div>
+        }
+        const fact = this.state.externalData
+        return <div className="row_container">
+            <RowHeader onToggle={this.onHeaderClick} rule={"<Facts>"}/>
+            <div className="row_row"><Node key={fact.uuid} id={fact}
+                                           notifyClick={notifyClick}/>
+            </div>
+        </div>
     }
 }

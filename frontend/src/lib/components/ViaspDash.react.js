@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {Row} from "./Row.react";
+import {Facts, Row} from "./Row.react";
 import {backendURL} from "../../util";
+import "./main.css"
 import {Edges} from "./Edges.react";
-
+import {Detail} from "./Detail.react";
 
 export default class ViaspDash extends Component {
 
@@ -12,21 +13,37 @@ export default class ViaspDash extends Component {
         this.notify = this.notify.bind(this)
 
         this.state = {
-            externalData: null
+            externalData: null,
+            detail: "9d2f7e5e33de47f7abbc59553f13d049"
         };
     }
 
     render() {
-        if (this.state.externalData === null || this.state.externalData === undefined) {
+        if (this.state.externalData === null) {
             return <div>Loading..</div>
         }
+        if (this.state.detail === null) {
+
+            return <div className="content">
+                <div className="graph_container">
+                    <Facts notifyClick={this.notify}/>
+                    {this.state.externalData.map((transformation) => <Row
+                        key={transformation.id}
+                        transformation={transformation}
+                        notifyClick={this.notify}/>)}</div>
+                {/*<Edges/>*/}
+            </div>
+        }
         return <div className="content">
+            <Detail shows={this.state.detail}>
+            </Detail>
             <div className="graph_container">
+                <Facts notifyClick={this.notify}/>
                 {this.state.externalData.map((transformation) => <Row
                     key={transformation.id}
                     transformation={transformation}
                     notifyClick={this.notify}/>)}</div>
-            <Edges/>
+            {/*<Edges/>*/}
         </div>
     }
 

@@ -1,12 +1,12 @@
 
-
 .row_header {
     background-color: black;
-    color: whitesmoke;
+    color: #D2D1D1;
     padding: 5px;
-    font-family: monospace;
+    font-family: "Monaco", monospace;
     font-size: 14pt;
-    width: fit-content;
+    border-top: 1px solid;
+    /*width: fit-content;*/
 }
 
 .row_row {
