@@ -1,6 +1,17 @@
 import React, {Component} from 'react';
 import {backendURL, make_atoms_string} from "../../util";
 import './detail.css';
+import {ClingoSymbol} from "../../types";
+
+class DetailSymbolPill extends Component {
+
+    render() {
+        const {symbol, uuid} = this.props;
+        return <span className="detail_atom_view_content">{make_atoms_string(symbol)}</span>
+    }
+
+
+}
 
 class DetailForSignature extends Component {
 
@@ -17,10 +28,11 @@ class DetailForSignature extends Component {
     }
 
     render() {
-        const {signature, atoms} = this.props;
+        const {signature, atoms, uuid} = this.props;
         return <div>
             <h3 className="detail_atom_view_heading" onClick={this.toggleShowChildren}>{signature}</h3>
-            {this.state.showChildren ? atoms.map(atom => <div>{make_atoms_string(atom)}</div>) : null}
+            {this.state.showChildren ? atoms.map(symbol => <DetailSymbolPill key={JSON.stringify(symbol)}
+                                                                             symbol={symbol} uuid={uuid}/>) : null}
         </div>
     }
 }
@@ -36,6 +48,10 @@ export class Detail extends Component {
     }
 
     render() {
+        const {shows} = this.props;
+        if (shows === null) {
+            return null;
+        }
         if (this.state.externalData === null) {
             return <div id="detailSidebar" className="detail">
                 <h3>Stable Models</h3>
@@ -45,7 +61,7 @@ export class Detail extends Component {
         return <div id="detailSidebar" className="detail">
             <h3>Stable Models</h3>
             {this.state.externalData.map((resp) =>
-                <DetailForSignature key={resp[0]} signature={resp[0]} atoms={resp[1]}/>)}
+                <DetailForSignature key={resp[0]} signature={resp[0]} atoms={resp[1]} uuid={shows}/>)}
         </div>
     }
 
@@ -54,14 +70,16 @@ export class Detail extends Component {
         return fetch(`${backendURL("model")}?uuid=${shows}`).then(r => r.json()).catch(error => this.setState({error}))
     }
 
-    componentDidMount() {
-        this._asyncRequest = this.loadMyAsyncData().then(
-            externalData => {
-                this._asyncRequest = null;
-                this.setState({externalData});
-                console.log("Detail SET")
-                console.log(this.state)
-            }
-        );
+    componentDidUpdate(prevProps, prevState) {
+        const {shows} = this.props;
+        if (shows !== null && prevProps.shows !== shows) {
+
+            this._asyncRequest = this.loadMyAsyncData().then(
+                externalData => {
+                    this._asyncRequest = null;
+                    this.setState({externalData});
+                }
+            );
+        }
     }
 }
