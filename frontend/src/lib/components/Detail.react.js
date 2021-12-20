@@ -29,8 +29,9 @@ class DetailForSignature extends Component {
 
     render() {
         const {signature, atoms, uuid} = this.props;
+        const thing = this.state.showChildren ? "v" : ">"
         return <div>
-            <h3 className="detail_atom_view_heading" onClick={this.toggleShowChildren}>{signature}</h3>
+            <h3 className="detail_atom_view_heading" onClick={this.toggleShowChildren}>{thing} {signature}</h3>
             {this.state.showChildren ? atoms.map(symbol => <DetailSymbolPill key={JSON.stringify(symbol)}
                                                                              symbol={symbol} uuid={uuid}/>) : null}
         </div>
