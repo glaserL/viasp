@@ -1,7 +1,6 @@
 import React, {Component} from "react";
-import {backendURL, make_atoms_string} from "./util";
+import {backendURL} from "./util";
 import LineTo from "react-lineto";
-import {Line} from "./LineTo";
 
 export class Edges extends Component {
 

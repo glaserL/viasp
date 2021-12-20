@@ -23,6 +23,7 @@
 .set_value {
     background: #eeeeee;
     border: 5px solid #FF1C89;
+    font-family: monospace;
     padding-left: 5px;
     padding-right: 5px;
     margin: 5px;
