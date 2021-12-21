@@ -3,7 +3,6 @@ import React, {Component} from "react";
 import {Node} from "./Node.react";
 import {backendURL} from "./util";
 import './row.css';
-import ProgressBar from 'react-bootstrap/ProgressBar'
 
 class RowHeader extends Component {
     constructor(props, context) {
