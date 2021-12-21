@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
-import {backendURL, make_atoms_string} from "./util";
+import {backendURL, make_atoms_string} from "../utils/index";
 import './detail.css';
+import PropTypes from "prop-types";
 
 class DetailSymbolPill extends Component {
 
@@ -82,4 +83,11 @@ export class Detail extends Component {
             );
         }
     }
+}
+
+Detail.propTypes = {
+    /**
+     * The node to show
+     */
+    shows: PropTypes.string
 }

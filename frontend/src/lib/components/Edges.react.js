@@ -1,6 +1,7 @@
 import React, {Component} from "react";
-import {backendURL} from "./util";
+import {backendURL} from "../utils/index";
 import LineTo from "react-lineto";
+import PropTypes from "prop-types";
 
 export class Edges extends Component {
 
@@ -43,4 +44,12 @@ export class Edges extends Component {
             this._asyncRequest.cancel();
         }
     }
+}
+
+Edges.propTypes = {
+    /**
+     * The ID used to identify this component in Dash callbacks.
+     */
+    id: PropTypes.string
+
 }
