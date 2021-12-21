@@ -15,3 +15,4 @@ dependencies:
   - build
   - dash[dev]>=1.15.0
   - pyyaml
+  - dash
