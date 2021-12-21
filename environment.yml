@@ -16,3 +16,4 @@ dependencies:
   - dash[dev]>=1.15.0
   - pyyaml
   - dash
+  - dash-html-components
