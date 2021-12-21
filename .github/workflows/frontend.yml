@@ -109,7 +109,13 @@ jobs:
         working-directory: ./frontend
         shell: bash -l {0}
         run: python -m build --sdist --wheel --outdir dist/;
-
+      - name: Test usage.py
+        shell: bash -l {0}
+        run: |
+          python usage.py &
+          PID=$!
+          sleep 5s
+          kill -9 $PID
       - name: Upload frontend to GitHub
         uses: actions/upload-artifact@v2
         with:
