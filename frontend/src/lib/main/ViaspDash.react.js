@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {Row} from "./Row.react";
-import {backendURL} from "../utils/index";
-import "./main.css"
-import {Detail} from "./Detail.react";
-import {Search} from "./Search.react";
-import {Facts} from "./Facts.react";
+import {Row} from "../components/Row.react";
+import {backendURL} from "../utils";
+import "../components/main.css"
+import {Detail} from "../components/Detail.react";
+import {Search} from "../components/Search.react";
+import {Facts} from "../components/Facts.react";
 
 export default class ViaspDash extends Component {
 

@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import ViaspDash from './components/ViaspDash.react';
+import ViaspDash from './main/ViaspDash.react';
 
 export {
     ViaspDash
