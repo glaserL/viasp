@@ -114,6 +114,7 @@ jobs:
         run: |
           python usage.py &
           PID=$!
+          echo $PID
           sleep 5s
           kill -9 $PID
       - name: Upload frontend to GitHub
