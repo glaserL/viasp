@@ -1,7 +1,5 @@
 import React, {Component} from "react";
-import {backendURL} from "./util";
 import {make_atoms_string} from "./util";
-import {Line} from "react-lineto";
 import './node.css'
 
 export class Node extends Component {

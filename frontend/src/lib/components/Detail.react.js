@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
-import {backendURL, make_atoms_string} from "../../util";
+import {backendURL, make_atoms_string} from "./util";
 import './detail.css';
-import {ClingoSymbol} from "../../types";
 
 class DetailSymbolPill extends Component {
 

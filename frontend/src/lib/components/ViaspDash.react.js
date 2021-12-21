@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {Facts, Row} from "./Row.react";
-import {backendURL} from "../../util";
+import {backendURL} from "./util";
 import "./main.css"
-import {Edges} from "./Edges.react";
 import {Detail} from "./Detail.react";
+import {Search} from "./Search.react";
 
 export default class ViaspDash extends Component {
 
@@ -23,6 +23,7 @@ export default class ViaspDash extends Component {
             return <div>Loading..</div>
         }
         return <div className="content">
+            <Search/>
             <Detail shows={this.state.detail} clearDetail={() => this.setState({detail: null})}>
             </Detail>
             <div className="graph_container">
