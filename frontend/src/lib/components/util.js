@@ -18,13 +18,11 @@ export function make_atoms_string(atoms) {
     }
 }
 
-// class RuleHeader extends Component {
-//     render() {
-//         const {rule, notifyClick} = this.props
-//         return <div className="row_header" onClick={() => notifyClick(this)}>{rule}</div>
-//     }
-// }
-//
+export function make_rules_string(rule) {
+    // TODO: This is pretty bad. Adjust types for this.
+    return rule.join(" ")
+}
+
 export function backendURL(route) {
     const domain = "localhost"
     const port = 5000;

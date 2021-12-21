@@ -23,7 +23,6 @@ export default class ViaspDash extends Component {
             return <div>Loading..</div>
         }
         return <div className="content">
-            <Search/>
             <Detail shows={this.state.detail} clearDetail={() => this.setState({detail: null})}>
             </Detail>
             <div className="graph_container">
@@ -32,7 +31,9 @@ export default class ViaspDash extends Component {
                     key={transformation.id}
                     transformation={transformation}
                     notifyClick={this.notify}/>)}</div>
+            <Search/>
             {/*<Edges/>*/}
+
         </div>
     }
 

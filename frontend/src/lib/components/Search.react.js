@@ -1,38 +1,155 @@
-import React, {Component} from 'react';
+import React, {Component, Fragment} from 'react';
+import {backendURL, make_rules_string, make_atoms_string} from "./util";
+import "./search.css";
+
+class SearchResult extends Component {
+    render() {
+        const {value, active, onClick} = this.props;
+        let classes = ["search_row"];
+        console.log(value)
+        let display = "UNKNOWN FILTER"
+        if (active) {
+            classes.push("active");
+        }
+
+        if (value._type === "Node") {
+            classes.push("search_set")
+            display = make_atoms_string(value.atoms)
+        }
+        if (value._type === "Signature") {
+            classes.push("search_signature")
+            display = `${value.name}/${value.args}`
+        }
+
+        if (value._type === "Transformation") {
+            classes.push("search_transformation")
+            display = make_rules_string(value.rules)
+        }
+        const className = classes.join(" ")
+        return <li className={className} onClick={onClick}>{display}</li>
+    }
+}
 
 export class Search extends Component {
     constructor(props) {
         super(props);
-        this.state = {value: ''};
-
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleKeyDown = this.handleKeyDown.bind(this);
+        this.state = {
+            // The active selection's index
+            activeSuggestion: 0,
+            // The suggestions that match the user's input
+            filteredSuggestions: [],
+            // Whether or not the suggestion list is shown
+            showSuggestions: false,
+            // What the user has entered
+            userInput: ""
+        };
     }
 
     render() {
-        return <div id="search" className="search">
-            <div id="search_result" className="search_result"/>
-            <ul id="active_filters" className="search_result_list">
+        const {
+            onChange,
+            onClick,
+            onKeyDown,
+            state: {
+                activeSuggestion,
+                filteredSuggestions,
+                showSuggestions,
+                userInput
+            }
+        } = this;
 
-            </ul>
-            <form tabIndex="1" autoComplete="off">
-                <input type="text" value={this.state.value} onKeyDownCapture={this.handleKeyDown}
-                       onChange={this.handleChange} name="q"
-                       id="q"/><span
-                style={{fontWeight: 400}}/>
-            </form>
-        </div>
+        let suggestionsListComponent;
+        console.log(`I have ${filteredSuggestions.length} suggestions to display`)
+
+        if (showSuggestions && userInput) {
+            if (filteredSuggestions.length) {
+                suggestionsListComponent = (
+                    <ul className="search_result_list">
+                        {filteredSuggestions.map((suggestion, index) => {
+                            // Flag the active suggestion with a class
+                            return <SearchResult active={index === activeSuggestion} key={index}
+                                                 value={suggestion} onClick={onClick}/>
+                        })}
+                    </ul>
+                );
+            } else {
+                suggestionsListComponent = (
+                    <div className="no-suggestions">
+                        <em>No suggestions, you're on your own!</em>
+                    </div>
+                );
+            }
+        }
+        return (
+            <div className="search">
+                {suggestionsListComponent}
+                <input
+                    type="text"
+                    onChange={onChange}
+                    onKeyDown={onKeyDown}
+                    value={userInput}
+                />
+            </div>
+        );
     }
 
-    handleKeyDown(event) {
-        console.log(event)
-    }
 
-    handleChange(event) {
-        // console.log(event)
-        this.setState({value: event.target.value});
-    }
+    onChange = e => {
+        const userInput = e.currentTarget.value;
+
+        // Filter our suggestions that don't contain the user's input
+
+        fetch(`${backendURL("query")}?q=` + userInput)
+            .then(r => r.json())
+            .then(data => {
+                console.log("LOOK AT ME")
+                this.setState({
+                    activeSuggestion: 0,
+                    filteredSuggestions: data,
+                    showSuggestions: true,
+                    userInput: userInput
+                })
+                console.log(`Saved ${data.length} suggestions.`)
+            })
+    };
+
+    onClick = e => {
+        this.setState({
+            activeSuggestion: 0,
+            filteredSuggestions: [],
+            showSuggestions: false,
+            userInput: e.currentTarget.innerText
+        });
+    };
+
+    onKeyDown = e => {
+        const {activeSuggestion, filteredSuggestions} = this.state;
+
+        // User pressed the enter key
+        if (e.keyCode === 13) {
+            this.setState({
+                activeSuggestion: 0,
+                showSuggestions: false,
+                userInput: filteredSuggestions[activeSuggestion]
+            });
+        }
+        // User pressed the up arrow
+        else if (e.keyCode === 38) {
+            if (activeSuggestion === 0) {
+                return;
+            }
+
+            this.setState({activeSuggestion: activeSuggestion - 1});
+        }
+        // User pressed the down arrow
+        else if (e.keyCode === 40) {
+            if (activeSuggestion - 1 === filteredSuggestions.length) {
+                return;
+            }
+
+            this.setState({activeSuggestion: activeSuggestion + 1});
+        }
+    };
 
     handleSubmit(event) {
         event.preventDefault();
