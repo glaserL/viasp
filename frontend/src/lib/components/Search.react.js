@@ -1,34 +1,8 @@
-import React, {Component, Fragment} from 'react';
-import {backendURL, make_rules_string, make_atoms_string} from "./util";
+import React, {Component} from 'react';
+import {backendURL} from "../utils/index";
 import "./search.css";
-
-class SearchResult extends Component {
-    render() {
-        const {value, active, onClick} = this.props;
-        let classes = ["search_row"];
-        console.log(value)
-        let display = "UNKNOWN FILTER"
-        if (active) {
-            classes.push("active");
-        }
-
-        if (value._type === "Node") {
-            classes.push("search_set")
-            display = make_atoms_string(value.atoms)
-        }
-        if (value._type === "Signature") {
-            classes.push("search_signature")
-            display = `${value.name}/${value.args}`
-        }
-
-        if (value._type === "Transformation") {
-            classes.push("search_transformation")
-            display = make_rules_string(value.rules)
-        }
-        const className = classes.join(" ")
-        return <li className={className} onClick={onClick}>{display}</li>
-    }
-}
+import {SearchResult} from "./SearchResult.react";
+import PropTypes from "prop-types";
 
 export class Search extends Component {
     constructor(props) {
@@ -155,5 +129,13 @@ export class Search extends Component {
         event.preventDefault();
     }
 
+
+}
+
+Search.propTypes = {
+    /**
+     * The ID used to identify this component in Dash callbacks.
+     */
+    id: PropTypes.string
 
 }

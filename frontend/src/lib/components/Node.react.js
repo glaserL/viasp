@@ -1,6 +1,7 @@
 import React, {Component} from "react";
-import {make_atoms_string} from "./util";
+import {make_atoms_string} from "../utils/index";
 import './node.css'
+import PropTypes from "prop-types";
 
 export class Node extends Component {
 
@@ -23,6 +24,13 @@ export class Node extends Component {
             <div className={"set_value"}>{atomString}</div>
         </div>
     }
+}
 
+Node.propTypes = {
+    id: PropTypes.exact({
+        diff: PropTypes.array,
+        uuid: PropTypes.string
+    }),
+    notifyClick: PropTypes.func
 }
 
