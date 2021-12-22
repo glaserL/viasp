@@ -6,6 +6,29 @@ import "../components/main.css"
 import {Detail} from "../components/Detail.react";
 import {Search} from "../components/Search.react";
 import {Facts} from "../components/Facts.react";
+import "./header.css";
+import {ShowAllContext, ShowAllProvider} from "../contexts/ShowAllProvider";
+
+function ShowAllToggle() {
+    const [state, dispatch] = React.useContext(ShowAllContext)
+    if (state.show_all) {
+        return <input type="checkbox" onClick={() => dispatch({type: "show_all"})} checked/>
+    }
+    return <input type="checkbox" onClick={() => dispatch({type: "show_all"})}/>
+
+}
+
+function AppHeader() {
+    return <div className="header">
+        <div id="app_title">
+            <span>viASP</span>
+            <span id="display_all_toggle_span">Show All:
+                <ShowAllToggle/>
+        </span>
+        </div>
+    </div>
+}
+
 
 export default class ViaspDash extends Component {
 
@@ -23,19 +46,23 @@ export default class ViaspDash extends Component {
         if (this.state.externalData === null) {
             return <div>Loading..</div>
         }
-        return <div className="content">
-            <Detail shows={this.state.detail} clearDetail={() => this.setState({detail: null})}>
-            </Detail>
-            <div className="graph_container">
-                <Facts notifyClick={this.notify}/>
-                {this.state.externalData.map((transformation) => <Row
-                    key={transformation.id}
-                    transformation={transformation}
-                    notifyClick={this.notify}/>)}</div>
-            <Search/>
-            {/*<Edges/>*/}
-
-        </div>
+        return <body>
+        <ShowAllProvider>
+            <AppHeader/>
+            <div className="content">
+                <Detail shows={this.state.detail} clearDetail={() => this.setState({detail: null})}>
+                </Detail>
+                <div className="graph_container">
+                    <Facts notifyClick={this.notify}/>
+                    {this.state.externalData.map((transformation) => <Row
+                        key={transformation.id}
+                        transformation={transformation}
+                        notifyClick={this.notify}/>)}</div>
+                <Search/>
+                {/*<Edges/>*/}
+            </div>
+        </ShowAllProvider>
+        </body>
     }
 
     notify(clickedOn) {
