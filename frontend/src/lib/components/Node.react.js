@@ -1,30 +1,27 @@
-import React, {Component} from "react";
+import React from "react";
 import {make_atoms_string} from "../utils/index";
 import './node.css'
 import PropTypes from "prop-types";
+import {ShowAllContext} from "../contexts/ShowAllProvider";
 
-export class Node extends Component {
+export function Node(props) {
 
-    constructor(props, context) {
-        super(props, context);
+    const [state] = React.useContext(ShowAllContext)
 
-        this.state = {
-            externalData: null,
-            error: null,
-        };
+    const {id, notifyClick} = props;
+    let atomString = ""
+    if (state.show_all) {
+        atomString = make_atoms_string(id.atoms)
+    } else {
+        atomString = make_atoms_string(id.diff)
     }
-
-
-    render() {
-        const {id, notifyClick} = this.props;
-        let atomString = make_atoms_string(id.diff)
-        atomString = atomString.length === 0 ? "Ø" : atomString;
-        const classNames = `set_container ${id.uuid}`
-        return <div className={classNames} onClick={() => notifyClick(id)}>
-            <div className={"set_value"}>{atomString}</div>
-        </div>
-    }
+    atomString = atomString.length === 0 ? "Ø" : atomString;
+    const classNames = `set_container ${id.uuid}`
+    return <div className={classNames} onClick={() => notifyClick(id)}>
+        <div className={"set_value"}>{atomString}</div>
+    </div>
 }
+
 
 Node.propTypes = {
     id: PropTypes.exact({
