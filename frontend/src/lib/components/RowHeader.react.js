@@ -18,7 +18,7 @@ RowHeader.propTypes = {
     /**
      * The rule string to be displayed in the header
      */
-    rule: PropTypes.string,
+    rule: PropTypes.array,
 
     /**
      * A callback function when the user clicks on the RuleHeader

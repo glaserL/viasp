@@ -29,7 +29,10 @@ export class Node extends Component {
 Node.propTypes = {
     id: PropTypes.exact({
         diff: PropTypes.array,
-        uuid: PropTypes.string
+        atoms: PropTypes.array,
+        uuid: PropTypes.string,
+        _type: PropTypes.string,
+        rule_nr: PropTypes.number
     }),
     notifyClick: PropTypes.func
 }

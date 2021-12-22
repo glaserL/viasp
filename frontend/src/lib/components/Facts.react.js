@@ -20,19 +20,19 @@ export class Facts extends Row {
         if (this.state.externalData === null) {
             return (
                 <div className="row_container">
-                    <RowHeader rule={"<Facts>"}/>
+                    <RowHeader rule={["<Facts>"]}/>
                     <div>Loading Transformations..</div>
                 </div>
             )
         }
         if (this.state.show === false) {
             return <div className="row_container">
-                <RowHeader onToggle={this.onHeaderClick} rule={"<Facts>"}/>
+                <RowHeader onToggle={this.onHeaderClick} rule={["<Facts>"]}/>
             </div>
         }
         const fact = this.state.externalData
         return <div className="row_container">
-            <RowHeader onToggle={this.onHeaderClick} rule={"<Facts>"}/>
+            <RowHeader onToggle={this.onHeaderClick} rule={["<Facts>"]}/>
             <div className="row_row"><Node key={fact.uuid} id={fact}
                                            notifyClick={notifyClick}/>
             </div>

@@ -73,8 +73,9 @@ Row.propTypes = {
      * The Transformation object to be displayed
      */
     transformation: PropTypes.exact({
-        rules: PropTypes.string,
-        id: PropTypes.string
+        _type: PropTypes.string,
+        rules: PropTypes.array,
+        id: PropTypes.number
     }),
 
     /**
