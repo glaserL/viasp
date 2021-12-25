@@ -1,5 +1,4 @@
 clingo>=5.5.0
-dataclasses>=0.8
 flask>=2.0
 networkx>=2.6
 pytest>=6.2.4
