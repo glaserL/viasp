@@ -30,7 +30,7 @@ jobs:
 
       - name: Install requirements
         shell: bash -l {0}
-        run: pip install --upgrade --upgrade-strategy eager -r dev-requirements.txt -e .
+        run: pip install --upgrade --upgrade-strategy eager -r requirements.txt -e .
         if: steps.cache.outputs.cache-hit != 'true'
 
   node:
