@@ -87,7 +87,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /usr/share/miniconda3/envs/anaconda-client-env
-          key: conda-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+          key: conda-${{ hashFiles('requirements.txt') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
         env:
           CACHE_NUMBER: 0
         id: cache
@@ -146,7 +146,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /usr/share/miniconda3/envs/anaconda-client-env
-          key: conda-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+          key: conda-${{ hashFiles('requirements.txt') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
         env:
           CACHE_NUMBER: 0
         id: cache
