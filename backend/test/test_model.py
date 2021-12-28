@@ -1,6 +1,6 @@
 from clingo import Control
 
-from src.viasp.shared.io import model_to_json
+from viasp.shared.io import model_to_json
 
 
 def test_clingo_model_is_serializable():

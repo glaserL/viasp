@@ -1,6 +1,6 @@
 import pytest
 
-from src.viasp.shared.model import Filter, Signature, Transformation
+from viasp.shared.model import Filter, Signature, Transformation
 
 GOOD_SIGNATURE_FILTER = Filter(Signature("holds", 2))
 

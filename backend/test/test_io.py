@@ -1,16 +1,14 @@
 import json
 
-import clingo
 import networkx as nx
-import pytest
 from clingo import Control
 from networkx import node_link_data, node_link_graph
 
-from src.viasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder, model_to_dict, clingo_model_to_stable_model
-from tests.pyt.test_graph_creation import get_stable_models_for_program
-from src.viasp.asp.justify import build_graph
-from src.viasp.asp.reify import ProgramAnalyzer, reify_list
-from src.viasp.shared.model import StableModel, ClingoMethodCall
+from viasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder, clingo_model_to_stable_model
+from backend.test.test_graph_creation import get_stable_models_for_program
+from viasp.asp.justify import build_graph
+from viasp.asp.reify import ProgramAnalyzer, reify_list
+from viasp.shared.model import StableModel, ClingoMethodCall
 
 
 def test_networkx_graph_with_dataclasses_is_isomorphic_after_dumping_and_loading_again():

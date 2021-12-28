@@ -1,4 +1,4 @@
-from src.viasp import wrapper
+from viasp import wrapper
 
 
 def test_instanciations():

@@ -1,9 +1,9 @@
 import pytest
 from clingo import Control
 
-from src.viasp.server.database import CallCenter
-from src.viasp.asp.replayer import apply_multiple
-from src.viasp.shared.io import model_to_json
+from viasp.server.database import CallCenter
+from viasp.asp.replayer import apply_multiple
+from viasp.shared.io import model_to_json
 
 
 def test_calls_are_filtered_after_application(clingo_call_run_sample):

@@ -1,4 +1,4 @@
-from src.viasp.asp.replayer import apply_multiple
+from viasp.asp.replayer import apply_multiple
 
 
 def test_run(clingo_call_run_sample):

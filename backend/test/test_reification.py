@@ -1,7 +1,7 @@
 import clingo
 import pytest
 from clingo.ast import Rule, parse_string, ASTType
-from src.viasp.asp.reify import transform, ProgramReifier, ProgramAnalyzer
+from viasp.asp.reify import transform, ProgramReifier, ProgramAnalyzer
 
 
 def assertProgramEqual(actual, expected, message=None):

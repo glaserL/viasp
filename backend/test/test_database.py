@@ -1,4 +1,4 @@
-from src.viasp.server.database import CallCenter
+from viasp.server.database import CallCenter
 
 
 def test_add_a_call_to_database(clingo_call_run_sample):

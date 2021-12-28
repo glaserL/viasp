@@ -1,12 +1,7 @@
 import json
-from dataclasses import asdict
 
-from flask import Flask
-from flask.testing import FlaskClient
-
-from src.viasp.server.blueprints.api import bp as api_bp
-from src.viasp.shared.model import ClingoMethodCall
-from src.viasp.shared.io import DataclassJSONEncoder
+from viasp.shared.model import ClingoMethodCall
+from viasp.shared.io import DataclassJSONEncoder
 
 
 def create_empty_call() -> ClingoMethodCall:

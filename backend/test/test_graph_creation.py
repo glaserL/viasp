@@ -1,16 +1,16 @@
-from typing import List, Iterable
+from typing import List
 
 import networkx as nx
 import pytest
 from clingo import Control, Function
 from clingo.ast import AST
 
-from src.viasp.asp.justify import save_model, build_graph, make_reason_path_from_facts_to_stable_model, get_facts, \
+from viasp.asp.justify import save_model, build_graph, make_reason_path_from_facts_to_stable_model, \
     get_h_symbols_from_model
-from src.viasp.shared.util import pairwise
-from src.viasp.asp.reify import transform, ProgramAnalyzer, reify, reify_list
-from src.viasp.shared.model import Node, Transformation
-from src.viasp.shared.util import get_start_node_from_graph, get_end_node_from_path
+from viasp.shared.util import pairwise
+from viasp.asp.reify import transform, ProgramAnalyzer, reify_list
+from viasp.shared.model import Node, Transformation
+from viasp.shared.util import get_start_node_from_graph, get_end_node_from_path
 
 
 def get_stable_models_for_program(program):
