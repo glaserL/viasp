@@ -75,6 +75,9 @@ jobs:
           key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
         id: cache
 
+      - name: Install python packages
+        run: pip install
+
       - name: Setup node
         uses: actions/setup-node@v2
         with:
