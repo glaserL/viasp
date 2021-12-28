@@ -127,7 +127,7 @@ jobs:
         id: cache
       - name: Run Tests
         shell: bash -l {0}
-        run: PYTHONPATH=. pytest tests/pyt
+        run: PYTHONPATH=. pytest tests/test
       - name: Build package
         shell: bash -l {0}
         run: python -m build --sdist --wheel --outdir dist/;
