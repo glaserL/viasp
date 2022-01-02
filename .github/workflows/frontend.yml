@@ -99,17 +99,12 @@ jobs:
           sleep 5s
           kill -9 $PID
 
-      - name: Get Package version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@master
-        with:
-          path: frontend/package.json
       - name: Upload frontend to GitHub
         uses: actions/upload-artifact@v2
         with:
           retention-days: 7
           name: frontend-${{ github.sha }}
-          path: frontend/dist/*
+          path: frontend/dist
   build-backend:
     name: Backend
     runs-on: ubuntu-latest
@@ -137,7 +132,7 @@ jobs:
         with:
           retention-days: 7
           name: backend-${{ github.sha }}
-          path: backend/dist/*
+          path: backend/dist
   test-backend:
     name: Test Backend
     runs-on: ubuntu-latest
