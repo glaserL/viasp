@@ -29,7 +29,6 @@ jobs:
         id: cache
 
       - name: Install requirements
-        shell: bash -l {0}
         run: pip install --upgrade --upgrade-strategy eager -r requirements.txt -e .
         if: steps.cache.outputs.cache-hit != 'true'
 
@@ -87,15 +86,12 @@ jobs:
           key: node-modules-${{ hashFiles('./frontend/package-lock.json') }}
       - name: Building react
         working-directory: ./frontend
-        shell: bash -l {0}
         run: npm run build
       - name: Building dash component
         working-directory: ./frontend
-        shell: bash -l {0}
         run: python -m build --sdist --wheel --outdir dist/;
       - name: Test usage.py
         working-directory: ./frontend
-        shell: bash -l {0}
         run: |
           python usage.py &
           PID=$!
