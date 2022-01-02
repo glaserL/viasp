@@ -23,6 +23,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v2 # version from GitHub disallows sharing between workflows
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: frontend.yml
           commit: ${{ github.sha }}
           name: backend-${{ github.sha }}
       - name: Publish on PyPi
