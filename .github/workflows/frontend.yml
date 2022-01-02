@@ -98,10 +98,17 @@ jobs:
           echo $PID
           sleep 5s
           kill -9 $PID
+
+      - name: Get Package version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@master
+        with:
+          path: frontend/package.json
       - name: Upload frontend to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: Frontend
+          retention-days: 7
+          name: frontend-${{ github.sha }}
           path: frontend/dist/*
   build-backend:
     name: Backend
@@ -128,7 +135,8 @@ jobs:
       - name: Upload backend to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: Backend
+          retention-days: 7
+          name: backend-${{ github.sha }}
           path: backend/dist/*
   test-backend:
     name: Test Backend
@@ -140,10 +148,7 @@ jobs:
       - name: Get artifact
         uses: actions/download-artifact@v2
         with:
-          name: Backend
-
-      - name: Show whats in dist
-        run: ls -R
+          name: backend-${{ github.sha }}
 
       - name: Setup Python
         uses: actions/setup-python@v1
@@ -157,24 +162,13 @@ jobs:
           key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}-wheel
         id: cache
 
-      - name: Install dev dependencies
+      - name: Install dev dependencies and the backend
         shell: bash -l {0}
-        run: pip install --upgrade --upgrade-strategy eager -r requirements.txt -e .
-        if: steps.cache.outputs.cache-hit != 'true'
-
-      - name: Install viasp backend
-        run: pip install viasp-0.0.1-py3-none-any.whl
+        run: |
+          pip install --upgrade --upgrade-strategy eager -r requirements.txt -e .
+          pip install viasp-0.0.1-py3-none-any.whl
         if: steps.cache.outputs.cache-hit != 'true'
 
       - name: Run Tests
         working-directory: backend
         run: PYTHONPATH=. pytest test
-
-  publish:
-
-    runs-on: ubuntu-latest
-    needs: [ test-backend, frontend ]
-    steps:
-      - name: Checking out repository
-        uses: actions/checkout@v2
-
