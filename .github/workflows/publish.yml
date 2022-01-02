@@ -9,6 +9,7 @@ jobs:
   backend:
     name: Publish backend
     if: ${{ github.tag == 'push' && contains(github.ref_name, 'backend') }}
+    runs-on: ubuntu-latest
     steps:
       - name: Get artifact
         uses: actions/download-artifact@v2
