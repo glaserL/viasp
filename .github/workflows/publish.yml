@@ -16,7 +16,7 @@ jobs:
           echo ${{github.ref_name}}
   backend:
     name: Publish backend
-    if: ${{ github.tag == 'push' && contains(github.ref_name, 'backend') }}
+    if: ${{contains(github.ref_name, 'backend') }}
     runs-on: ubuntu-latest
     steps:
       - name: Get artifact
