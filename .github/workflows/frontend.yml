@@ -99,11 +99,6 @@ jobs:
           sleep 5s
           kill -9 $PID
 
-      - name: Get Package version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@master
-        with:
-          path: frontend/package.json
       - name: Upload frontend to GitHub
         uses: actions/upload-artifact@v2
         with:

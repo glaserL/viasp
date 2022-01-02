@@ -1,0 +1,22 @@
+name: Publish viASP to PyPi
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - *
+jobs:
+  backend:
+    name: Publish backend
+    if: ${{ github.tag == 'push' && contains(github.ref_name, 'backend') }}
+    steps:
+      - name: Get artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: backend-${{ github.sha }}
+      - name: Publish on PyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_TEST_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
