@@ -20,8 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get artifact
-        uses: actions/download-artifact@v2
+        uses: dawidd6/action-download-artifact@v2 # version from GitHub disallows sharing between workflows
         with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          commit: ${{ github.sha }}
           name: backend-${{ github.sha }}
       - name: Publish on PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
