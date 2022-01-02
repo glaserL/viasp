@@ -6,6 +6,13 @@ on:
     tags:
       - '*'
 jobs:
+  testing:
+    name: Testing Testing Testing
+    steps:
+      - name: Print stuff
+        run: |
+          echo ${{github.tag}}
+          echo ${{github.ref_name}}
   backend:
     name: Publish backend
     if: ${{ github.tag == 'push' && contains(github.ref_name, 'backend') }}
