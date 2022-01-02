@@ -8,6 +8,7 @@ on:
 jobs:
   testing:
     name: Testing Testing Testing
+    runs-on: ubuntu-latest
     steps:
       - name: Print stuff
         run: |
