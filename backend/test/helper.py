@@ -1,3 +1,7 @@
+from clingo import Control
+from viasp.asp.justify import save_model
+
+
 def traveling_salesperson():
     return """
 start(a).
@@ -21,3 +25,15 @@ def traveling_salesperson_without_minimize():
 
 def traveling_salesperson_without_minimize_and_constraints():
     return "\n".join(traveling_salesperson_without_minimize().split("\n")[:-3])
+
+
+def get_stable_models_for_program(program):
+    ctl = Control(["0"])
+    ctl.add("base", [], program)
+    ctl.ground([("base", [])])
+
+    saved_models = []
+    with ctl.solve(yield_=True) as handle:
+        for model in handle:
+            saved_models.append(save_model(model))
+    return saved_models

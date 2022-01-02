@@ -5,9 +5,9 @@ from clingo import Control
 from flask import Flask
 from flask.testing import FlaskClient
 
-from viasp.server.blueprints import bp as api_bp
+from viasp.server.blueprints.api import bp as api_bp
 from viasp.server.blueprints.app import bp as app_bp
-from viasp.server.blueprints import bp as dag_bp
+from viasp.server.blueprints.dag_api import bp as dag_bp
 from viasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder
 from viasp.shared.model import ClingoMethodCall
 

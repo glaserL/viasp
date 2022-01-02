@@ -5,7 +5,7 @@ from clingo import Control
 from networkx import node_link_data, node_link_graph
 
 from viasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder, clingo_model_to_stable_model
-from backend.test.test_graph_creation import get_stable_models_for_program
+from helper import get_stable_models_for_program
 from viasp.asp.justify import build_graph
 from viasp.asp.reify import ProgramAnalyzer, reify_list
 from viasp.shared.model import StableModel, ClingoMethodCall

@@ -6,7 +6,7 @@ from networkx import node_link_data
 
 from viasp.asp.justify import build_graph
 from viasp.asp.reify import ProgramAnalyzer, reify_list
-from backend.test.test_graph_creation import get_stable_models_for_program
+from helper import get_stable_models_for_program
 from viasp.shared.io import DataclassJSONEncoder
 
 
