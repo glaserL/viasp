@@ -107,7 +107,7 @@ jobs:
         with:
           name: Frontend
           path: frontend/dist/*
-  backend:
+  build-backend:
     name: Backend
     runs-on: ubuntu-latest
     needs: conda
@@ -125,23 +125,59 @@ jobs:
           path: ${{ env.pythonLocation }}
           key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
         id: cache
-      - name: Run Tests
-        shell: bash -l {0}
-        working-directory: backend
-        run: PYTHONPATH=. pytest test
       - name: Build package
-        shell: bash -l {0}
+        working-directory: backend
         run: python -m build --sdist --wheel --outdir dist/;
 
       - name: Upload backend to GitHub
         uses: actions/upload-artifact@v2
         with:
           name: Backend
-          path: dist/*
+          path: backend/dist/*
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    needs: build-backend
+    steps:
+      - name: Checking out repository
+        uses: actions/checkout@v2
+      - name: Get artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: Backend
+
+      - name: Show whats in dist
+        run: ls -R
+
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Cache conda env
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}-wheel
+        id: cache
+
+      - name: Install dev dependencies
+        shell: bash -l {0}
+        run: pip install --upgrade --upgrade-strategy eager -r requirements.txt -e .
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Install viasp backend
+        run: pip install viasp-0.0.1-py3-none-any.whl
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Run Tests
+        working-directory: backend
+        run: PYTHONPATH=. pytest test
+
   publish:
 
     runs-on: ubuntu-latest
-    needs: [ backend, frontend ]
+    needs: [ test-backend, frontend ]
     steps:
       - name: Checking out repository
         uses: actions/checkout@v2
