@@ -5,16 +5,9 @@ on:
   push:
     branches: [ main ]
     tags:
-      - '*'
+      - frontend*
+      - backend*
 jobs:
-  testing:
-    name: Testing Testing Testing
-    runs-on: ubuntu-latest
-    steps:
-      - name: Print stuff
-        run: |
-          echo ${{github.tag}}
-          echo ${{github.ref_name}}
   backend:
     name: Publish backend
     if: ${{contains(github.ref_name, 'backend') }}
