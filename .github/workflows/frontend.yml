@@ -58,6 +58,8 @@ jobs:
     name: Build Frontend
     runs-on: ubuntu-latest
     needs: [ conda, node ]
+    outputs:
+      version: $ {steps.version.outputs.version}
     steps:
       - name: Checking out repository
         uses: actions/checkout@v2
@@ -90,6 +92,9 @@ jobs:
       - name: Building dash component
         working-directory: ./frontend
         run: python -m build --sdist --wheel --outdir dist/;
+      - name: Share frontend version
+        id: version
+        run: echo "::set-output name=version::$(sh .github/frontend-version.sh)"
       - name: Test usage.py
         working-directory: ./frontend
         run: |
@@ -109,6 +114,8 @@ jobs:
     name: Backend
     runs-on: ubuntu-latest
     needs: conda
+    outputs:
+      version: $ {steps.version.outputs.version}
     steps:
       - name: Checking out repository
         uses: actions/checkout@v2
@@ -127,6 +134,9 @@ jobs:
         working-directory: backend
         run: python -m build --sdist --wheel --outdir dist/;
 
+      - name: Share backend version
+        id: version
+        run: echo "::set-output name=version::$(sh .github/backend-version.sh)"
       - name: Upload backend to GitHub
         uses: actions/upload-artifact@v2
         with:
@@ -161,7 +171,7 @@ jobs:
         shell: bash -l {0}
         run: |
           pip install --upgrade --upgrade-strategy eager -r requirements.txt
-          pip install viasp-0.0.1-py3-none-any.whl
+          pip install "viasp_backend-$(sh .github/frontend-version.sh)-py3-none-any.whl"
         if: steps.cache.outputs.cache-hit != 'true'
 
       - name: Run Tests
