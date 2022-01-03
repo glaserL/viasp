@@ -1,6 +1,6 @@
 {
   "name": "viasp_dash",
-  "version": "0.0.1",
+  "version": "0.0.6",
   "description": "Nice",
   "main": "build/index.js",
   "scripts": {

@@ -2,15 +2,20 @@ name: Publish viASP to PyPi
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
-    tags:
-      - frontend*
-      - backend*
+    inputs:
+      frontend:
+        type: boolean
+        required: true
+        description: Publish frontend of main HEAD
+      backend:
+        type: boolean
+        required: true
+        description: Publish backend of main HEAD
+
 jobs:
   backend:
     name: Publish backend
-    if: ${{contains(github.ref_name, 'backend') }}
+    if: ${{ github.event.inputs.backend }}
     runs-on: ubuntu-latest
     steps:
       - name: Get artifact
@@ -25,11 +30,11 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.PYPI_TEST_API_TOKEN }}
+          password: ${{ secrets.PYPI_TEST_BACKEND_SECRET }}
           repository_url: https://test.pypi.org/legacy/
   frontend:
     name: Publish frontend
-    if: ${{contains(github.ref_name, 'frontend') }}
+    if: ${{ github.event.inputs.frontend }}
     runs-on: ubuntu-latest
     steps:
       - name: Get artifact
@@ -39,16 +44,17 @@ jobs:
           workflow: frontend.yml
           path: dist
           commit: ${{ github.sha }}
-          name: backend-${{ github.sha }}
+          name: frontend-${{ github.sha }}
       - name: Publish on PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.PYPI_TEST_API_TOKEN }}
+          password: ${{ secrets.PYPI_TEST_DASH_SECRET }}
           repository_url: https://test.pypi.org/legacy/
   wrapper:
+    needs: [ frontend, backend ]
     name: Publish container
-    if: ${{ contains(github.ref_name, 'frontend') || contains(github.ref_name, 'backend') }}
+    if: ${{ github.event.inputs.frontend ||github.event.inputs.backend }}
     runs-on: ubuntu-latest
     steps:
       - name: Checking out repository
@@ -65,7 +71,7 @@ jobs:
           path: ${{ env.pythonLocation }}
           key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
         id: cache
-      - name: Building dash component
+      - name: Building wrapper
         working-directory: ./viasp
         run: python -m build --sdist --wheel --outdir dist/;
 
@@ -73,6 +79,6 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.PYPI_TEST_API_TOKEN }}
+          password: ${{ secrets.PYPI_TEST_VIASP_SECRET }}
           repository_url: https://test.pypi.org/legacy/
           packages_dir: viasp/dist
