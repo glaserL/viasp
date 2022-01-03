@@ -104,7 +104,7 @@ jobs:
         with:
           retention-days: 7
           name: frontend-${{ github.sha }}
-          path: frontend/dist/*
+          path: frontend/dist
   build-backend:
     name: Backend
     runs-on: ubuntu-latest
@@ -132,7 +132,7 @@ jobs:
         with:
           retention-days: 7
           name: backend-${{ github.sha }}
-          path: backend/dist/*
+          path: backend/dist
   test-backend:
     name: Test Backend
     runs-on: ubuntu-latest
