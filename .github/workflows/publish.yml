@@ -1,6 +1,7 @@
 name: Publish viASP to PyPi
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
     tags:
