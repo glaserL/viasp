@@ -22,7 +22,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v2 # version from GitHub disallows sharing between workflows
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: frontend.yml
+          workflow: build_and_test.yml
           path: dist
           commit: ${{ github.sha }}
           name: backend-${{ github.sha }}
@@ -41,7 +41,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v2 # version from GitHub disallows sharing between workflows
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: frontend.yml
+          workflow: build_and_test.yml
           path: dist
           commit: ${{ github.sha }}
           name: frontend-${{ github.sha }}
@@ -69,7 +69,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.pythonLocation }}
-          key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}
         id: cache
       - name: Building wrapper
         working-directory: ./viasp
