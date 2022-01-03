@@ -30,7 +30,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.PYPI_TEST_BACKEND_SECRET }}
+          password: ${{ secrets.PYPI_BACKEND_API_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
   frontend:
     name: Publish frontend
@@ -49,7 +49,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.PYPI_TEST_DASH_SECRET }}
+          password: ${{ secrets.PYPI_DASH_API_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
   wrapper:
     needs: [ frontend, backend ]
@@ -72,13 +72,12 @@ jobs:
           key: ${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}
         id: cache
       - name: Building wrapper
-        working-directory: ./viasp
         run: python -m build --sdist --wheel --outdir dist/;
 
       - name: Publish on PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.PYPI_TEST_VIASP_SECRET }}
+          password: ${{ secrets.PYPI_VIASP_API_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
-          packages_dir: viasp/dist
+          packages_dir: dist
