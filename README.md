@@ -1,5 +1,7 @@
 # viasp
-![Test Status](https://github.com/glaserL/viasp/actions/workflows/tests.yml/badge.svg)
+
+![Test Status](https://github.com/glaserL/viasp/actions/workflows/build_and_test.yml/badge.svg)
 
 # Installation
-`conda install -c conda-forge viasp`
+
+`pip install viasp`

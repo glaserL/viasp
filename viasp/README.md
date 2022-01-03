@@ -1,3 +1,0 @@
-# Viasp
-
-Actually installable package
