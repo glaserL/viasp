@@ -29,7 +29,7 @@ jobs:
         id: cache
 
       - name: Install requirements
-        run: pip install --upgrade --upgrade-strategy eager -r requirements.txt -e .
+        run: pip install --upgrade --upgrade-strategy eager -r requirements.txt
         if: steps.cache.outputs.cache-hit != 'true'
 
   node:
@@ -160,7 +160,7 @@ jobs:
       - name: Install dev dependencies and the backend
         shell: bash -l {0}
         run: |
-          pip install --upgrade --upgrade-strategy eager -r requirements.txt -e .
+          pip install --upgrade --upgrade-strategy eager -r requirements.txt
           pip install viasp-0.0.1-py3-none-any.whl
         if: steps.cache.outputs.cache-hit != 'true'
 
