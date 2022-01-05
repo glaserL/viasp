@@ -1,72 +1,77 @@
-//
-import React, {Component} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Node} from "./Node.react";
 import {backendURL} from "../utils/index";
 import './row.css';
 import PropTypes from "prop-types";
 import {RowHeader} from "./RowHeader.react";
+import {ShowAllContext} from "../contexts/ShowAllProvider";
 
-export class Row extends Component {
-
-    constructor(props, context) {
-        super(props, context);
-
-        this.state = {
-            externalData: null,
-            error: null,
-            show: true
-        };
-
-        this.onHeaderClick = this.onHeaderClick.bind(this);
-    }
-
-    componentDidMount() {
-        this._asyncRequest = this.loadMyAsyncData().then(
-            externalData => {
-                this._asyncRequest = null;
-                this.setState({externalData});
-            }
-        );
-    }
-
-    componentWillUnmount() {
-        if (this._asyncRequest) {
-            this._asyncRequest.cancel();
-        }
-    }
-
-    onHeaderClick() {
-        this.setState({show: !this.state.show});
-    }
-
-    render() {
-        const {transformation, notifyClick} = this.props;
-        if (this.state.externalData === null) {
-            return (
-                <div className="row_container">
-                    <RowHeader rule={transformation.rules}/>
-                    <div>Loading Transformations..</div>
-                </div>
-            )
-        }
-        if (this.state.show === false) {
-
-            return <div className="row_container">
-                <RowHeader onToggle={this.onHeaderClick} rule={transformation.rules}/>
-            </div>
-        }
-        return <div className="row_container">
-            <RowHeader onToggle={this.onHeaderClick} rule={transformation.rules}/>
-            <div className="row_row">{this.state.externalData.map((child) => <Node key={child.uuid} id={child}
-                                                                                   notifyClick={notifyClick}/>)}</div>
-        </div>
-    }
-
-    loadMyAsyncData() {
-        const {transformation} = this.props;
-        return fetch(`${backendURL("children")}/?rule_id=${transformation.id}&ids_only=True`).then(r => r.json()).catch(error => this.setState({error}))
-    }
+function loadMyAsyncData(id) {
+    return fetch(`${backendURL("children")}/?rule_id=${id}&ids_only=True`).then(r => r.json());
 }
+
+export function Row(props) {
+    const [nodes, setNodes] = useState(null);
+    const [hideNodes, setHideNodes] = useState(false);
+    const [isOverflowH, setIsOverflowH] = useState(false);
+    const [overflowBreakingPoint, setOverflowBreakingPoint] = useState(null);
+    const {transformation, notifyClick} = props;
+    const [state] = React.useContext(ShowAllContext)
+    const ref = useRef(null);
+
+    useEffect(() => {
+        let mounted = true;
+        loadMyAsyncData(transformation.id)
+            .then(items => {
+                if (mounted) {
+                    setNodes(items)
+                }
+            })
+        return () => mounted = false;
+    }, []);
+
+    function checkForOverflow() {
+        if (ref !== null && ref.current) {
+            const e = ref.current
+            const wouldOverflowNow = e.offsetWidth < e.scrollWidth;
+            // We overflowed previously but not anymore
+            if (overflowBreakingPoint <= e.offsetWidth) {
+                setIsOverflowH(false);
+            }
+            if (!isOverflowH && wouldOverflowNow) {
+                // We have to react to overflow now but want to remember when we'll not overflow anymore
+                // on a resize
+                setOverflowBreakingPoint(e.offsetWidth)
+                setIsOverflowH(true)
+            }
+            // We never overflowed and also don't now
+            if (overflowBreakingPoint === null && !wouldOverflowNow) {
+                setIsOverflowH(false);
+            }
+        }
+    }
+
+    useEffect(() => {
+        window.addEventListener('resize', checkForOverflow)
+        return _ => window.removeEventListener('resize', checkForOverflow)
+    })
+    if (nodes === null) {
+        return (
+            <div className="row_container">
+                <RowHeader rule={transformation.rules}/>
+                <div>Loading Transformations..</div>
+            </div>
+        )
+    }
+    return <div className="row_container">
+        <RowHeader onToggle={() => setHideNodes(!hideNodes)} rule={transformation.rules}/>
+        {hideNodes ? null :
+            <div ref={ref} className="row_row">{nodes.map((child) => <Node key={child.uuid} id={child}
+                                                                           showMini={isOverflowH}
+                                                                           notifyClick={notifyClick}/>)}</div>
+        }</div>
+}
+
 
 Row.propTypes = {
     /**

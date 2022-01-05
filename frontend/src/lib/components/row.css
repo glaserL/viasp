@@ -11,6 +11,7 @@
 
 .row_row {
     display: flex;
+    /*overflow-x: auto;*/
     justify-content: space-around;
     align-content: center;
     background: transparent;

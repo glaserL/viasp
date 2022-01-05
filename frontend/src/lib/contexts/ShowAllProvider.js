@@ -3,12 +3,12 @@ import {reducer, initShowAll} from "./ShowAllReducer"
 import PropTypes from "prop-types";
 // https://www.thisdot.co/blog/creating-a-global-state-with-react-hooks
 export const ShowAllContext = React.createContext({
-    state: initShowAll(false),
+    state: initShowAll(true),
     dispatch: () => null
 })
 
 export const ShowAllProvider = ({children}) => {
-    const [state, dispatch] = React.useReducer(reducer, false, initShowAll)
+    const [state, dispatch] = React.useReducer(reducer, true, initShowAll)
 
     return (
         <ShowAllContext.Provider value={[state, dispatch]}>

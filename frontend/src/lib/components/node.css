@@ -1,13 +1,13 @@
-
 .set_container {
+    width: -moz-fit-content;
     width: fit-content;
-    height: fit-content;
-    border: 0;
-    transition: drop-shadow .1s;
-}
-
-.set_container:hover {
-    filter: drop-shadow(0 0 1px #333);
+    position: relative;
+    /*border: 0;*/
+    /*overflow: hidden;*/
+    line-height: 1.5em;
+    /*padding-left: 5px;*/
+    /*padding-right: 5px;*/
+    min-height: 1.5em;
 }
 
 .set_header {
@@ -20,17 +20,92 @@
     color: whitesmoke;
 }
 
-.set_value {
-    background: #eeeeee;
-    border: 5px solid #FF1C89;
-    font-family: monospace;
-    padding-left: 5px;
-    padding-right: 5px;
-    margin: 5px;
-    font-size: 18pt;
+.node_border {
     border-radius: 0 10px 10px 10px;
+    border: 5px solid #FF1C89;
+    background: #eeeeee;
+    margin: 5px;
+    position: relative;
+}
+
+.mouse_over_shadow:hover {
+    transition: drop-shadow .1s;
+    filter: drop-shadow(0 0 1px #333);
+}
+
+.bauchbinde {
+    position: absolute;
+    right: -5px;
+    bottom: -5px;
+    /*width: 101%;*/
+    border-radius: 5px 0 5px 0;
+    backdrop-filter: blur(10px);
+    /*background: rgba(255, 255, 255, 0.50);*/
+    background-color: #FF1C89;
+    /*background-color: rgba(255, 28, 137, 0.50);*/
+    color: whitesmoke;
+    z-index: 100;
+    text-align: right;
+}
+
+.set_too_high {
+    max-height: 6em;
+    overflow-y: hidden;
+}
+
+.symbol {
+    min-width: 0;
+    min-height: 0;
+    width: fit-content;
+    display: flex;
+}
+
+.more {
+    width: 100%;
+    background: #FF1C89;
+    /*font-size: 1em;*/
+    color: whitesmoke;
+    line-height: 1.5em;
+    height: 1.5em;
+    text-align: center;
+    left: 0;
+    bottom: 0;
+    /*right: -10px;*/
+    /*padding: 5px 10px;*/
+    padding-bottom: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-left: 0;
+    border-radius: 0 0 5px 5px;
+}
+
+.set_value {
+    font-family: monospace;
+    font-size: 18pt;
+    /*width: -moz-fit-content;*/
+    /*width: fit-content;*/
+
+    align-items: flex-start;
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    /*align-content: center;*/
 }
 
 .set_container {
     cursor: pointer;
+}
+
+.mini {
+    color: whitesmoke;
+    text-align: center;
+    vertical-align: middle;
+    background: #FF1C89;
+    width: 3em;
+    height: 3em;
+    line-height: 3em;
+    border-radius: 25%;
+
 }
