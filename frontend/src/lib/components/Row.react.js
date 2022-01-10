@@ -4,7 +4,6 @@ import {backendURL} from "../utils/index";
 import './row.css';
 import PropTypes from "prop-types";
 import {RowHeader} from "./RowHeader.react";
-import {ShowAllContext} from "../contexts/ShowAllProvider";
 
 function loadMyAsyncData(id) {
     return fetch(`${backendURL("children")}/?rule_id=${id}&ids_only=True`).then(r => r.json());
@@ -16,7 +15,6 @@ export function Row(props) {
     const [isOverflowH, setIsOverflowH] = useState(false);
     const [overflowBreakingPoint, setOverflowBreakingPoint] = useState(null);
     const {transformation, notifyClick} = props;
-    const [state] = React.useContext(ShowAllContext)
     const ref = useRef(null);
 
     useEffect(() => {
@@ -66,7 +64,7 @@ export function Row(props) {
     return <div className="row_container">
         <RowHeader onToggle={() => setHideNodes(!hideNodes)} rule={transformation.rules}/>
         {hideNodes ? null :
-            <div ref={ref} className="row_row">{nodes.map((child) => <Node key={child.uuid} id={child}
+            <div ref={ref} className="row_row">{nodes.map((child) => <Node key={child.uuid} node={child}
                                                                            showMini={isOverflowH}
                                                                            notifyClick={notifyClick}/>)}</div>
         }</div>
