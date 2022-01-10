@@ -36,7 +36,7 @@ export function Facts(props) {
 
     return <div className="row_container">
         <RowHeader onToggle={() => setHideNodes(!hideNodes)} rule={["<Facts>"]}/>
-        {hideNodes ? null : <div className="row_row"><Node key={fact.uuid} id={fact}
+        {hideNodes ? null : <div className="row_row"><Node key={fact.uuid} node={fact}
                                                            notifyClick={notifyClick}/>
         </div>}
     </div>

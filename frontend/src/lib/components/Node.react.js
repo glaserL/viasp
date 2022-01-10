@@ -12,15 +12,19 @@ function Symbol(props) {
     return <div className={"symbol"}>{atomString}</div>
 }
 
+Symbol.propTypes = {
+    symbol: PropTypes.array
+}
+
 function NodeContent(props) {
 
     const [state] = React.useContext(ShowAllContext)
-    const {overflowV, model} = props;
+    const {overflowV, node} = props;
     let contentToShow;
     if (state.show_all) {
-        contentToShow = model.atoms;
+        contentToShow = node.atoms;
     } else {
-        contentToShow = model.diff;
+        contentToShow = node.diff;
     }
     const classNames2 = `set_value`
     const containerNames = `set_container ${overflowV ? "set_too_high" : ""}`
@@ -31,20 +35,23 @@ function NodeContent(props) {
     return <div className={containerNames}>
         <div className={classNames2}>{renderedSymbols.length > 0 ? renderedSymbols : "Ø"}</div>
     </div>
-
-
 }
 
-function ShowMoreButton(props) {
-    const {number} = props;
-    return <div className={"more"}>{number} more..</div>
+NodeContent.propTypes = {
+    node: PropTypes.exact({
+        diff: PropTypes.array,
+        atoms: PropTypes.array,
+        uuid: PropTypes.string,
+        _type: PropTypes.string,
+        rule_nr: PropTypes.number
+    }),
+    overflowV: PropTypes.bool
 }
 
 export function Node(props) {
-
     const [state] = React.useContext(ShowAllContext)
     const [isOverflowV, setIsOverflowV] = useState(false);
-    const {id, notifyClick, showMini} = props;
+    const {node, notifyClick, showMini} = props;
     const ref = useRef(null);
 
     function checkForOverflow() {
@@ -62,19 +69,16 @@ export function Node(props) {
         return _ => window.removeEventListener('resize', checkForOverflow)
     })
 
-    // THIS THING DECIDES IF WE SHOW CONTENT OR JUST A MINI CIRCLE
-    // TODO: true => isOverflowV
-    const classNames = `node_border mouse_over_shadow ${id.uuid}`
-    return <div className={classNames} onClick={() => notifyClick(id)}>
-        {showMini ? <div className={"node_border mini"}>{id.atoms.length}</div> :
-            <div ref={ref}><NodeContent overflowV={isOverflowV} model={id}/></div>}
-        {isOverflowV ? <div className={"bauchbinde"}>+{id.atoms.length}</div> : null}
+    const classNames = `node_border mouse_over_shadow ${node.uuid}`
+    return <div className={classNames} onClick={() => notifyClick(node)}>
+        {showMini ? <div className={"node_border mini"}>{node.atoms.length}</div> :
+            <div ref={ref}><NodeContent overflowV={isOverflowV} node={node}/></div>}
+        {isOverflowV ? <div className={"bauchbinde"}>+{node.atoms.length}</div> : null}
     </div>
 }
 
-
 Node.propTypes = {
-    id: PropTypes.exact({
+    node: PropTypes.exact({
         diff: PropTypes.array,
         atoms: PropTypes.array,
         uuid: PropTypes.string,
