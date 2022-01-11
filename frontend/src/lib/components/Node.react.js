@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {make_atoms_string} from "../utils/index";
 import './node.css'
 import PropTypes from "prop-types";
@@ -27,7 +27,7 @@ function NodeContent(props) {
         contentToShow = node.diff;
     }
     const classNames2 = `set_value`
-    const containerNames = `set_container ${overflowV ? "set_too_high" : ""}`
+    const containerNames = `set_container `
 
     const renderedSymbols = contentToShow.map(s => {
         return <Symbol key={JSON.stringify(s)} symbol={s}/>
@@ -52,28 +52,19 @@ export function Node(props) {
     const [state] = React.useContext(ShowAllContext)
     const [isOverflowV, setIsOverflowV] = useState(false);
     const {node, notifyClick, showMini} = props;
-    const ref = useRef(null);
 
-    function checkForOverflow() {
-        if (ref.current) {
-            const e = ref.current
-            setIsOverflowV(e.offsetHeight > 100)
+    const ref = useCallback(x => {
+        if (x !== null) {
+            setIsOverflowV(x.scrollHeight > x.offsetHeight + 2);
         }
-    }
+    }, []);
 
-    useEffect(() => {
-        checkForOverflow()
-    }, [state.show_all])
-    useEffect(() => {
-        window.addEventListener('resize', checkForOverflow)
-        return _ => window.removeEventListener('resize', checkForOverflow)
-    })
 
     const classNames = `node_border mouse_over_shadow ${node.uuid}`
     return <div className={classNames} onClick={() => notifyClick(node)}>
-        {showMini ? <div className={"node_border mini"}>{node.atoms.length}</div> :
-            <div ref={ref}><NodeContent overflowV={isOverflowV} node={node}/></div>}
-        {isOverflowV ? <div className={"bauchbinde"}>+{node.atoms.length}</div> : null}
+        {showMini ? <div className={"mini"}>{node.atoms.length}</div> :
+            <div className={"set_too_high"} ref={ref}><NodeContent overflowV={isOverflowV} node={node}/></div>}
+        {!showMini && isOverflowV ? <div className={"bauchbinde"}>...</div> : null}
     </div>
 }
 

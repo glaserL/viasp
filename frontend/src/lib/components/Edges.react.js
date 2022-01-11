@@ -26,7 +26,7 @@ export class Edges extends Component {
         }
         return <div className="edge_container">{this.state.externalData.map(link => <LineTo
             key={link.src + "-" + link.tgt} from={link.src}
-            to={link.tgt} zIndex={0}/>)}</div>
+            to={link.tgt} style={{zIndex: 1}}/>)}</div>
     }
 
     componentDidMount() {
