@@ -49,8 +49,8 @@
 }
 
 .set_too_high {
-    max-height: 6em;
     overflow-y: hidden;
+    max-height: 6em;
 }
 
 .symbol {
@@ -61,7 +61,6 @@
 }
 
 .more {
-    width: 100%;
     background: #FF1C89;
     /*font-size: 1em;*/
     color: whitesmoke;
@@ -76,7 +75,6 @@
     margin-bottom: 0;
     margin-left: 0;
     padding-left: 0;
-    border-radius: 0 0 5px 5px;
 }
 
 .set_value {
@@ -103,9 +101,9 @@
     text-align: center;
     vertical-align: middle;
     background: #FF1C89;
-    width: 3em;
-    height: 3em;
-    line-height: 3em;
-    border-radius: 25%;
+    width: fit-content;
+    height: fit-content;
+    font-size: 12pt;
+    /*line-height: 3em;*/
 
 }
