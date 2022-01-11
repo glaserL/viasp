@@ -1,6 +1,6 @@
 {
   "name": "viasp_dash",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "The dash frontend for the viasp package.",
   "main": "build/index.js",
   "scripts": {
