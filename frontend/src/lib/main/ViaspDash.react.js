@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {Row} from "../components/Row.react";
 import {backendURL} from "../utils";
@@ -29,72 +29,65 @@ function AppHeader() {
     </div>
 }
 
-
-export default class ViaspDash extends Component {
-
-    constructor(props) {
-        super(props);
-        this.notify = this.notify.bind(this)
-
-        this.state = {
-            externalData: null,
-            detail: null
-        };
-    }
-
-    render() {
-        if (this.state.externalData === null) {
-            return <div>Loading..</div>
-        }
-        return <body>
-        <ShowAllProvider>
-            <AppHeader/>
-            <div className="content">
-                <Detail shows={this.state.detail} clearDetail={() => this.setState({detail: null})}>
-                </Detail>
-                <div className="graph_container">
-                    <Facts notifyClick={this.notify}/>
-                    {this.state.externalData.map((transformation) => <Row
-                        key={transformation.id}
-                        transformation={transformation}
-                        notifyClick={this.notify}/>)}</div>
-                <Search/>
-                {/*<Edges/>*/}
-            </div>
-        </ShowAllProvider>
-        </body>
-    }
-
-    notify(clickedOn) {
-        // TODO: This should query the database for the actual item.
-        const {setProps} = this.props;
-        console.log("CLICKED ON " + JSON.stringify(clickedOn))
-        // setProps({key: clickedOn, id: clickedOn, node: clickedOn, notifyClick: this.notify})
-        setProps({node: clickedOn})
-        this.setState({detail: clickedOn.uuid})
-    }
-
-    loadMyAsyncData() {
-        return fetch(`${backendURL("rules")}`).then(r => r.json()).catch(error => this.setState({error}))
-    }
-
-    componentDidMount() {
-        this._asyncRequest = this.loadMyAsyncData().then(
-            externalData => {
-                this._asyncRequest = null;
-                console.log(this.state)
-                this.setState({externalData});
-                console.log(this.state)
-            }
-        );
-    }
-
-    componentWillUnmount() {
-        if (this._asyncRequest) {
-            this._asyncRequest.cancel();
-        }
-    }
+function loadMyAsyncData() {
+    return fetch(`${backendURL("rules")}`).then(r => r.json())
 }
+
+function useRules() {
+
+    const [rules, setRules] = useState([])
+
+    useEffect(() => {
+        let mounted = true;
+        loadMyAsyncData()
+            .then(items => {
+                if (mounted) {
+                    setRules(items)
+                }
+            })
+        return () => mounted = false;
+    }, []);
+    return rules;
+
+}
+
+export default function ViaspDash(props) {
+    const [detail, setDetail] = useState(null)
+    const rules = useRules()
+    const {setProps} = props;
+
+    if (rules.length === 0) {
+        return <div>Loading..</div>
+    }
+    return <body>
+    <ShowAllProvider>
+        <AppHeader/>
+        <div className="content">
+            <Detail shows={detail} clearDetail={() => setDetail(null)}>
+            </Detail>
+            <div className="graph_container">
+                <Facts notifyClick={(clickedOn) => {
+                    notify(setProps, clickedOn)
+                    setDetail(clickedOn.uuid)
+                }}/>
+                {rules.map((transformation) => <Row
+                    key={transformation.id}
+                    transformation={transformation}
+                    notifyClick={(clickedOn) => {
+                        notify(setProps, clickedOn)
+                        setDetail(clickedOn.uuid)
+                    }}/>)}</div>
+            <Search/>
+            {/*<Edges/>*/}
+        </div>
+    </ShowAllProvider>
+    </body>
+}
+
+function notify(setProps, clickedOn) {
+    setProps({node: clickedOn})
+}
+
 ViaspDash.propTypes = {
     /**
      * The ID used to identify this component in Dash callbacks.
