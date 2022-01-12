@@ -13,3 +13,5 @@ build/
 *node_modules
 # notes
 *.md
+# ignore build of viasp dash
+frontend/viasp_dash/*
