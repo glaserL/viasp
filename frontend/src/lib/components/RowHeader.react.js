@@ -1,17 +1,10 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
-export class RowHeader extends Component {
-    constructor(props, context) {
-        super(props, context);
-    }
 
-
-    render() {
-        const {rule, onToggle} = this.props;
-        return <div onClick={onToggle} className="row_header">{rule}</div>
-    }
-
+export function RowHeader(props) {
+    const {rule, onToggle} = props;
+    return <div onClick={onToggle} className="row_header">{rule}</div>
 }
 
 RowHeader.propTypes = {
