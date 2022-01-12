@@ -1,8 +1,9 @@
-import React, {useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {make_atoms_string} from "../utils/index";
 import './node.css'
 import PropTypes from "prop-types";
 import {ShowAllContext} from "../contexts/ShowAllProvider";
+import {hideNode, showNode, useShownNodes} from "../main/ViaspDash.react";
 
 
 function Symbol(props) {
@@ -49,19 +50,25 @@ NodeContent.propTypes = {
 }
 
 export function Node(props) {
-    const [state] = React.useContext(ShowAllContext)
     const [isOverflowV, setIsOverflowV] = useState(false);
     const {node, notifyClick, showMini} = props;
 
+    const [, dispatch] = useShownNodes()
     const ref = useCallback(x => {
         if (x !== null) {
             setIsOverflowV(x.scrollHeight > x.offsetHeight + 2);
         }
     }, []);
+    useEffect(() => {
+        dispatch(showNode(node.uuid))
+        return () => {
+            dispatch(hideNode(node.uuid))
+        }
+    }, [])
 
 
-    const classNames = `node_border mouse_over_shadow ${node.uuid}`
-    return <div className={classNames} onClick={() => notifyClick(node)}>
+    const classNames = `node_for_linking node_border mouse_over_shadow ${node.uuid}`
+    return <div className={classNames} id={node.uuid} onClick={() => notifyClick(node)}>
         {showMini ? <div className={"mini"}>{node.atoms.length}</div> :
             <div className={"set_too_high"} ref={ref}><NodeContent overflowV={isOverflowV} node={node}/></div>}
         {!showMini && isOverflowV ? <div className={"bauchbinde"}>...</div> : null}
