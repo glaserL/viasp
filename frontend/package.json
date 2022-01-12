@@ -16,6 +16,7 @@
   "author": "Luis Glaser <Luis.Glaser@uni-potsdam.de>",
   "license": "MIT",
   "dependencies": {
+    "@react-hook/resize-observer": "^1.2.5",
     "ramda": "^0.26.1"
   },
   "devDependencies": {
