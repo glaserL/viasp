@@ -4,7 +4,7 @@ import {backendURL} from "../utils/index";
 import './row.css';
 import PropTypes from "prop-types";
 import {RowHeader} from "./RowHeader.react";
-import {HiddenRulesContext} from "../main/ViaspDash.react";
+import {HiddenRulesContext} from "../contexts/HiddenRulesContext";
 
 function loadMyAsyncData(id) {
     return fetch(`${backendURL("children")}/?rule_id=${id}&ids_only=True`).then(r => r.json());

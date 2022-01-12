@@ -2,9 +2,9 @@ import React, {useEffect, useState} from "react";
 import {backendURL} from "../utils/index";
 import LineTo from "react-lineto";
 import PropTypes from "prop-types";
-import {useShownNodes} from "../main/ViaspDash.react";
 import useResizeObserver from "@react-hook/resize-observer";
 import {ShowAllContext} from "../contexts/ShowAllProvider";
+import {useShownNodes} from "../contexts/ShownNodes";
 
 function loadEdges(shownNodes) {
     return fetch(`${backendURL("edges")}`, {

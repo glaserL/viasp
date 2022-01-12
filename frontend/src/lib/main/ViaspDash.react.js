@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useEffect, useReducer, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {Row} from "../components/Row.react";
 import {backendURL} from "../utils";
@@ -9,6 +9,8 @@ import {Facts} from "../components/Facts.react";
 import "./header.css";
 import {ShowAllContext, ShowAllProvider} from "../contexts/ShowAllProvider";
 import {Edges} from "../components/Edges.react";
+import {initialState, nodeReducer, ShownNodesProvider} from "../contexts/ShownNodes";
+import {HiddenRulesContext as HiddenRulesContext1} from "../contexts/HiddenRulesContext";
 
 function ShowAllToggle() {
     const [state, dispatch] = React.useContext(ShowAllContext)
@@ -52,48 +54,6 @@ function useRules() {
 
 }
 
-export const initialState = {
-    shownNodes: [],
-};
-export const HIDE_NODE = 'APP/NODES/HIDE';
-export const SHOW_NODE = 'APP/NODES/SHOW';
-
-export const hideNode = (node) => ({type: HIDE_NODE, node})
-export const showNode = (node) => ({type: SHOW_NODE, node})
-
-// {
-//     const updated = shownNodes.filter(nodeID => nodeID !== node)
-//     setShownNodes(updated);
-// }
-//
-// export const showNode = (node) => {
-//     shownNodes.push(node)
-//     console.log(`Showing ${shownNodes.length} nodes.`)
-// }
-export const nodeReducer = (state = initialState, action) => {
-    if (action.type === SHOW_NODE) {
-        return {
-            ...state,
-            shownNodes: state.shownNodes.concat(action.node)
-        }
-    }
-    if (action.type === HIDE_NODE) {
-        return {
-            ...state,
-            shownNodes: state.shownNodes.filter(item => item !== action.node)
-        }
-    }
-    return {...state}
-}
-export const HiddenRulesContext = createContext([]);
-const ShownNodesContext = createContext([]);
-export const useShownNodes = () => useContext(ShownNodesContext);
-
-export const ShownNodesProvider = ({children, initialState, reducer}) => {
-    const [globalState, dispatch] = useReducer(reducer, initialState);
-    return <ShownNodesContext.Provider value={[globalState, dispatch]}>{children}</ShownNodesContext.Provider>
-}
-
 
 export default function ViaspDash(props) {
     const [detail, setDetail] = useState(null)
@@ -123,7 +83,7 @@ export default function ViaspDash(props) {
             <Detail shows={detail} clearDetail={() => setDetail(null)}>
             </Detail>
             <ShownNodesProvider initialState={initialState} reducer={nodeReducer}>
-                <HiddenRulesContext.Provider value={{hiddenRules, triggerUpdate}}>
+                <HiddenRulesContext1 value={{hiddenRules, triggerUpdate}}>
                     <div className="graph_container">
                         <Facts notifyClick={(clickedOn) => {
                             notify(setProps, clickedOn)
@@ -138,7 +98,7 @@ export default function ViaspDash(props) {
                             }}/>)}</div>
                     <Search/>
                     {rules.length === 0 ? null : <Edges/>}
-                </HiddenRulesContext.Provider>
+                </HiddenRulesContext1>
             </ShownNodesProvider>
         </div>
     </ShowAllProvider>
