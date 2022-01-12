@@ -16,7 +16,7 @@ export function Row(props) {
     const [overflowBreakingPoint, setOverflowBreakingPoint] = useState(null);
     const {transformation, notifyClick} = props;
     const ref = useRef(null);
-    const {hiddenRules, triggerUpdate} = useContext(HiddenRulesContext);
+    const [hiddenRules, triggerUpdate] = useContext(HiddenRulesContext);
     useEffect(() => {
         let mounted = true;
         loadMyAsyncData(transformation.id)

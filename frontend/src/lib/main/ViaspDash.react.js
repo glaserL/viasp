@@ -10,7 +10,7 @@ import "./header.css";
 import {ShowAllContext, ShowAllProvider} from "../contexts/ShowAllProvider";
 import {Edges} from "../components/Edges.react";
 import {initialState, nodeReducer, ShownNodesProvider} from "../contexts/ShownNodes";
-import {HiddenRulesContext as HiddenRulesContext1} from "../contexts/HiddenRulesContext";
+import {HiddenRulesContext} from "../contexts/HiddenRulesContext";
 
 function ShowAllToggle() {
     const [state, dispatch] = React.useContext(ShowAllContext)
@@ -83,7 +83,7 @@ export default function ViaspDash(props) {
             <Detail shows={detail} clearDetail={() => setDetail(null)}>
             </Detail>
             <ShownNodesProvider initialState={initialState} reducer={nodeReducer}>
-                <HiddenRulesContext1 value={{hiddenRules, triggerUpdate}}>
+                <HiddenRulesContext.Provider value={[hiddenRules, triggerUpdate]}>
                     <div className="graph_container">
                         <Facts notifyClick={(clickedOn) => {
                             notify(setProps, clickedOn)
@@ -98,7 +98,7 @@ export default function ViaspDash(props) {
                             }}/>)}</div>
                     <Search/>
                     {rules.length === 0 ? null : <Edges/>}
-                </HiddenRulesContext1>
+                </HiddenRulesContext.Provider>
             </ShownNodesProvider>
         </div>
     </ShowAllProvider>
