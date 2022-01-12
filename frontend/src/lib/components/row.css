@@ -1,12 +1,15 @@
 
 .row_header {
-    background-color: black;
-    color: #D2D1D1;
+    background-color: whitesmoke;
     padding: 5px;
     font-family: "Monaco", monospace;
     font-size: 14pt;
     border-top: 1px solid;
-    /*width: fit-content;*/
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+    border-radius: 0 5px 5px 0;
+    width: fit-content;
+    cursor: pointer;
 }
 
 .row_row {
