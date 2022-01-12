@@ -1,41 +1,24 @@
-import React, {Component} from 'react';
+import React, {Component, useState} from 'react';
 import {backendURL, make_atoms_string} from "../utils/index";
 import './detail.css';
 import PropTypes from "prop-types";
 
-class DetailSymbolPill extends Component {
-
-    render() {
-        const {symbol, uuid} = this.props;
-        return <span className="detail_atom_view_content">{make_atoms_string(symbol)}</span>
-    }
-
+function DetailSymbolPill(props) {
+    const {symbol, uuid} = props;
+    return <span className="detail_atom_view_content">{make_atoms_string(symbol)}</span>
 
 }
 
-class DetailForSignature extends Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            showChildren: true,
-        };
-        this.toggleShowChildren = this.toggleShowChildren.bind(this)
-    }
-
-    toggleShowChildren() {
-        this.setState({showChildren: !this.state.showChildren})
-    }
-
-    render() {
-        const {signature, atoms, uuid} = this.props;
-        const thing = this.state.showChildren ? "v" : ">"
-        return <div>
-            <h3 className="detail_atom_view_heading" onClick={this.toggleShowChildren}>{thing} {signature}</h3>
-            {this.state.showChildren ? atoms.map(symbol => <DetailSymbolPill key={JSON.stringify(symbol)}
-                                                                             symbol={symbol} uuid={uuid}/>) : null}
-        </div>
-    }
+function DetailForSignature(props) {
+    const [showChildren, setShowChildren] = useState(true);
+    const {signature, atoms, uuid} = props;
+    const openCloseSymbol = showChildren ? "v" : ">"
+    return <div>
+        <h3 className="detail_atom_view_heading"
+            onClick={() => setShowChildren(!showChildren)}>{openCloseSymbol} {signature}</h3>
+        {showChildren ? atoms.map(symbol => <DetailSymbolPill key={JSON.stringify(symbol)}
+                                                              symbol={symbol} uuid={uuid}/>) : null}
+    </div>
 }
 
 

@@ -1,9 +1,10 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import {Node} from "./Node.react";
 import {backendURL} from "../utils/index";
 import './row.css';
 import PropTypes from "prop-types";
 import {RowHeader} from "./RowHeader.react";
+import {HiddenRulesContext} from "../main/ViaspDash.react";
 
 function loadMyAsyncData(id) {
     return fetch(`${backendURL("children")}/?rule_id=${id}&ids_only=True`).then(r => r.json());
@@ -11,12 +12,11 @@ function loadMyAsyncData(id) {
 
 export function Row(props) {
     const [nodes, setNodes] = useState(null);
-    const [hideNodes, setHideNodes] = useState(false);
     const [isOverflowH, setIsOverflowH] = useState(false);
     const [overflowBreakingPoint, setOverflowBreakingPoint] = useState(null);
     const {transformation, notifyClick} = props;
     const ref = useRef(null);
-
+    const {hiddenRules, triggerUpdate} = useContext(HiddenRulesContext);
     useEffect(() => {
         let mounted = true;
         loadMyAsyncData(transformation.id)
@@ -61,8 +61,9 @@ export function Row(props) {
             </div>
         )
     }
+    const hideNodes = hiddenRules.includes(transformation.id)
     return <div className="row_container">
-        <RowHeader onToggle={() => setHideNodes(!hideNodes)} rule={transformation.rules}/>
+        <RowHeader onToggle={() => triggerUpdate(transformation.id)} rule={transformation.rules}/>
         {hideNodes ? null :
             <div ref={ref} className="row_row">{nodes.map((child) => <Node key={child.uuid} node={child}
                                                                            showMini={isOverflowH}

@@ -1,49 +1,54 @@
-import React, {Component} from "react";
+import React, {useEffect, useState} from "react";
 import {backendURL} from "../utils/index";
 import LineTo from "react-lineto";
 import PropTypes from "prop-types";
+import {useShownNodes} from "../main/ViaspDash.react";
+import useResizeObserver from "@react-hook/resize-observer";
+import {ShowAllContext} from "../contexts/ShowAllProvider";
 
-export class Edges extends Component {
+function loadEdges(shownNodes) {
+    return fetch(`${backendURL("edges")}`, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(shownNodes)
+    }).then(r => r.json());
+}
 
+const useResize = (target) => {
+    const [size, setSize] = React.useState()
 
-    constructor(props, context) {
-        super(props, context);
+    React.useLayoutEffect(() => {
+        setSize(target.current.getBoundingClientRect())
+    }, [target])
 
-        this.state = {
-            externalData: null,
-            error: null,
-        };
-    }
+    useResizeObserver(target, (entry) => setSize(entry.contentRect))
+    return size
+}
 
+export function Edges() {
+    const [edges, setEdges] = useState([]);
+    const target = React.useRef(null)
+    useResize(target)
+    const [{shownNodes},] = useShownNodes()
+    const [state] = React.useContext(ShowAllContext)
 
-    loadMyAsyncData() {
-        return fetch(`${backendURL("edges")}`).then(r => r.json())
-    }
+    useEffect(() => {
+        let mounted = true;
 
-    render() {
-        if (this.state.externalData === null) {
-            return <div className="edge_container"/>
-        }
-        return <div className="edge_container">{this.state.externalData.map(link => <LineTo
-            key={link.src + "-" + link.tgt} from={link.src}
-            to={link.tgt} style={{zIndex: 1}}/>)}</div>
-    }
+        loadEdges(shownNodes)
+            .then(items => {
+                if (mounted) {
+                    setEdges(items)
+                }
+            })
+        return () => mounted = false;
+    }, [shownNodes, state]);
 
-    componentDidMount() {
-        this._asyncRequest = this.loadMyAsyncData().then(
-            externalData => {
-                this._asyncRequest = null;
-                console.log(`Drawing ${externalData.length} edges.`)
-                this.setState({externalData});
-            }
-        );
-    }
-
-    componentWillUnmount() {
-        if (this._asyncRequest) {
-            this._asyncRequest.cancel();
-        }
-    }
+    return <div ref={target} className="edge_container">{edges.map(link => <LineTo
+        key={link.src + "-" + link.tgt} from={link.src}
+        to={link.tgt} style={{zIndex: 1}}/>)}</div>
 }
 
 Edges.propTypes = {
