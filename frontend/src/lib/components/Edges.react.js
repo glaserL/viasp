@@ -47,8 +47,8 @@ export function Edges() {
     }, [shownNodes, state]);
 
     return <div ref={target} className="edge_container">{edges.map(link => <LineTo
-        key={link.src + "-" + link.tgt} from={link.src}
-        to={link.tgt} style={{zIndex: 1}}/>)}</div>
+        key={link.src + "-" + link.tgt} from={link.src} fromAnchor={"bottom center"} toAnchor={"top center"}
+        to={link.tgt} zIndex={-1} borderColor={"black"} borderStyle={"solid"} borderWidth={1}/>)}</div>
 }
 
 Edges.propTypes = {

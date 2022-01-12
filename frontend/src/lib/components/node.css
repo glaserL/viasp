@@ -22,9 +22,9 @@
 
 .node_border {
     border-radius: 0 10px 10px 10px;
-    border: 5px solid #FF1C89;
+    border: 2px solid #FF1C89;
     background: #eeeeee;
-    margin: 5px;
+    margin: 15px 5px 15px 5px;
     position: relative;
 }
 
@@ -50,7 +50,7 @@
 
 .set_too_high {
     overflow-y: hidden;
-    max-height: 6em;
+    max-height: 6.5em;
 }
 
 .symbol {
@@ -80,8 +80,9 @@
 .set_value {
     font-family: monospace;
     font-size: 18pt;
-    /*width: -moz-fit-content;*/
-    /*width: fit-content;*/
+    width: -moz-fit-content;
+    width: fit-content;
+    margin: 5px;
 
     align-items: flex-start;
     position: relative;
