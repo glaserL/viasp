@@ -3,7 +3,7 @@ import {make_atoms_string} from "../utils/index";
 import './node.css'
 import PropTypes from "prop-types";
 import {ShowAllContext} from "../contexts/ShowAllProvider";
-import {hideNode, showNode, useShownNodes} from "../main/ViaspDash.react";
+import {hideNode, showNode, useShownNodes} from "../contexts/ShownNodes";
 
 
 function Symbol(props) {
