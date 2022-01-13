@@ -1,7 +1,6 @@
 
 .row_header {
     background-color: whitesmoke;
-    padding: 5px;
     font-family: "Monaco", monospace;
     font-size: 14pt;
     border-top: 1px solid;
@@ -9,7 +8,41 @@
     border-right: 1px solid;
     border-radius: 0 5px 5px 0;
     width: fit-content;
+}
+
+.row_header_rule {
+    padding: 5px;
+}
+
+.row_header_bar {
+    border-bottom: solid 1px #333333;
+    border-radius: 0 5px 0 0;
+    background-color: whitesmoke;
+    z-index: 50;
+}
+
+.row_toggle {
+    font-size: 9pt;
+    color: #FF1C89;
+    background-color: whitesmoke;
     cursor: pointer;
+    left: 0;
+    top: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+    width: -moz-fit-content;
+    width: fit-content;
+    transition: opacity .5s ease-in-out;
+    -moz-transition: opacity .5s ease-in-out;
+    -webkit-transition: opacity .5s ease-in-out;
+}
+
+.row_toggle:hover {
+    color: whitesmoke;
+    background-color: #FF1C89;
+    transition: opacity .5s ease-in-out;
+    -moz-transition: opacity .5s ease-in-out;
+    -webkit-transition: opacity .5s ease-in-out;
 }
 
 .row_row {
