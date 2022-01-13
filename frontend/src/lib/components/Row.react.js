@@ -63,7 +63,8 @@ export function Row(props) {
     }
     const hideNodes = hiddenRules.includes(transformation.id)
     return <div className="row_container">
-        <RowHeader onToggle={() => triggerUpdate(transformation.id)} rule={transformation.rules}/>
+        <RowHeader onToggle={() => triggerUpdate(transformation.id)} rule={transformation.rules}
+                   contentIsHidden={!hideNodes}/>
         {hideNodes ? null :
             <div ref={ref} className="row_row">{nodes.map((child) => <Node key={child.uuid} node={child}
                                                                            showMini={isOverflowH}
