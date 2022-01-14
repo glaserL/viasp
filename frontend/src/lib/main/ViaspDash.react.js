@@ -11,23 +11,26 @@ import {ShowAllContext, ShowAllProvider} from "../contexts/ShowAllProvider";
 import {Edges} from "../components/Edges.react";
 import {initialState, nodeReducer, ShownNodesProvider} from "../contexts/ShownNodes";
 import {HiddenRulesContext} from "../contexts/HiddenRulesContext";
+import {ColorPaletteProvider, useColorPalette} from "../contexts/ColorPalette";
 
 function ShowAllToggle() {
     const [state, dispatch] = React.useContext(ShowAllContext)
+    const colorPalette = useColorPalette();
     if (state.show_all) {
-        return <input type="checkbox" onClick={() => dispatch({type: "show_all"})} checked/>
+        return <span style={{"background-color": colorPalette.thirty}} className="display_all_toggle_span noselect"
+                     onClick={() => dispatch({type: "show_all"})}>Show All</span>
     }
-    return <input type="checkbox" onClick={() => dispatch({type: "show_all"})}/>
+    return <span className="display_all_toggle_span noselect"
+                 onClick={() => dispatch({type: "show_all"})}>Show All</span>
 
 }
 
 function AppHeader() {
-    return <div className="header">
-        <div id="app_title">
-            <span>viASP</span>
-            <span id="display_all_toggle_span">Show All:
-                <ShowAllToggle/>
-        </span>
+    const colorPalette = useColorPalette();
+    return <div style={{"background-color": colorPalette.thirty}} className="header noselect">
+        <div id="app_title_bar" style={{"color": colorPalette.ten}}>
+            <span id="app_title">viASP</span>
+            <ShowAllToggle/>
         </div>
     </div>
 }
@@ -58,7 +61,7 @@ function useRules() {
 export default function ViaspDash(props) {
     const [detail, setDetail] = useState(null)
     const rules = useRules()
-    const {setProps} = props;
+    const {setProps, colors} = props;
     const [hiddenRules, setHiddenRules] = useState([]);
 
     function triggerUpdate(toggle_id) {
@@ -77,31 +80,33 @@ export default function ViaspDash(props) {
         return <div>Loading..</div>
     }
     return <body>
-    <ShowAllProvider>
-        <AppHeader/>
-        <div className="content">
-            <Detail shows={detail} clearDetail={() => setDetail(null)}>
-            </Detail>
-            <ShownNodesProvider initialState={initialState} reducer={nodeReducer}>
-                <HiddenRulesContext.Provider value={[hiddenRules, triggerUpdate]}>
-                    <div className="graph_container">
-                        <Facts notifyClick={(clickedOn) => {
-                            notify(setProps, clickedOn)
-                            setDetail(clickedOn.uuid)
-                        }}/>
-                        {rules.map((transformation) => <Row
-                            key={transformation.id}
-                            transformation={transformation}
-                            notifyClick={(clickedOn) => {
+    <ColorPaletteProvider colorPalette={colors}>
+        <ShowAllProvider>
+            <AppHeader/>
+            <div className="content">
+                <Detail shows={detail} clearDetail={() => setDetail(null)}>
+                </Detail>
+                <ShownNodesProvider initialState={initialState} reducer={nodeReducer}>
+                    <HiddenRulesContext.Provider value={[hiddenRules, triggerUpdate]}>
+                        <div className="graph_container">
+                            <Facts notifyClick={(clickedOn) => {
                                 notify(setProps, clickedOn)
                                 setDetail(clickedOn.uuid)
-                            }}/>)}</div>
-                    <Search/>
-                    {rules.length === 0 ? null : <Edges/>}
-                </HiddenRulesContext.Provider>
-            </ShownNodesProvider>
-        </div>
-    </ShowAllProvider>
+                            }}/>
+                            {rules.map((transformation) => <Row
+                                key={transformation.id}
+                                transformation={transformation}
+                                notifyClick={(clickedOn) => {
+                                    notify(setProps, clickedOn)
+                                    setDetail(clickedOn.uuid)
+                                }}/>)}</div>
+                        <Search/>
+                        {rules.length === 0 ? null : <Edges/>}
+                    </HiddenRulesContext.Provider>
+                </ShownNodesProvider>
+            </div>
+        </ShowAllProvider>
+    </ColorPaletteProvider>
     </body>
 }
 
@@ -119,5 +124,13 @@ ViaspDash.propTypes = {
      * Dash-assigned callback that should be called to report property changes
      * to Dash, to make them available for callbacks.
      */
-    setProps: PropTypes.func
+    setProps: PropTypes.func,
+    /**
+     * Colors to be used in the application.
+     */
+    colors: PropTypes.object
 };
+
+ViaspDash.defaultProps = {
+    colors: {}
+}

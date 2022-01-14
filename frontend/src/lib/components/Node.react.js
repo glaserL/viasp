@@ -4,6 +4,7 @@ import './node.css'
 import PropTypes from "prop-types";
 import {ShowAllContext} from "../contexts/ShowAllProvider";
 import {hideNode, showNode, useShownNodes} from "../contexts/ShownNodes";
+import {useColorPalette} from "../contexts/ColorPalette";
 
 
 function Symbol(props) {
@@ -20,7 +21,8 @@ Symbol.propTypes = {
 function NodeContent(props) {
 
     const [state] = React.useContext(ShowAllContext)
-    const {overflowV, node} = props;
+    const {node} = props;
+    const colorPalette = useColorPalette();
     let contentToShow;
     if (state.show_all) {
         contentToShow = node.atoms;
@@ -28,13 +30,13 @@ function NodeContent(props) {
         contentToShow = node.diff;
     }
     const classNames2 = `set_value`
-    const containerNames = `set_container `
+    const containerNames = `set_container`
 
     const renderedSymbols = contentToShow.map(s => {
         return <Symbol key={JSON.stringify(s)} symbol={s}/>
     })
-    return <div className={containerNames}>
-        <div className={classNames2}>{renderedSymbols.length > 0 ? renderedSymbols : "Ø"}</div>
+    return <div className={containerNames} style={{"color": colorPalette.thirty}}>
+        <span className={classNames2}>{renderedSymbols.length > 0 ? renderedSymbols : "Ø"}</span>
     </div>
 }
 
@@ -52,6 +54,7 @@ NodeContent.propTypes = {
 export function Node(props) {
     const [isOverflowV, setIsOverflowV] = useState(false);
     const {node, notifyClick, showMini} = props;
+    const colorPalette = useColorPalette();
 
     const [, dispatch] = useShownNodes()
     const ref = useCallback(x => {
@@ -67,11 +70,15 @@ export function Node(props) {
     }, [])
 
 
-    const classNames = `node_for_linking node_border mouse_over_shadow ${node.uuid}`
-    return <div className={classNames} id={node.uuid} onClick={() => notifyClick(node)}>
-        {showMini ? <div className={"mini"}>{node.atoms.length}</div> :
-            <div className={"set_too_high"} ref={ref}><NodeContent overflowV={isOverflowV} node={node}/></div>}
-        {!showMini && isOverflowV ? <div className={"bauchbinde"}>...</div> : null}
+    const classNames = `node_border mouse_over_shadow ${node.uuid}`
+    return <div className={classNames} style={{"background-color": colorPalette.sixty, "color": colorPalette.ten}}
+                id={node.uuid} onClick={() => notifyClick(node)}>
+        {showMini ? <div style={{"background-color": colorPalette.thirty, "color": colorPalette.ten}}
+                         className={"mini"}>{node.atoms.length}</div> :
+            <div className={"set_too_high"} ref={ref}><NodeContent node={node}/></div>}
+        {!showMini && isOverflowV ?
+            <div style={{"background-color": colorPalette.ten, "color": colorPalette.thirty}}
+                 className={"bauchbinde"}>...</div> : null}
     </div>
 }
 

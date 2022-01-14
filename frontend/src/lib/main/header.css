@@ -1,6 +1,5 @@
 
 .header {
-    background-color: black;
     box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .2);
     align-content: center;
     height: 5vh;
@@ -9,15 +8,20 @@
 
 #app_title {
     font-family: "Roboto Light", monospace;
-    color: #eeeeee;
-    padding-left: 15px;
     font-size: 22px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    margin: 0 auto;
 }
 
-#display_all_toggle_span {
+#app_title_bar {
+    align-content: center;
+    padding-left: 15px;
+}
+
+.display_all_toggle_span {
     float: right;
+    font-size: 15pt;
+    padding-top: 5pt;
+    padding-bottom: 5pt;
 }
 
 /*CHECKBOX*/
