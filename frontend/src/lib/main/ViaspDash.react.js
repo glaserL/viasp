@@ -79,8 +79,7 @@ export default function ViaspDash(props) {
     if (rules.length === 0) {
         return <div>Loading..</div>
     }
-    return <body>
-    <ColorPaletteProvider colorPalette={colors}>
+    return <ColorPaletteProvider colorPalette={colors}>
         <ShowAllProvider>
             <AppHeader/>
             <div className="content">
@@ -107,7 +106,6 @@ export default function ViaspDash(props) {
             </div>
         </ShowAllProvider>
     </ColorPaletteProvider>
-    </body>
 }
 
 function notify(setProps, clickedOn) {
