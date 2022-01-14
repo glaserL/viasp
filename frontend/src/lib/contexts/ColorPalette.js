@@ -2,13 +2,13 @@ import React, {createContext, useContext} from "react";
 import PropTypes from "prop-types";
 
 export const defaultPalette = {
-    ten: "#FF0032",
-    // ten: "#2F97C1",
-    thirty: "#AAFFAA",
-    // thirty: "#000000",
-    sixty: "#FFAAFF",
-    // sixty: "#F6F4F3",
-    background: "#FF00AA"
+    // ten: "#FF0032",
+    ten: "#2F97C1",
+    // thirty: "#AAFFAA",
+    thirty: "#000000",
+    // sixty: "#FFAAFF",
+    sixty: "#F6F4F3",
+    // background: "#FF00AA"
 };
 
 const ColorPaletteContext = createContext([]);
