@@ -2,7 +2,7 @@
 .row_header {
     background-color: whitesmoke;
     font-family: "Monaco", monospace;
-    font-size: 14pt;
+    font-size: 12pt;
     border-top: 1px solid;
     border-bottom: 1px solid;
     border-right: 1px solid;
@@ -23,23 +23,15 @@
 
 .row_toggle {
     font-size: 9pt;
-    color: #FF1C89;
-    background-color: whitesmoke;
     cursor: pointer;
-    left: 0;
-    top: 0;
     padding-left: 10px;
     padding-right: 10px;
-    width: -moz-fit-content;
-    width: fit-content;
     transition: opacity .5s ease-in-out;
     -moz-transition: opacity .5s ease-in-out;
     -webkit-transition: opacity .5s ease-in-out;
 }
 
 .row_toggle:hover {
-    color: whitesmoke;
-    background-color: #FF1C89;
     transition: opacity .5s ease-in-out;
     -moz-transition: opacity .5s ease-in-out;
     -webkit-transition: opacity .5s ease-in-out;
@@ -47,7 +39,6 @@
 
 .row_row {
     display: flex;
-    /*overflow-x: auto;*/
     justify-content: space-around;
     align-content: center;
     background: transparent;

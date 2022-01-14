@@ -2,28 +2,13 @@
     width: -moz-fit-content;
     width: fit-content;
     position: relative;
-    /*border: 0;*/
-    /*overflow: hidden;*/
     line-height: 1.5em;
-    /*padding-left: 5px;*/
-    /*padding-right: 5px;*/
     min-height: 1.5em;
-}
-
-.set_header {
-    background: #FF1C89;
-    border-radius: 0 10px 0 0;
-    padding-left: 5px;
-    padding-right: 5px;
-    font-family: Monaco, monospace;
-    font-size: 10pt;
-    color: whitesmoke;
 }
 
 .node_border {
     border-radius: 0 10px 10px 10px;
-    border: 2px solid #FF1C89;
-    background: #eeeeee;
+    border: 2px solid;
     margin: 15px 5px 15px 5px;
     position: relative;
 }
@@ -35,16 +20,12 @@
 
 .bauchbinde {
     position: absolute;
-    right: -5px;
-    bottom: -5px;
-    /*width: 101%;*/
+    right: 0;
+    bottom: 0;
     border-radius: 5px 0 5px 0;
     backdrop-filter: blur(10px);
     /*background: rgba(255, 255, 255, 0.50);*/
-    background-color: #FF1C89;
     /*background-color: rgba(255, 28, 137, 0.50);*/
-    color: whitesmoke;
-    z-index: 100;
     text-align: right;
 }
 
@@ -56,41 +37,25 @@
 .symbol {
     min-width: 0;
     min-height: 0;
-    width: fit-content;
+    width: fit-content;;
+    width: -moz-fit-content;
     display: flex;
 }
 
-.more {
-    background: #FF1C89;
-    /*font-size: 1em;*/
-    color: whitesmoke;
-    line-height: 1.5em;
-    height: 1.5em;
-    text-align: center;
-    left: 0;
-    bottom: 0;
-    /*right: -10px;*/
-    /*padding: 5px 10px;*/
-    padding-bottom: 0;
-    margin-bottom: 0;
-    margin-left: 0;
-    padding-left: 0;
-}
 
 .set_value {
     font-family: monospace;
-    font-size: 18pt;
+    font-size: 14pt;
     width: -moz-fit-content;
     width: fit-content;
     margin: 5px;
 
     align-items: flex-start;
     position: relative;
-    flex: 1 1 auto;
+    flex: 0 0 auto;
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-start;
-    /*align-content: center;*/
 }
 
 .set_container {
@@ -98,13 +63,9 @@
 }
 
 .mini {
-    color: whitesmoke;
     text-align: center;
     vertical-align: middle;
-    background: #FF1C89;
     width: fit-content;
     height: fit-content;
     font-size: 12pt;
-    /*line-height: 3em;*/
-
 }
