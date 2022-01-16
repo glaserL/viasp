@@ -12,6 +12,7 @@ import {Edges} from "../components/Edges.react";
 import {initialState, nodeReducer, ShownNodesProvider} from "../contexts/ShownNodes";
 import {HiddenRulesContext} from "../contexts/HiddenRulesContext";
 import {ColorPaletteProvider, useColorPalette} from "../contexts/ColorPalette";
+import {HighlightedNodeProvider} from "../contexts/HighlightedNode";
 
 function ShowAllToggle() {
     const [state, dispatch] = React.useContext(ShowAllContext)
@@ -80,31 +81,33 @@ export default function ViaspDash(props) {
         return <div>Loading..</div>
     }
     return <ColorPaletteProvider colorPalette={colors}>
-        <ShowAllProvider>
-            <AppHeader/>
-            <div className="content">
-                <Detail shows={detail} clearDetail={() => setDetail(null)}>
-                </Detail>
-                <ShownNodesProvider initialState={initialState} reducer={nodeReducer}>
-                    <HiddenRulesContext.Provider value={[hiddenRules, triggerUpdate]}>
-                        <div className="graph_container">
-                            <Facts notifyClick={(clickedOn) => {
-                                notify(setProps, clickedOn)
-                                setDetail(clickedOn.uuid)
-                            }}/>
-                            {rules.map((transformation) => <Row
-                                key={transformation.id}
-                                transformation={transformation}
-                                notifyClick={(clickedOn) => {
+        <HighlightedNodeProvider>
+            <ShowAllProvider>
+                <AppHeader/>
+                <div className="content">
+                    <Detail shows={detail} clearDetail={() => setDetail(null)}>
+                    </Detail>
+                    <ShownNodesProvider initialState={initialState} reducer={nodeReducer}>
+                        <HiddenRulesContext.Provider value={[hiddenRules, triggerUpdate]}>
+                            <div className="graph_container">
+                                <Facts notifyClick={(clickedOn) => {
                                     notify(setProps, clickedOn)
                                     setDetail(clickedOn.uuid)
-                                }}/>)}</div>
-                        <Search/>
-                        {rules.length === 0 ? null : <Edges/>}
-                    </HiddenRulesContext.Provider>
-                </ShownNodesProvider>
-            </div>
-        </ShowAllProvider>
+                                }}/>
+                                {rules.map((transformation) => <Row
+                                    key={transformation.id}
+                                    transformation={transformation}
+                                    notifyClick={(clickedOn) => {
+                                        notify(setProps, clickedOn)
+                                        setDetail(clickedOn.uuid)
+                                    }}/>)}</div>
+                            <Search/>
+                            {rules.length === 0 ? null : <Edges/>}
+                        </HiddenRulesContext.Provider>
+                    </ShownNodesProvider>
+                </div>
+            </ShowAllProvider>
+        </HighlightedNodeProvider>
     </ColorPaletteProvider>
 }
 

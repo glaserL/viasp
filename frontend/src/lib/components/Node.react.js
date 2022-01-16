@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import {ShowAllContext} from "../contexts/ShowAllProvider";
 import {hideNode, showNode, useShownNodes} from "../contexts/ShownNodes";
 import {useColorPalette} from "../contexts/ColorPalette";
+import {useHighlightedNode} from "../contexts/HighlightedNode";
 
 
 function Symbol(props) {
@@ -51,12 +52,25 @@ NodeContent.propTypes = {
     overflowV: PropTypes.bool
 }
 
+function useHighlightedNodeToCreateClassName(node) {
+    const [highlightedNode,] = useHighlightedNode()
+    let classNames = `node_border mouse_over_shadow ${node.uuid} ${highlightedNode === node.uuid ? "highlighted_node" : null}`
+
+    useEffect(() => {
+            console.log(`THIS IS FUN ${highlightedNode === node.uuid} ${node.uuid}, ${highlightedNode}`)
+            classNames = `node_border mouse_over_shadow ${node.uuid} ${highlightedNode === node.uuid ? "highlighted_node" : null}`
+        }, [node.uuid, highlightedNode]
+    )
+    return classNames
+}
+
 export function Node(props) {
     const [isOverflowV, setIsOverflowV] = useState(false);
     const {node, notifyClick, showMini} = props;
     const colorPalette = useColorPalette();
-
     const [, dispatch] = useShownNodes()
+    const classNames = useHighlightedNodeToCreateClassName(node)
+
     const ref = useCallback(x => {
         if (x !== null) {
             setIsOverflowV(x.scrollHeight > x.offsetHeight + 2);
@@ -68,9 +82,11 @@ export function Node(props) {
             dispatch(hideNode(node.uuid))
         }
     }, [])
+    useEffect(() => {
+
+    })
 
 
-    const classNames = `node_border mouse_over_shadow ${node.uuid}`
     return <div className={classNames} style={{"background-color": colorPalette.sixty, "color": colorPalette.ten}}
                 id={node.uuid} onClick={() => notifyClick(node)}>
         {showMini ? <div style={{"background-color": colorPalette.thirty, "color": colorPalette.ten}}

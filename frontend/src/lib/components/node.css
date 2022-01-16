@@ -18,6 +18,13 @@
     filter: drop-shadow(0 0 1px #333);
 }
 
+.highlighted_node {
+    transition: drop-shadow .1s;
+    filter: drop-shadow(0 0 1px #333);
+    color: #FF1C89;
+    background-color: #FF1C89;
+}
+
 .bauchbinde {
     position: absolute;
     right: 0;

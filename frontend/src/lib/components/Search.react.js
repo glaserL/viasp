@@ -1,25 +1,32 @@
-import React, {Component, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {backendURL} from "../utils/index";
 import "./search.css";
 import {SearchResult} from "./SearchResult.react";
-import PropTypes, {func} from "prop-types";
+import PropTypes from "prop-types";
+import {useHighlightedNode} from "../contexts/HighlightedNode";
 
+const KEY_DOWN = 40;
+const KEY_UP = 38;
+const KEY_ENTER = 13;
 
-// https://blog.logrocket.com/build-react-autocomplete-component/
-
-
-export function Search(props) {
+export function Search() {
     const [activeSuggestion, setActiveSuggestion] = useState(0);
     const [filteredSuggestions, setFilteredSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [userInput, setUserInput] = useState("");
-
+    const [, setHighlightedNode] = useHighlightedNode();
     let suggestionsListComponent;
+    useEffect(() => {
+        const highlighted = filteredSuggestions[activeSuggestion]
+
+        if (highlighted && highlighted._type === "Node") {
+            setHighlightedNode(highlighted.uuid);
+        }
+    }, [activeSuggestion])
 
     function onChange(e) {
         const userInput = e.currentTarget.value;
 
-        // Filter our suggestions that don't contain the user's input
 
         fetch(`${backendURL("query")}?q=` + userInput)
             .then(r => r.json())
@@ -28,7 +35,6 @@ export function Search(props) {
                 setFilteredSuggestions(data)
                 setShowSuggestions(true)
                 setUserInput(userInput)
-                console.log(`Saved ${data.length} suggestions.`)
             })
     }
 
@@ -45,22 +51,18 @@ export function Search(props) {
 
     function onKeyDown(e) {
 
-        // User pressed the enter key
-        if (e.keyCode === 13) {
+        if (e.keyCode === KEY_ENTER) {
             setActiveSuggestion(0);
             setShowSuggestions(false);
             setUserInput("");
-        }
-        // User pressed the up arrow
-        else if (e.keyCode === 38) {
+            setHighlightedNode(null);
+        } else if (e.keyCode === KEY_UP) {
 
             if (activeSuggestion === 0) {
                 return;
             }
             setActiveSuggestion(activeSuggestion - 1);
-        }
-        // User pressed the down arrow
-        else if (e.keyCode === 40) {
+        } else if (e.keyCode === KEY_DOWN) {
             if (activeSuggestion - 1 === filteredSuggestions.length) {
                 return;
             }
@@ -80,9 +82,7 @@ export function Search(props) {
             );
         } else {
             suggestionsListComponent = (
-                <div className="no-suggestions">
-                    <em>No suggestions, you're on your own!</em>
-                </div>
+                <div className="no-suggestions"/>
             );
         }
     }
