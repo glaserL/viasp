@@ -1,4 +1,4 @@
-import React, {Component, useState} from 'react';
+import React, {Component, useEffect, useState} from 'react';
 import {backendURL, make_atoms_string} from "../utils/index";
 import './detail.css';
 import PropTypes from "prop-types";
@@ -21,52 +21,40 @@ function DetailForSignature(props) {
     </div>
 }
 
+function loadDataForDetail(uuid) {
+    return fetch(`${backendURL("model")}?uuid=${uuid}`).then(r => r.json())
+}
 
-export class Detail extends Component {
-    constructor(props) {
-        super(props);
+export function Detail(props) {
+    const [data, setData] = useState(null);
+    const {shows, clearDetail} = props;
+    useEffect(() => {
+        let mounted = true;
 
-        this.state = {
-            externalData: null,
-        };
+        loadDataForDetail(shows)
+            .then(items => {
+                if (mounted) {
+                    setData(items)
+                }
+            })
+        return () => mounted = false;
+    }, [shows])
+    if (shows === null) {
+        return null;
     }
-
-    render() {
-        const {shows, clearDetail} = this.props;
-        if (shows === null) {
-            return null;
-        }
-        if (this.state.externalData === null) {
-            return <div id="detailSidebar" className="detail">
-                <h3>Stable Models</h3>
-                Loading..
-            </div>
-        }
+    if (data === null) {
         return <div id="detailSidebar" className="detail">
-            <h3><span aria-hidden="true" onClick={clearDetail} className="closeButton">&times;</span>Stable Models</h3>
-            {this.state.externalData.map((resp) =>
-                <DetailForSignature key={resp[0]} signature={resp[0]} atoms={resp[1]} uuid={shows}/>)}
+            <h3>Stable Models</h3>
+            Loading..
         </div>
     }
-
-    loadMyAsyncData() {
-        const {shows} = this.props;
-        return fetch(`${backendURL("model")}?uuid=${shows}`).then(r => r.json()).catch(error => this.setState({error}))
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        const {shows} = this.props;
-        if (shows !== null && prevProps.shows !== shows) {
-
-            this._asyncRequest = this.loadMyAsyncData().then(
-                externalData => {
-                    this._asyncRequest = null;
-                    this.setState({externalData});
-                }
-            );
-        }
-    }
+    return <div id="detailSidebar" className="detail">
+        <h3><span aria-hidden="true" onClick={clearDetail} className="closeButton">&times;</span>Stable Models</h3>
+        {data.map((resp) =>
+            <DetailForSignature key={resp[0]} signature={resp[0]} atoms={resp[1]} uuid={shows}/>)}
+    </div>
 }
+
 
 Detail.propTypes = {
     /**

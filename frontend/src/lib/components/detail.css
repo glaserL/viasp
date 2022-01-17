@@ -1,7 +1,7 @@
 
 .detail {
     float: right;
-    height: 95vh;
+    height: 100%;
     box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .2);
     color: whitesmoke;
     font-family: monospace;
@@ -9,7 +9,7 @@
     overflow-x: scroll;
     transition: 0.1s;
     width: 20%;
-    z-index: 1;
+    z-index: 42;
     background-color: black;
     /*position: fixed; !* Sit on top of the page content *!*/
     top: 0;
