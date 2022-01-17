@@ -1,9 +1,53 @@
 
-.header {
-    box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .2);
+.settings {
+    white-space: nowrap;
     align-content: center;
-    height: 5vh;
+    float: right;
+    display: flex;
+    /*height: 5vh;*/
     /*flex: 0 1 auto;*/
+}
+
+.drawer_content {
+    transition: .3s;
+    z-index: 1;
+    box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .2);
+}
+
+.toggle_part {
+    font-family: monospace;
+}
+
+.toggle_part.selected {
+    transition: .3s;
+}
+
+.toggle_part.selected:hover {
+    transition: opacity .5s ease-in-out;
+    -moz-transition: opacity .5s ease-in-out;
+    -webkit-transition: opacity .5s ease-in-out;
+
+}
+
+.toggle_part.left {
+    border-radius: 3px 0 0 3px;
+    padding-right: 2px;
+}
+
+.toggle_part.right {
+    border-radius: 0 3px 3px 0;
+    padding-left: 2px;
+}
+
+.drawer_toggle {
+    background-color: #333333;
+    width: 10px;
+    overflow: hidden;
+    border-radius: 10px 0 0 10px;
+}
+
+.drawer {
+    font-family: sans-serif;
 }
 
 #app_title {
@@ -18,10 +62,8 @@
 }
 
 .display_all_toggle_span {
-    float: right;
-    font-size: 15pt;
-    padding-top: 5pt;
-    padding-bottom: 5pt;
+    /*float: right;*/
+    font-size: 13pt;
 }
 
 /*CHECKBOX*/

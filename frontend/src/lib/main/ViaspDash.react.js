@@ -13,25 +13,52 @@ import {initialState, nodeReducer, ShownNodesProvider} from "../contexts/ShownNo
 import {HiddenRulesContext} from "../contexts/HiddenRulesContext";
 import {ColorPaletteProvider, useColorPalette} from "../contexts/ColorPalette";
 import {HighlightedNodeProvider} from "../contexts/HighlightedNode";
+import styled from "styled-components";
 
-function ShowAllToggle() {
-    const [state, dispatch] = React.useContext(ShowAllContext)
-    const colorPalette = useColorPalette();
-    if (state.show_all) {
-        return <span style={{"background-color": colorPalette.thirty}} className="display_all_toggle_span noselect"
-                     onClick={() => dispatch({type: "show_all"})}>Show All</span>
-    }
-    return <span className="display_all_toggle_span noselect"
-                 onClick={() => dispatch({type: "show_all"})}>Show All</span>
+function useToggleState(toggle_state) {
+    let classNameAll = `toggle_part left ${toggle_state.show_all ? "selected" : ""}`;
+    let classNameNew = `toggle_part right ${toggle_state.show_all ? "" : "selected"}`;
+    useEffect(() => {
+        classNameAll = `toggle_part left ${toggle_state.show_all ? "selected" : ""}`;
+        classNameNew = `toggle_part right ${toggle_state.show_all ? "" : "selected"}`;
+    }, [toggle_state.show_all])
+    return [classNameAll, classNameNew]
 
 }
 
-function AppHeader() {
+function ShowAllToggle() {
+    const [state, dispatch] = React.useContext(ShowAllContext)
+    const [classNameAll, classNameNew] = useToggleState(state);
     const colorPalette = useColorPalette();
-    return <div style={{"background-color": colorPalette.thirty}} className="header noselect">
-        <div id="app_title_bar" style={{"color": colorPalette.ten}}>
-            <span id="app_title">viASP</span>
-            <ShowAllToggle/>
+    return <div>Node text: <span style={{"background-color": colorPalette.sixty}}
+                                 className="display_all_toggle_span noselect"
+                                 onClick={() => dispatch({type: "show_all"})}>
+        <span className={classNameAll} style={state.show_all ? {
+            "background-color": colorPalette.ten,
+            "color": colorPalette.sixty
+        } : null}>All</span>
+        <span className={classNameNew} style={state.show_all ? null : {
+            "background-color": colorPalette.ten,
+            "color": colorPalette.sixty
+        }}>New</span>
+    </span>
+    </div>
+}
+
+function Settings() {
+    const colorPalette = useColorPalette();
+    const [drawnOut, setDrawnOut] = useState(false);
+    return <div className="settings noselect">
+            <span className="drawler_toggle" style={{"background-color": colorPalette.sixty}}
+                  onClick={() => setDrawnOut(!drawnOut)}>{drawnOut ? ">" : "<"}</span>
+        <div className="drawer">
+            <div className="drawer_content"
+                 style={drawnOut ? {
+                     "max-width": "500px",
+                     "background-color": colorPalette.sixty
+                 } : {"max-width": "0px", "background-color": colorPalette.sixty}}>
+                <ShowAllToggle/>
+            </div>
         </div>
     </div>
 }
@@ -83,17 +110,17 @@ export default function ViaspDash(props) {
     return <ColorPaletteProvider colorPalette={colors}>
         <HighlightedNodeProvider>
             <ShowAllProvider>
-                <AppHeader/>
+                <Settings/>
                 <div className="content">
                     <Detail shows={detail} clearDetail={() => setDetail(null)}>
                     </Detail>
                     <ShownNodesProvider initialState={initialState} reducer={nodeReducer}>
                         <HiddenRulesContext.Provider value={[hiddenRules, triggerUpdate]}>
                             <div className="graph_container">
-                                <Facts notifyClick={(clickedOn) => {
-                                    notify(setProps, clickedOn)
-                                    setDetail(clickedOn.uuid)
-                                }}/>
+                                {/*<Facts notifyClick={(clickedOn) => {*/}
+                                {/*    notify(setProps, clickedOn)*/}
+                                {/*    setDetail(clickedOn.uuid)*/}
+                                {/*}}/>*/}
                                 {rules.map((transformation) => <Row
                                     key={transformation.id}
                                     transformation={transformation}
