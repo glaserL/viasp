@@ -75,6 +75,7 @@ function useRules() {
         let mounted = true;
         loadMyAsyncData()
             .then(items => {
+                console.log(`Setting ${items.length} `)
                 if (mounted) {
                     setRules(items)
                 }
@@ -87,7 +88,7 @@ function useRules() {
 
 
 export default function ViaspDash(props) {
-    const [detail, setDetail] = useState(null)
+    const [detail, setDetail] = useState("97d217b65b50458a80e62d17773fb4c2")
     const rules = useRules()
     const {setProps, colors} = props;
     const [hiddenRules, setHiddenRules] = useState([]);
@@ -110,17 +111,15 @@ export default function ViaspDash(props) {
     return <ColorPaletteProvider colorPalette={colors}>
         <HighlightedNodeProvider>
             <ShowAllProvider>
-                <Settings/>
+                <Detail shows={detail} clearDetail={() => setDetail(null)}/>
                 <div className="content">
-                    <Detail shows={detail} clearDetail={() => setDetail(null)}>
-                    </Detail>
                     <ShownNodesProvider initialState={initialState} reducer={nodeReducer}>
                         <HiddenRulesContext.Provider value={[hiddenRules, triggerUpdate]}>
                             <div className="graph_container">
-                                {/*<Facts notifyClick={(clickedOn) => {*/}
-                                {/*    notify(setProps, clickedOn)*/}
-                                {/*    setDetail(clickedOn.uuid)*/}
-                                {/*}}/>*/}
+                                <Facts notifyClick={(clickedOn) => {
+                                    notify(setProps, clickedOn)
+                                    setDetail(clickedOn.uuid)
+                                }}/><Settings/>
                                 {rules.map((transformation) => <Row
                                     key={transformation.id}
                                     transformation={transformation}

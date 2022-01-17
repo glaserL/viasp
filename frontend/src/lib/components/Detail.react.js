@@ -1,11 +1,17 @@
-import React, {Component, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {backendURL, make_atoms_string} from "../utils/index";
 import './detail.css';
 import PropTypes from "prop-types";
+import {useColorPalette} from "../contexts/ColorPalette";
 
 function DetailSymbolPill(props) {
     const {symbol, uuid} = props;
-    return <span className="detail_atom_view_content">{make_atoms_string(symbol)}</span>
+    const colorPalette = useColorPalette();
+    return <span className="detail_atom_view_content"
+                 style={{
+                     backgroundColor: colorPalette.ten,
+                     color: colorPalette.sixty
+                 }}>{make_atoms_string(symbol)}</span>
 
 }
 
@@ -28,15 +34,17 @@ function loadDataForDetail(uuid) {
 export function Detail(props) {
     const [data, setData] = useState(null);
     const {shows, clearDetail} = props;
+    const colorPalette = useColorPalette();
     useEffect(() => {
         let mounted = true;
-
-        loadDataForDetail(shows)
-            .then(items => {
-                if (mounted) {
-                    setData(items)
-                }
-            })
+        if (shows !== null) {
+            loadDataForDetail(shows)
+                .then(items => {
+                    if (mounted) {
+                        setData(items)
+                    }
+                })
+        }
         return () => mounted = false;
     }, [shows])
     if (shows === null) {
@@ -48,7 +56,7 @@ export function Detail(props) {
             Loading..
         </div>
     }
-    return <div id="detailSidebar" className="detail">
+    return <div id="detailSidebar" style={{backgroundColor: colorPalette.sixty}} className="detail">
         <h3><span aria-hidden="true" onClick={clearDetail} className="closeButton">&times;</span>Stable Models</h3>
         {data.map((resp) =>
             <DetailForSignature key={resp[0]} signature={resp[0]} atoms={resp[1]} uuid={shows}/>)}
