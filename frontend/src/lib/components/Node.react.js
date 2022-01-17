@@ -57,7 +57,6 @@ function useHighlightedNodeToCreateClassName(node) {
     let classNames = `node_border mouse_over_shadow ${node.uuid} ${highlightedNode === node.uuid ? "highlighted_node" : null}`
 
     useEffect(() => {
-            console.log(`THIS IS FUN ${highlightedNode === node.uuid} ${node.uuid}, ${highlightedNode}`)
             classNames = `node_border mouse_over_shadow ${node.uuid} ${highlightedNode === node.uuid ? "highlighted_node" : null}`
         }, [node.uuid, highlightedNode]
     )
