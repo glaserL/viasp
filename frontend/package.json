@@ -18,6 +18,7 @@
   "dependencies": {
     "@react-hook/resize-observer": "^1.2.5",
     "ramda": "^0.26.1",
+    "react-icons": "^4.3.1",
     "styled-components": "^5.3.3"
   },
   "devDependencies": {

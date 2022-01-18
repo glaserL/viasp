@@ -9,6 +9,9 @@ export const defaultPalette = {
     // sixty: "#FFAAFF",
     sixty: "#F6F4F3",
     // background: "#FF00AA"
+    error_ten: "#EB4A4E",
+    error_thirty: "#4C191A",
+    error_sixty: "#FCE8E8"
 };
 
 const ColorPaletteContext = createContext([]);
