@@ -17,15 +17,15 @@ function ShowAllToggle() {
     const [state, dispatch] = React.useContext(ShowAllContext)
     const [classNameAll, classNameNew] = useToggleState(state);
     const colorPalette = useColorPalette();
-    return <div>Node text: <span style={{"background-color": colorPalette.sixty}}
+    return <div>Node text: <span style={{backgroundColor: colorPalette.sixty}}
                                  className="display_all_toggle_span noselect"
                                  onClick={() => dispatch({type: "show_all"})}>
         <span className={classNameAll} style={state.show_all ? {
-            "background-color": colorPalette.ten,
+            backgroundColor: colorPalette.ten,
             "color": colorPalette.sixty
         } : null}>All</span>
         <span className={classNameNew} style={state.show_all ? null : {
-            "background-color": colorPalette.ten,
+            backgroundColor: colorPalette.ten,
             "color": colorPalette.sixty
         }}>New</span>
     </span>
@@ -36,14 +36,14 @@ export function Settings() {
     const colorPalette = useColorPalette();
     const [drawnOut, setDrawnOut] = useState(false);
     return <div className="settings noselect">
-            <span className="drawler_toggle" style={{"background-color": colorPalette.sixty}}
+            <span className="drawler_toggle" style={{backgroundColor: colorPalette.sixty}}
                   onClick={() => setDrawnOut(!drawnOut)}>{drawnOut ? ">" : "<"}</span>
         <div className="drawer">
             <div className="drawer_content"
                  style={drawnOut ? {
-                     "max-width": "500px",
-                     "background-color": colorPalette.sixty
-                 } : {"max-width": "0px", "background-color": colorPalette.sixty}}>
+                     maxWidth: "500px",
+                     backgroundColor: colorPalette.sixty
+                 } : {maxWidth: "0px", backgroundColor: colorPalette.sixty}}>
                 <ShowAllToggle/>
             </div>
         </div>
