@@ -1,5 +1,5 @@
-import React, {createContext, useContext, useReducer} from "react";
 import PropTypes from "prop-types";
+import React, {createContext, useContext, useReducer} from "react";
 
 export const initialState = {activeMessages: []}
 export const ERROR = 'APP/MESSAGES/ERROR';

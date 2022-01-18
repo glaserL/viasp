@@ -19,10 +19,14 @@ import {UserMessages} from "../components/messages";
 
 
 function loadMyAsyncData() {
+    console.log("AAA")
     return fetch(`${backendURL("rules")}`).then(r => {
+        console.log("BBB")
         if (r.ok) {
+            console.log("DDD")
             return r.json()
         }
+        console.log("CCC")
         throw new Error(r.statusText);
 
     });
