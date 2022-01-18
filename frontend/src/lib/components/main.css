@@ -15,3 +15,21 @@ body {
     /* Non-prefixed version, currently
                                      supported by Chrome, Edge, Opera and Firefox */
 }
+
+.user_message {
+    width: fit-content;
+    width: -moz-fit-content;
+    padding: 10px;
+    border-radius: 5px 5px 5px 5px;
+    font-family: sans-serif;
+}
+
+.alert-shown {
+    opacity: 1;
+    transition: all 250ms linear;
+}
+
+.alert-hidden {
+    opacity: 0;
+    transition: all 250ms linear 2s;
+}
