@@ -1,8 +1,8 @@
+import React, {useEffect, useState} from "react";
 import PropTypes from "prop-types";
 import {useColorPalette} from "../contexts/ColorPalette";
 import {RiErrorWarningFill} from "react-icons/all";
 import {useMessages} from "../contexts/UserMessages";
-import {useEffect, useState} from "react";
 
 
 function useColor(level) {

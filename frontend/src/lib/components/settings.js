@@ -1,5 +1,5 @@
-import {useColorPalette} from "../contexts/ColorPalette";
 import React, {useEffect, useState} from "react";
+import {useColorPalette} from "../contexts/ColorPalette";
 import {ShowAllContext} from "../contexts/ShowAllProvider";
 
 function useToggleState(toggle_state) {
