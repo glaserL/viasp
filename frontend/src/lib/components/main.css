@@ -20,8 +20,18 @@ body {
     width: fit-content;
     width: -moz-fit-content;
     padding: 10px;
+    margin: 10px;
     border-radius: 5px 5px 5px 5px;
     font-family: sans-serif;
+    -moz-box-shadow: 3px 3px 5px 6px #ccc;
+    -webkit-box-shadow: 3px 3px 5px 6px #ccc;
+    box-shadow: 2px 2px 4px 2px #ccc;
+}
+
+.user_message_list {
+    position: absolute;
+    float: left;
+    z-index: 99;
 }
 
 .alert-shown {
