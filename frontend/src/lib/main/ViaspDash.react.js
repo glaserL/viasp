@@ -17,16 +17,11 @@ import {showError, useMessages, UserMessagesProvider} from "../contexts/UserMess
 import {Settings} from "../components/settings";
 import {UserMessages} from "../components/messages";
 
-
 function loadMyAsyncData() {
-    console.log("AAA")
     return fetch(`${backendURL("rules")}`).then(r => {
-        console.log("BBB")
         if (r.ok) {
-            console.log("DDD")
             return r.json()
         }
-        console.log("CCC")
         throw new Error(r.statusText);
 
     });
@@ -36,6 +31,7 @@ function loadMyAsyncData() {
 function useRules() {
     const [rules, setRules] = useState([])
     const [, dispatch] = useMessages()
+
     useEffect(() => {
         let mounted = true;
         loadMyAsyncData().catch(error => {
@@ -59,6 +55,13 @@ function MainWindow(props) {
     const [detail, setDetail] = useState(null)
     const rules = useRules()
     const [hiddenRules, setHiddenRules] = useState([]);
+
+    const [, dispatch] = useMessages()
+    useEffect(() => {
+        fetch(backendURL("/rules")).catch(() => {
+            dispatch(showError(`Couldn't connect to server at ${backendURL("")}`))
+        })
+    }, [])
 
     function triggerUpdate(toggle_id) {
         if (hiddenRules.includes(toggle_id)) {
