@@ -44,6 +44,7 @@
     width: 10px;
     overflow: hidden;
     border-radius: 10px 0 0 10px;
+    cursor: pointer;
 }
 
 .drawer {
