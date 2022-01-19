@@ -2,10 +2,10 @@ import React, {useCallback, useEffect, useState} from "react";
 import {make_atoms_string} from "../utils/index";
 import './node.css'
 import PropTypes from "prop-types";
-import {ShowAllContext} from "../contexts/ShowAllProvider";
 import {hideNode, showNode, useShownNodes} from "../contexts/ShownNodes";
 import {useColorPalette} from "../contexts/ColorPalette";
 import {useHighlightedNode} from "../contexts/HighlightedNode";
+import {useSettings} from "../contexts/Settings";
 
 
 function Symbol(props) {
@@ -21,7 +21,7 @@ Symbol.propTypes = {
 
 function NodeContent(props) {
 
-    const [state] = React.useContext(ShowAllContext)
+    const [state] = useSettings();
     const {node} = props;
     const colorPalette = useColorPalette();
     let contentToShow;
