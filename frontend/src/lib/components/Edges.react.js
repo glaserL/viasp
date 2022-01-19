@@ -3,8 +3,8 @@ import {backendURL} from "../utils/index";
 import LineTo from "react-lineto";
 import PropTypes from "prop-types";
 import useResizeObserver from "@react-hook/resize-observer";
-import {ShowAllContext} from "../contexts/ShowAllProvider";
 import {useShownNodes} from "../contexts/ShownNodes";
+import {useSettings} from "../contexts/Settings";
 
 function loadEdges(shownNodes) {
     return fetch(`${backendURL("edges")}`, {
@@ -32,7 +32,7 @@ export function Edges() {
     const target = React.useRef(null)
     useResize(target)
     const [{shownNodes},] = useShownNodes()
-    const [state] = React.useContext(ShowAllContext)
+    const [state] = useSettings()
 
     useEffect(() => {
         let mounted = true;

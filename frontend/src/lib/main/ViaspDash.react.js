@@ -7,7 +7,6 @@ import {Detail} from "../components/Detail.react";
 import {Search} from "../components/Search.react";
 import {Facts} from "../components/Facts.react";
 import "./header.css";
-import {ShowAllProvider} from "../contexts/ShowAllProvider";
 import {Edges} from "../components/Edges.react";
 import {initialState, nodeReducer, ShownNodesProvider} from "../contexts/ShownNodes";
 import {HiddenRulesContext} from "../contexts/HiddenRulesContext";
@@ -16,6 +15,7 @@ import {HighlightedNodeProvider} from "../contexts/HighlightedNode";
 import {showError, useMessages, UserMessagesProvider} from "../contexts/UserMessages";
 import {Settings} from "../components/settings";
 import {UserMessages} from "../components/messages";
+import {SettingsProvider} from "../contexts/Settings";
 
 function loadMyAsyncData() {
     return fetch(`${backendURL("rules")}`).then(r => {
@@ -108,10 +108,10 @@ export default function ViaspDash(props) {
     return <ColorPaletteProvider colorPalette={colors}>
         <UserMessagesProvider>
             <HighlightedNodeProvider>
-                <ShowAllProvider>
+                <SettingsProvider>
                     <UserMessages/>
                     <MainWindow callback={setProps}/>
-                </ShowAllProvider>
+                </SettingsProvider>
             </HighlightedNodeProvider>
         </UserMessagesProvider>
     </ColorPaletteProvider>

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {useColorPalette} from "../contexts/ColorPalette";
-import {ShowAllContext} from "../contexts/ShowAllProvider";
+import {toggleShowAll, useSettings} from "../contexts/Settings";
 
 function useToggleState(toggle_state) {
     let classNameAll = `toggle_part left ${toggle_state.show_all ? "selected" : ""}`;
@@ -14,12 +14,13 @@ function useToggleState(toggle_state) {
 }
 
 function ShowAllToggle() {
-    const [state, dispatch] = React.useContext(ShowAllContext)
+    const [state, dispatch] = useSettings()
     const [classNameAll, classNameNew] = useToggleState(state);
+    console.log(state)
     const colorPalette = useColorPalette();
     return <div>Node text: <span style={{backgroundColor: colorPalette.sixty}}
                                  className="display_all_toggle_span noselect"
-                                 onClick={() => dispatch({type: "show_all"})}>
+                                 onClick={() => dispatch(toggleShowAll())}>
         <span className={classNameAll} style={state.show_all ? {
             backgroundColor: colorPalette.ten,
             "color": colorPalette.sixty
