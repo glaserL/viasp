@@ -7,7 +7,7 @@ const TOGGLE_SHOW = "APP/SETTINGS/TOGGLE_SHOW"
 const SET_BACKEND_URL = "APP/SETTINGS/BACKEND_URL/SET"
 
 export const toggleShowAll = () => ({type: TOGGLE_SHOW})
-export const setBackendURL = (url) => ({type: SET_BACKEND_URL, url})
+export const setBackendURL = (url) => ({type: SET_BACKEND_URL, backend_url: url})
 const reducer = (state, action) => {
     switch (action.type) {
         case TOGGLE_SHOW:
@@ -35,7 +35,19 @@ export const Settings = createContext({
     state: initSettings(),
     dispatch: () => null
 })
-export const useSettings = () => useContext(Settings)
+
+export const useSettings = () => {
+
+    const [state, dispatch] = useContext(Settings)
+
+    function backendURL(route) {
+        const url = `${state.backend_url}/${route}`;
+        console.log(`OMEGALUL Returning url ${url}`)
+        return url
+    }
+
+    return [state, dispatch, backendURL]
+}
 export const SettingsProvider = ({children}) => {
     const [state, dispatch] = useReducer(reducer, true, initSettings)
 

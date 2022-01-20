@@ -6,10 +6,8 @@ export function make_atoms_string(atoms) {
     }
     switch (atoms._type) {
         case "Number":
-            // console.log(`A number ${JSON.stringify(atoms)}`)
             return atoms.number.toString();
         case "Function":
-            // console.log(`A func ${JSON.stringify(atoms)}`)
             const args = atoms.arguments.map(make_atoms_string).join(",")
             return args.length > 0 ? `${atoms.name}(${args})` : `${atoms.name}`
         default:
