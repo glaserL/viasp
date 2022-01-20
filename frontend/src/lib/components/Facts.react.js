@@ -1,22 +1,23 @@
-import {backendURL} from "../utils/index";
 import "./facts.css";
 import React, {useEffect, useState} from "react";
 import PropTypes from "prop-types";
 import {hideNode, showNode, useShownNodes} from "../contexts/ShownNodes";
 import {useColorPalette} from "../contexts/ColorPalette";
+import {useSettings} from "../contexts/Settings";
 
-function loadFacts() {
+function loadFacts(backendURL) {
     return fetch(`${backendURL("facts")}`).then(r => r.json());
 }
 
 export function Facts(props) {
 
     const {notifyClick} = props;
+    const {backendURL} = useSettings();
 
     const [fact, setFact] = useState(null);
     useEffect(() => {
         let mounted = true;
-        loadFacts()
+        loadFacts(backendURL)
             .then(items => {
                 if (mounted) {
                     setFact(items)

@@ -16,7 +16,7 @@ function useToggleState(toggle_state) {
 }
 
 function ShowAllToggle() {
-    const [state, dispatch] = useSettings()
+    const {state, dispatch} = useSettings()
     const [classNameAll, classNameNew] = useToggleState(state);
     console.log(state)
     const colorPalette = useColorPalette();
@@ -38,7 +38,7 @@ function ShowAllToggle() {
 
 function BackendURLSetting() {
 
-    const [state, dispatch, backendURL] = useSettings()
+    const {state, dispatch, backendURL} = useSettings()
     const [input, setInput] = useState(state.backend_url)
     const [backendReachable, setBackendReachable] = useState(true)
 

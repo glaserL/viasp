@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {backendURL} from "../utils/index";
 import "./search.css";
 import {SearchResult} from "./SearchResult.react";
 import PropTypes from "prop-types";
 import {useHighlightedNode} from "../contexts/HighlightedNode";
+import {useSettings} from "../contexts/Settings";
 
 const KEY_DOWN = 40;
 const KEY_UP = 38;
@@ -15,6 +15,7 @@ export function Search() {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [userInput, setUserInput] = useState("");
     const [, setHighlightedNode] = useHighlightedNode();
+    const {backendURL} = useSettings();
     let suggestionsListComponent;
     useEffect(() => {
         const highlighted = filteredSuggestions[activeSuggestion]

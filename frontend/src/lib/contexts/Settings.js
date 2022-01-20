@@ -46,7 +46,7 @@ export const useSettings = () => {
         return url
     }
 
-    return [state, dispatch, backendURL]
+    return {state, dispatch, backendURL}
 }
 export const SettingsProvider = ({children}) => {
     const [state, dispatch] = useReducer(reducer, true, initSettings)

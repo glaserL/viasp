@@ -21,7 +21,7 @@ Symbol.propTypes = {
 
 function NodeContent(props) {
 
-    const [state] = useSettings();
+    const {state} = useSettings();
     const {node} = props;
     const colorPalette = useColorPalette();
     let contentToShow;

@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {Row} from "../components/Row.react";
-import {backendURL} from "../utils";
 import "../components/main.css"
 import {Detail} from "../components/Detail.react";
 import {Search} from "../components/Search.react";
@@ -15,9 +14,9 @@ import {HighlightedNodeProvider} from "../contexts/HighlightedNode";
 import {showError, useMessages, UserMessagesProvider} from "../contexts/UserMessages";
 import {Settings} from "../components/settings";
 import {UserMessages} from "../components/messages";
-import {SettingsProvider} from "../contexts/Settings";
+import {SettingsProvider, useSettings} from "../contexts/Settings";
 
-function loadMyAsyncData() {
+function loadMyAsyncData(backendURL) {
     return fetch(`${backendURL("rules")}`).then(r => {
         if (r.ok) {
             return r.json()
@@ -31,10 +30,11 @@ function loadMyAsyncData() {
 function useRules() {
     const [rules, setRules] = useState([])
     const [, dispatch] = useMessages()
+    const {backendURL} = useSettings();
 
     useEffect(() => {
         let mounted = true;
-        loadMyAsyncData().catch(error => {
+        loadMyAsyncData(backendURL).catch(error => {
             dispatch(showError(`Failed to get rules: ${error}`))
         })
             .then(items => {
@@ -55,6 +55,7 @@ function MainWindow(props) {
     const [detail, setDetail] = useState(null)
     const rules = useRules()
     const [hiddenRules, setHiddenRules] = useState([]);
+    const {backendURL} = useSettings();
 
     const [, dispatch] = useMessages()
     useEffect(() => {

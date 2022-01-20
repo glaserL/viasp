@@ -1,12 +1,12 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
 import {Node} from "./Node.react";
-import {backendURL} from "../utils/index";
 import './row.css';
 import PropTypes from "prop-types";
 import {RowHeader} from "./RowHeader.react";
 import {HiddenRulesContext} from "../contexts/HiddenRulesContext";
+import {useSettings} from "../contexts/Settings";
 
-function loadMyAsyncData(id) {
+function loadMyAsyncData(id, backendURL) {
     return fetch(`${backendURL("children")}/?rule_id=${id}&ids_only=True`).then(r => r.json());
 }
 
@@ -17,9 +17,10 @@ export function Row(props) {
     const {transformation, notifyClick} = props;
     const ref = useRef(null);
     const [hiddenRules, triggerUpdate] = useContext(HiddenRulesContext);
+    const {backendURL} = useSettings();
     useEffect(() => {
         let mounted = true;
-        loadMyAsyncData(transformation.id)
+        loadMyAsyncData(transformation.id, backendURL)
             .then(items => {
                 if (mounted) {
                     setNodes(items)

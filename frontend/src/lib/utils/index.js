@@ -20,11 +20,3 @@ export function make_rules_string(rule) {
     // TODO: This is pretty bad. Adjust types for this.
     return rule.join(" ")
 }
-
-export function backendURL(route) {
-    const domain = "localhost"
-    const port = 5000;
-    const url = `http://${domain}:${port}/${route}`;
-    console.log(`Returning url ${url}`)
-    return url
-}
