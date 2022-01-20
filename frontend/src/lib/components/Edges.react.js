@@ -1,12 +1,11 @@
 import React, {useEffect, useState} from "react";
-import {backendURL} from "../utils/index";
 import LineTo from "react-lineto";
 import PropTypes from "prop-types";
 import useResizeObserver from "@react-hook/resize-observer";
 import {useShownNodes} from "../contexts/ShownNodes";
 import {useSettings} from "../contexts/Settings";
 
-function loadEdges(shownNodes) {
+function loadEdges(shownNodes, backendURL) {
     return fetch(`${backendURL("edges")}`, {
         method: "POST",
         headers: {
@@ -32,12 +31,12 @@ export function Edges() {
     const target = React.useRef(null)
     useResize(target)
     const [{shownNodes},] = useShownNodes()
-    const [state] = useSettings()
+    const {state, backendURL} = useSettings()
 
     useEffect(() => {
         let mounted = true;
 
-        loadEdges(shownNodes)
+        loadEdges(shownNodes, backendURL)
             .then(items => {
                 if (mounted) {
                     setEdges(items)

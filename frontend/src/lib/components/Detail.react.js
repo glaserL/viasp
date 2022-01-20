@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {backendURL, make_atoms_string} from "../utils/index";
+import {make_atoms_string} from "../utils/index";
 import './detail.css';
 import PropTypes from "prop-types";
 import {useColorPalette} from "../contexts/ColorPalette";
+import {useSettings} from "../contexts/Settings";
 
 function DetailSymbolPill(props) {
     const {symbol, uuid} = props;
@@ -27,18 +28,19 @@ function DetailForSignature(props) {
     </div>
 }
 
-function loadDataForDetail(uuid) {
-    return fetch(`${backendURL("model")}?uuid=${uuid}`).then(r => r.json())
+function loadDataForDetail(uuid, url_provider) {
+    return fetch(`${url_provider("model")}?uuid=${uuid}`).then(r => r.json())
 }
 
 export function Detail(props) {
     const [data, setData] = useState(null);
     const {shows, clearDetail} = props;
+    const {backendURL} = useSettings();
     const colorPalette = useColorPalette();
     useEffect(() => {
         let mounted = true;
         if (shows !== null) {
-            loadDataForDetail(shows)
+            loadDataForDetail(shows, backendURL)
                 .then(items => {
                     if (mounted) {
                         setData(items)
