@@ -1,19 +1,18 @@
 import viasp_dash
-import dash
-from dash.dependencies import Input, Output
-import dash_html_components as html
+from dash import Dash, html, Input, Output
 
-app = dash.Dash(__name__)
+app = Dash(__name__)
 
 app.layout = html.Div([
     viasp_dash.ViaspDash(
-        id="myID"
+        id="myID",
+        backendURL="http://localhost:5000"
     ),
     html.Div(id='output')
 ])
 
 
-@app.callback(Output('output', 'children'), Input('myID', 'node'))
+@app.callback(Output('output', 'children'), Input('myID', 'clickedOn'))
 def display_output(rule):
     return f"I come from python, you clicked on {rule}"
 

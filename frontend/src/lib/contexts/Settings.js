@@ -1,8 +1,9 @@
 // https://www.thisdot.co/blog/creating-a-global-state-with-react-hooks
 import React, {createContext, useContext, useReducer} from "react"
 import PropTypes from "prop-types";
-// REDUCER STUFF
 
+export const DEFAULT_BACKEND_URL = "http://localhost:5000";
+// REDUCER STUFF
 const TOGGLE_SHOW = "APP/SETTINGS/TOGGLE_SHOW"
 const SET_BACKEND_URL = "APP/SETTINGS/BACKEND_URL/SET"
 
@@ -26,8 +27,8 @@ const reducer = (state, action) => {
     }
 }
 
-export function initSettings(initialShowAll) {
-    return {show_all: initialShowAll, backend_url: "http://localhost:5000"}
+export function initSettings(initialArgs) {
+    return initialArgs
 }
 
 // PROVIDER STUFF
@@ -41,15 +42,14 @@ export const useSettings = () => {
     const [state, dispatch] = useContext(Settings)
 
     function backendURL(route) {
-        const url = `${state.backend_url}/${route}`;
-        console.log(`OMEGALUL Returning url ${url}`)
-        return url
+        return `${state.backend_url}/${route}`
     }
 
     return {state, dispatch, backendURL}
 }
-export const SettingsProvider = ({children}) => {
-    const [state, dispatch] = useReducer(reducer, true, initSettings)
+export const SettingsProvider = ({children, backendURL}) => {
+    const initialArgs = {show_all: true, backend_url: backendURL}
+    const [state, dispatch] = useReducer(reducer, initialArgs, initSettings)
 
     return (
         <Settings.Provider value={[state, dispatch]}>
@@ -62,5 +62,9 @@ SettingsProvider.propTypes = {
     /**
      * The subtree that requires access to this context.
      */
-    children: PropTypes.any
+    children: PropTypes.any,
+    /**
+     * The backendURL viASP that provides the graph
+     */
+    backendURL: PropTypes.string
 }

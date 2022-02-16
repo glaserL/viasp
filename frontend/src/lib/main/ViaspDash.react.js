@@ -14,7 +14,7 @@ import {HighlightedNodeProvider} from "../contexts/HighlightedNode";
 import {showError, useMessages, UserMessagesProvider} from "../contexts/UserMessages";
 import {Settings} from "../components/settings";
 import {UserMessages} from "../components/messages";
-import {SettingsProvider, useSettings} from "../contexts/Settings";
+import {DEFAULT_BACKEND_URL, SettingsProvider, useSettings} from "../contexts/Settings";
 
 function loadMyAsyncData(backendURL) {
     return fetch(`${backendURL("rules")}`).then(r => {
@@ -103,23 +103,25 @@ function MainWindow(props) {
 }
 
 export default function ViaspDash(props) {
-    const {setProps, colors} = props;
+    const {id, setProps, backendURL, colors} = props;
 
 
-    return <ColorPaletteProvider colorPalette={colors}>
-        <UserMessagesProvider>
-            <HighlightedNodeProvider>
-                <SettingsProvider>
-                    <UserMessages/>
-                    <MainWindow callback={setProps}/>
-                </SettingsProvider>
-            </HighlightedNodeProvider>
-        </UserMessagesProvider>
-    </ColorPaletteProvider>
+    return <div id={id}>
+        <ColorPaletteProvider colorPalette={colors}>
+            <UserMessagesProvider>
+                <HighlightedNodeProvider>
+                    <SettingsProvider backendURL={backendURL}>
+                        <UserMessages/>
+                        <MainWindow callback={setProps}/>
+                    </SettingsProvider>
+                </HighlightedNodeProvider>
+            </UserMessagesProvider>
+        </ColorPaletteProvider>
+    </div>
 }
 
 function notify(setProps, clickedOn) {
-    setProps({node: clickedOn})
+    setProps({clickedOn: clickedOn})
 }
 
 ViaspDash.propTypes = {
@@ -136,9 +138,19 @@ ViaspDash.propTypes = {
     /**
      * Colors to be used in the application.
      */
-    colors: PropTypes.object
+    colors: PropTypes.object,
+    /**
+     *
+     */
+    clickedOn: PropTypes.object,
+
+    /**
+     *
+     */
+    backendURL: PropTypes.string
 };
 
 ViaspDash.defaultProps = {
-    colors: {}
+    colors: {},
+    backendURL: DEFAULT_BACKEND_URL
 }
