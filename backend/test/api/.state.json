@@ -1,0 +1,1 @@
+{"show_all": true, "filter": [{"_type": "Filter", "on": {"_type": "Transformation", "id": 42, "rules": ["a:-b.", "b :- a."]}}, {"_type": "Filter", "on": {"_type": "Signature", "name": "holds", "args": 2}}]}

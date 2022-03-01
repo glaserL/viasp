@@ -4,7 +4,7 @@ from functools import lru_cache as f_cache
 from typing import Union, Collection
 
 import networkx as nx
-from flask import Blueprint, request, jsonify, abort, session
+from flask import Blueprint, request, jsonify, abort, session, Response
 from networkx import DiGraph
 
 from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder, deserialize
@@ -21,7 +21,7 @@ GRAPH = None
 class GraphDataBaseKEKL:
 
     def __init__(self):
-        self.path = "/Users/bianchignocchi/Developer/cogsys/0_ma/gasp/src/viasp/server/graph.json"
+        self.path = "/Users/bianchignocchi/Developer/cogsys/0_ma/gasp/backend/src/viasp/server/graph.json"
 
     def save(self, graph: Union[nx.Graph, dict]):
         if isinstance(graph, nx.Graph):
@@ -31,13 +31,16 @@ class GraphDataBaseKEKL:
         with open(self.path, "w", encoding="utf-8") as f:
             json.dump(serializable_graph, f, cls=DataclassJSONEncoder, ensure_ascii=False, indent=2)
 
+    def clear(self):
+        self.save(nx.Graph())
+
     def load(self, as_json=True) -> Union[nx.DiGraph, dict]:
         try:
             with open(self.path, encoding="utf-8") as f:
                 result = json.load(f, cls=DataclassJSONDecoder)
             if as_json:
                 return result
-            loaded_graph = nx.node_link_graph(result)
+            loaded_graph = nx.node_link_graph(result) if result is not None else nx.DiGraph()
             return loaded_graph
         except FileNotFoundError:
             return nx.DiGraph()
@@ -88,6 +91,13 @@ def handle_request_for_children(data) -> Collection[Node]:
     return children
 
 
+@bp.route("/graph/clear", methods=["DELETE"])
+def clear_graph():
+    graph = get_graph()
+    graph.clear()
+    return "ok", 200
+
+
 @bp.route("/children/", methods=["GET"])
 def get_children():
     if request.method == "GET":
@@ -125,7 +135,7 @@ def get_rule(uuid):
     graph = get_graph()
     for _, _, edge in graph.edges(data=True):
         transformation: Transformation = edge["transformation"]
-        if transformation.id == uuid:
+        if str(transformation.id) == str(uuid):
             return jsonify(transformation)
     abort(404)
 
@@ -136,7 +146,7 @@ def get_node(uuid):
     for node in graph.nodes():
         if node.uuid == uuid:
             return jsonify(node)
-    abort(404)
+    abort(400)
 
 
 @bp.route("/facts", methods=["GET"])
@@ -156,7 +166,7 @@ def get_all_rules():
         transformation = graph[u][v]["transformation"]
         if transformation not in returning:
             returning.append(transformation)
-    # print(f"kekekjdgkjdhfkljsfek {returning}")
+
     r = jsonify(returning)
     return r
 
@@ -168,7 +178,8 @@ def entire_graph():
         set_graph(data)
         return "ok"
     elif request.method == "GET":
-        return get_graph()
+        result = get_graph()
+        return jsonify(result)
 
 
 def set_graph(data: DiGraph):
@@ -182,7 +193,9 @@ def get_atoms_in_path_by_signature(uuid: str):
     graph = get_graph()
 
     matching_nodes = [x for x, y in graph.nodes(data=True) if x.uuid == uuid]
-    assert len(matching_nodes) == 1
+
+    if len(matching_nodes) != 1:
+        abort(Response(f"No node with uuid {uuid}.", 404))
     signature_to_atom_mapping = defaultdict(set)
     node = matching_nodes[0]
     for symbol in node.atoms:
@@ -192,12 +205,14 @@ def get_atoms_in_path_by_signature(uuid: str):
             for s in signature_to_atom_mapping.keys()]
 
 
-@bp.route("/model/")
+@bp.route("/detail/")
 def model():
+    key = None
     if "uuid" in request.args.keys():
         key = request.args["uuid"]
+    if key is None:
+        abort(Response("Parameter 'key' required.", 400))
     path = get_atoms_in_path_by_signature(key)
-    # print(f"Returning {path}")
     return jsonify(path)
 
 
@@ -228,7 +243,7 @@ def search():
     return jsonify([])
 
 
-@bp.route("/trace", methods=["GET", "POST"])
+@bp.route("/trace", methods=["POST"])
 def trace():
     graph = get_graph()
     beginning = get_start_node_from_graph(graph)
