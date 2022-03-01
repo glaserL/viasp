@@ -22,7 +22,7 @@ GRAPH = None
 class GraphDataBaseKEKL:
 
     def __init__(self):
-        self.path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "graph.json")
+        self.path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "graph_storage.json")
 
     def save(self, graph: Union[nx.Graph, dict]):
         if isinstance(graph, nx.Graph):
