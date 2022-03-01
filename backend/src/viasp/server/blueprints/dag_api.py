@@ -1,4 +1,5 @@
 import json
+import os
 from collections import defaultdict
 from functools import lru_cache as f_cache
 from typing import Union, Collection
@@ -21,7 +22,7 @@ GRAPH = None
 class GraphDataBaseKEKL:
 
     def __init__(self):
-        self.path = "/Users/bianchignocchi/Developer/cogsys/0_ma/gasp/backend/src/viasp/server/graph.json"
+        self.path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "graph.json")
 
     def save(self, graph: Union[nx.Graph, dict]):
         if isinstance(graph, nx.Graph):
