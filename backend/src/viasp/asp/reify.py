@@ -14,8 +14,8 @@ def is_constraint(rule: Rule):
     return "atom" in rule.head.child_keys and rule.head.atom.ast_type == ASTType.BooleanConstant
 
 
-def is_fact(rule, depedants, conditions):
-    return len(rule.body) == 0 and not len(depedants) and not len(conditions)
+def is_fact(rule, depedants, conditions, deps):
+    return len(rule.body) == 0 and not len(depedants) and not len(conditions) and not len(deps)
 
 
 def make_signature(literal: clingo.ast.Literal) -> Tuple[str, int]:
@@ -30,7 +30,7 @@ def filter_body_arithmetic(elem: clingo.ast.Literal):
 class ProgramAnalyzer(Transformer):
     """
     Receives a ASP program and finds it's dependencies within, can sort a program by it's dependencies.
-    Will merge recursive rules and rules that produce the same head into a Transformation.
+    Will merge recursive rules and rules that produce the same head into a Transformation. TODO: is this sitll teh case
     """
 
     def __init__(self):
@@ -82,7 +82,7 @@ class ProgramAnalyzer(Transformer):
         dependants, conditions = [], []
         _ = self.visit(rule.head, in_head=True, dependants=dependants, conditions=conditions)
         conditions.extend(filter(filter_body_arithmetic, rule.body))
-        if is_fact(rule, dependants, conditions):
+        if is_fact(rule, dependants, conditions, {}):
             self.facts.add(rule.head)
         if not len(dependants) and len(rule.body) and not is_constraint(rule):
             dependants.append(rule.head)
@@ -142,12 +142,12 @@ class ProgramReifier(Transformer):
     def __init__(self, rule_nr=1):
         self.rule_nr = rule_nr
 
-    def _nest_rule_head_in_h(self, loc, dependants):
+    def _nest_rule_head_in_h(self, loc: ast.Location, dependant: ast.Literal):
         loc_fun = ast.Function(loc, str(self.rule_nr), [], False)
         loc_atm = ast.SymbolicAtom(loc_fun)
         loc_lit = ast.Literal(loc, ast.Sign.NoSign, loc_atm)
 
-        return [ast.Function(loc, "h", [loc_lit, dependant], 0) for dependant in dependants]
+        return [ast.Function(loc, "h", [loc_lit, dependant], 0)]
 
     def _make_head_switch(self, head: clingo.ast.AST, location):
         """In: H :- B.
@@ -169,42 +169,45 @@ class ProgramReifier(Transformer):
         new_head = ast.Function(loc, "model", [head], 0)
         return new_head
 
-    def visit_Aggregate(self, aggregate, in_head=True, dependants=[], conditions=[]):
+    def visit_Aggregate(self, aggregate, in_head=True, dependants=[], conditions=[], deps={}):
         conditional_literals = aggregate.elements
         for elem in conditional_literals:
-            self.visit(elem, dependants=dependants, conditions=conditions)
+            self.visit(elem, dependants=dependants, conditions=conditions, deps=deps)
         return aggregate
 
-    def visit_ConditionalLiteral(self, conditional_literal, in_head=True, dependants=[], conditions=[]):
+    def visit_ConditionalLiteral(self, conditional_literal, in_head=True, dependants=[], conditions=[], deps={}):
         self.visit(conditional_literal.literal)
         dependants.append(conditional_literal.literal)
+        deps[conditional_literal.literal] = []
         for condition in conditional_literal.condition:
             conditions.append(condition)
+            deps[conditional_literal.literal].append(condition)
         return conditional_literal
 
     def visit_Rule(self, rule: clingo.ast.Rule):
         print(f"Visiting rule {rule}")
         # Embed the head
-        dependants, conditions = [], []
+        dependants, conditions, deps = [], [], defaultdict(list)
         loc = rule.location
-        _ = self.visit(rule.head, in_head=True, dependants=dependants, conditions=conditions)
+        _ = self.visit(rule.head, in_head=True, dependants=dependants, conditions=conditions, deps=deps)
 
-        if is_fact(rule, dependants, conditions) or is_constraint(rule):
+        if is_fact(rule, dependants, conditions, deps) or is_constraint(rule):
             return [rule]
         if not dependants:
             # if it's a "simple head"
             dependants.append(rule.head)
+            deps[rule.head] = []
+        new_rules = []
+        for dependant, conditions in deps.items():
+            new_head_s = self._nest_rule_head_in_h(rule.location, dependant)
+            # Add reified head to body
+            new_body = [self._nest_rule_head_in_model(dependant)]
+            new_body.extend(rule.body)
+            new_body.extend(conditions)
+            new_rules.extend([Rule(rule.location, new_head, new_body) for new_head in new_head_s])
 
-        new_head_s = self._nest_rule_head_in_h(rule.location, dependants)
-        # Add reified head to body
-        new_body = [self._nest_rule_head_in_model(head) for head in dependants]
-        new_body.extend(rule.body)
-        new_body.extend(conditions)
-        new_rules = [Rule(rule.location, new_head, new_body) for new_head in new_head_s]
-
-        # Add switch statement for the head
-        head_switches = [self._make_head_switch(head, loc) for head in dependants]
-        new_rules.extend(head_switches)
+            # Add switch statement for the head
+            new_rules.append(self._make_head_switch(dependant, loc))
         return new_rules
 
 
