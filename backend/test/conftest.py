@@ -1,6 +1,6 @@
 import json
 from inspect import signature
-from typing import Dict
+from typing import Dict, List
 from uuid import uuid4
 
 import networkx as nx
@@ -16,8 +16,8 @@ from viasp.asp.reify import ProgramAnalyzer, reify_list
 from viasp.server.blueprints.api import bp as api_bp
 from viasp.server.blueprints.app import bp as app_bp
 from viasp.server.blueprints.dag_api import bp as dag_bp
-from viasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder
-from viasp.shared.model import ClingoMethodCall, Node
+from viasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder, model_to_json, clingo_model_to_stable_model
+from viasp.shared.model import ClingoMethodCall, Node, StableModel
 
 
 def create_app_with_registered_blueprints(*bps) -> Flask:
@@ -86,3 +86,15 @@ def clingo_call_run_sample():
         ClingoMethodCall.merge("ground", signature(signature_object.ground), [[("base", [])]], {}),
         ClingoMethodCall.merge("solve", signature(signature_object.solve), [], {"yield_": True})
     ]
+
+
+@pytest.fixture
+def clingo_stable_models() -> List[StableModel]:
+    ctl = Control(["0"])
+    ctl.add("base", [], "{b;c}.")
+    ctl.ground([("base", [])])
+    models = []
+    with ctl.solve(yield_=True) as h:
+        for m in h:
+            models.append(clingo_model_to_stable_model(m))
+    return models
