@@ -106,3 +106,8 @@ def get_filters():
 def clear_filters():
     storage.set("filter", [])
     return "", 200
+
+
+@bp.route("/ping", methods=["GET"])
+def check_available():
+    return "ok"

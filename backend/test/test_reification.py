@@ -111,9 +111,28 @@ def test_multiple_conditional_groups_in_head():
     assertProgramEqual(transform(rule), parse_program_to_ast(expected))
 
 
+def test_multiple_aggregates_in_body():
+    rule = "s(Y) :- r(Y), 2 #sum{X : p(X,Y), q(X) } 7."
+    expected = "#program base. h(1, s(Y)) :- model(s(Y)), r(Y),  2 #sum{X : p(X,Y), q(X) } 7. s(Y) :- h(_, s(Y))."
+    assertProgramEqual(transform(rule), parse_program_to_ast(expected))
+
+
 def test_disjunctions_in_head():
     rule = "p(X); q(X) :- r(X)."
-    expected = "#program base. h(1, p(X)) :- model(p(X)), r(X). p(X) :- h(_,p(X)). h(1, q(X)) :- model(q(X)), r(X). q(X) :- h(_,q(X))."
+    # TODO: Below breaks this. Javier will tell you how to fix it
+    # a.
+    # p(1);
+    # q(1).
+    # p(1): - a.
+    # q(1): - a.
+    # Stable
+    # models:
+    # a, p(1) | a, q(1)
+    expected = """#program base. 
+    h(1, p(X)) :- model(p(X)), r(X). 
+    p(X) :- h(_,p(X)).
+    h(1, q(X)) :- model(q(X)), r(X). 
+    q(X) :- h(_,q(X))."""
     assertProgramEqual(transform(rule), parse_program_to_ast(expected))
 
 
@@ -142,10 +161,23 @@ def multiple_non_recursive_rules_with_same_head_should_not_be_grouped():
     assert len(result) == 2, "Multiple rules with same head that are not recursive should not be grouped."
 
 
-def sorting_works():
-    program = "d :- c. b :- a. a. c :- b. "
-    transformer = ProgramReifier()
-    _ = transform(program, transformer)
+def test_sorting_facts_independent():
+    program = "c :- b. b :- a. a. "
+    transformer = ProgramAnalyzer()
+    result = transformer.sort_program(program)
+    assert len(result) == 2, "Facts should not be sorted."
+    assert str(next(iter(result[0].rules))) == "b :- a."
+    assert str(next(iter(result[1].rules))) == "c :- b."
+
+
+def test_sorting_behemoth():
+    program = "c(1). e(1). f(X,Y) :- b(X,Y). 1 #sum { X,Y : a(X,Y) : b(Y), c(X) ; X,Z : b(X,Z) : e(Z) } :- c(X). e(X) :- c(X)."
+    transformer = ProgramAnalyzer()
+    result = transformer.sort_program(program)
+    assert len(result) == 3
+    assert str(next(iter(result[0].rules))) == "e(X) :- c(X)."
+    assert str(next(iter(result[1].rules))) == "1 <= #sum { X,Y: a(X,Y): b(Y), c(X); X,Z: b(X,Z): e(Z) } :- c(X)."
+    assert str(next(iter(result[2].rules))) == "f(X,Y) :- b(X,Y)."
 
 
 def test_data_type_is_correct():
