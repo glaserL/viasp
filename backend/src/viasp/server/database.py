@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from os import PathLike
+from os.path import join, dirname, abspath
 from typing import Optional, Set, List
 from uuid import UUID
 
@@ -32,7 +33,7 @@ class Database(ABC):
 
 class ProgramDatabase:
     def __init__(self, path="prg.lp"):
-        self.path: str = path
+        self.path: str = join(dirname(abspath(__file__)), path)
 
     def get_program(self):
         prg = ""
