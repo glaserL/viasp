@@ -100,6 +100,23 @@ def test_head_aggregate_is_transformed_correctly():
     assertProgramEqual(transform(rule), parse_program_to_ast(expected))
 
 
+def test_multiple_conditional_groups_in_head():
+    rule = "1 #sum { X,Y : a(X,Y) : b(Y), c(X) ; X,Z : b(X,Z) : e(Z) }  :- c(X)."
+    expected = """#program base.
+    h(1, a(X,Y)) :- model(a(X,Y)), c(X), b(Y), c(X). 
+    a(X,Y) :- h(_, a(X,Y)).
+    h(1, b(X,Z)) :- model(b(X,Z)), c(X), e(Z). 
+    b(X,Z) :- h(_, b(X,Z)). 
+"""
+    assertProgramEqual(transform(rule), parse_program_to_ast(expected))
+
+
+def test_disjunctions_in_head():
+    rule = "p(X); q(X) :- r(X)."
+    expected = "#program base. h(1, p(X)) :- model(p(X)), r(X). p(X) :- h(_,p(X)). h(1, q(X)) :- model(q(X)), r(X). q(X) :- h(_,q(X))."
+    assertProgramEqual(transform(rule), parse_program_to_ast(expected))
+
+
 def test_dependency_graph_creation():
     program = "a. b :- a. c :- a."
 
