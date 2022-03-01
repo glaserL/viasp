@@ -171,7 +171,7 @@ def get_all_rules():
     return r
 
 
-@bp.route("/graph", methods=["POST", "GET"])
+@bp.route("/graph", methods=["POST", "GET", "DELETE"])
 def entire_graph():
     if request.method == "POST":
         data = request.json
@@ -180,6 +180,8 @@ def entire_graph():
     elif request.method == "GET":
         result = get_graph()
         return jsonify(result)
+    elif request.method == "DELETE":
+        clear_graph()
 
 
 def set_graph(data: DiGraph):
