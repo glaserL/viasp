@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import networkx as nx
 from flask import render_template, Blueprint, request, abort, jsonify
 
 from ...shared.io import DataclassJSONEncoder, DataclassJSONDecoder
@@ -28,6 +27,9 @@ class Settings:
     def _load(self):
         with open(self.path, "r", encoding="utf-8") as f:
             return json.load(f, cls=DataclassJSONDecoder)
+
+    def get_all(self):
+        return self._load()
 
     def get(self, key, default=None):
         if default is None:
@@ -62,11 +64,13 @@ def change_setting(key: str, value: Any):
     storage.set(key, value)
 
 
-@bp.route("/settings/", methods=["GET", "POST"])
+@bp.route("/settings", methods=["GET", "POST"])
 def settings():
     if request.method == "POST":
         for key, value in request.args.items():
             change_setting(key, value)
+    if request.method == "GET":
+        return storage.get_all()
     return "ok"
 
 

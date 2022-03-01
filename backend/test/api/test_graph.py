@@ -39,7 +39,6 @@ def test_set_graph(serializable_graph, client_with_a_graph):
     assert len(res.json) >= 0
 
 
-
 def test_get_node(client_with_a_graph, single_node_graph):
     client_with_a_graph.delete("graph/clear")
     uuid = list(single_node_graph.nodes)[0].uuid

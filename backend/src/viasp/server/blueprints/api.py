@@ -1,7 +1,7 @@
 import json
 from typing import Tuple, Any, Dict, Iterable
 
-from flask import request, Blueprint, jsonify, abort
+from flask import request, Blueprint, jsonify, abort, Response
 from networkx import node_link_data
 
 from .dag_api import set_graph
@@ -27,13 +27,21 @@ def handle_call_received(call: ClingoMethodCall) -> None:
         abort(666)
 
 
+def handle_calls_received(calls: Iterable[ClingoMethodCall]) -> None:
+    for call in calls:
+        handle_call_received(call)
+
+
 @bp.route("/control/call", methods=["POST"])
 def add_call():
     if request.method == "POST":
         call = request.json
-        if not isinstance(call, ClingoMethodCall):
-            return "Invalid call object", 400
-        handle_call_received(call)
+        if isinstance(call, ClingoMethodCall):
+            handle_call_received(call)
+        if isinstance(call, list):
+            handle_calls_received(call)
+        else:
+            abort(Response("Invalid call object", 400))
     return "ok"
 
 
@@ -62,7 +70,7 @@ class DataContainer:
 dc = DataContainer()
 
 
-def handle_models_recieved(parsed_models):
+def handle_models_received(parsed_models):
     dc.hihi = parsed_models
 
 
@@ -73,7 +81,7 @@ def set_stable_models():
             parsed_models = request.json
         except BaseException:
             return "Invalid model object", 400
-        handle_models_recieved(parsed_models)
+        handle_models_received(parsed_models)
     elif request.method == "GET":
         return jsonify(dc.hihi)
     return "ok"
@@ -107,10 +115,6 @@ def paint_model():
     analyzer.add_program(db.get_program())
     reified = reify_list(analyzer.get_sorted_program())
     g = build_graph(marked_models, reified, analyzer)
-    #
-    # analyzer = ProgramAnalyzer()
-    # sorted_program = analyzer.sort_program(orig_program)
-    # saved_models = get_stable_models_for_program(orig_program)
-    # reified = reify_list(sorted_program)
+    
     set_graph(g)
     return "ok", 200
