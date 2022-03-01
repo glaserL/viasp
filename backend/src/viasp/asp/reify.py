@@ -7,15 +7,15 @@ from clingo import ast, Symbol
 from clingo.ast import Transformer, parse_string, Rule, ASTType, AST, Literal
 
 from ..asp.utils import merge_cycles, remove_loops
-from ..shared.model import Node, Transformation
+from ..shared.model import Transformation
 
 
 def is_constraint(rule: Rule):
     return "atom" in rule.head.child_keys and rule.head.atom.ast_type == ASTType.BooleanConstant
 
 
-def is_fact(rule, depedants, conditions, deps):
-    return len(rule.body) == 0 and not len(depedants) and not len(conditions) and not len(deps)
+def is_fact(rule, dependencies):
+    return len(rule.body) == 0 and not len(dependencies)
 
 
 def make_signature(literal: clingo.ast.Literal) -> Tuple[str, int]:
@@ -27,7 +27,23 @@ def filter_body_arithmetic(elem: clingo.ast.Literal):
     return elem.atom.ast_type != ASTType.Comparison
 
 
-class ProgramAnalyzer(Transformer):
+class DependencyCollector(Transformer):
+
+    def visit_Aggregate(self, aggregate, deps={}):
+        conditional_literals = aggregate.elements
+        for elem in conditional_literals:
+            self.visit(elem, deps=deps)
+        return aggregate
+
+    def visit_ConditionalLiteral(self, conditional_literal, deps={}):
+        self.visit(conditional_literal.literal)
+        deps[conditional_literal.literal] = []
+        for condition in conditional_literal.condition:
+            deps[conditional_literal.literal].append(condition)
+        return conditional_literal
+
+
+class ProgramAnalyzer(DependencyCollector):
     """
     Receives a ASP program and finds it's dependencies within, can sort a program by it's dependencies.
     Will merge recursive rules and rules that produce the same head into a Transformation. TODO: is this sitll teh case
@@ -47,47 +63,33 @@ class ProgramAnalyzer(Transformer):
     def get_constants(self):
         return self.constants
 
-    def visit_Aggregate(self, aggregate, in_head=True, dependants=[], conditions=[]):
-        conditional_literals = aggregate.elements
-        for elem in conditional_literals:
-            self.visit(elem, dependants=dependants, conditions=conditions)
-        return aggregate
-
-    def visit_ConditionalLiteral(self, conditional_literal, in_head=True, dependants=[], conditions=[]):
-        self.visit(conditional_literal.literal)
-        dependants.append(conditional_literal.literal)
-        for condition in filter(filter_body_arithmetic, conditional_literal.condition):
-            conditions.append(condition)
-        return conditional_literal
-
-    def register_symbolic_dependencies(self, dependants, conditions):
-        for u in conditions:
-            for v in dependants:
+    def register_symbolic_dependencies(self, deps: Dict[Literal, List[Literal]]):
+        for u, conditions in deps.items():
+            for v in conditions:
                 self.dependencies.add_edge(u, v)
 
-    def register_rule_dependencies(self, rule: Rule,
-                                   dependants: Collection[Literal],
-                                   conditions: Collection[Literal]) -> None:
-        for u in conditions:
-            u_sig = make_signature(u)
-            self.conditions[u_sig].add(rule)
-        for v in dependants:
+    def register_rule_dependencies(self, rule: Rule, deps: Dict[Literal, List[Literal]]) -> None:
+        for uu in deps.values():
+            for u in uu:
+                u_sig = make_signature(u)
+                self.conditions[u_sig].add(rule)
+
+        for v in deps.keys():
             v_sig = make_signature(v)
             self.dependants[v_sig].add(rule)
 
     def visit_Rule(self, rule: Rule):
-        if not str(rule).startswith("initial"):
-            x = 2
+        deps = defaultdict(list)
+        _ = self.visit(rule.head, deps=deps)
 
-        dependants, conditions = [], []
-        _ = self.visit(rule.head, in_head=True, dependants=dependants, conditions=conditions)
-        conditions.extend(filter(filter_body_arithmetic, rule.body))
-        if is_fact(rule, dependants, conditions, {}):
+        if is_fact(rule, deps):
             self.facts.add(rule.head)
-        if not len(dependants) and len(rule.body) and not is_constraint(rule):
-            dependants.append(rule.head)
-        self.register_symbolic_dependencies(dependants, conditions)
-        self.register_rule_dependencies(rule, dependants, conditions)
+        if not len(deps) and len(rule.body) and not is_constraint(rule):
+            deps[rule.head] = []
+        for _, cond in deps.items():
+            cond.extend(filter(filter_body_arithmetic, rule.body))
+        self.register_symbolic_dependencies(deps)
+        self.register_rule_dependencies(rule, deps)
 
     def visit_Definition(self, definition):
         self.constants.add(definition)
@@ -137,7 +139,7 @@ class ProgramAnalyzer(Transformer):
         return program
 
 
-class ProgramReifier(Transformer):
+class ProgramReifier(DependencyCollector):
 
     def __init__(self, rule_nr=1):
         self.rule_nr = rule_nr
@@ -169,33 +171,16 @@ class ProgramReifier(Transformer):
         new_head = ast.Function(loc, "model", [head], 0)
         return new_head
 
-    def visit_Aggregate(self, aggregate, in_head=True, dependants=[], conditions=[], deps={}):
-        conditional_literals = aggregate.elements
-        for elem in conditional_literals:
-            self.visit(elem, dependants=dependants, conditions=conditions, deps=deps)
-        return aggregate
-
-    def visit_ConditionalLiteral(self, conditional_literal, in_head=True, dependants=[], conditions=[], deps={}):
-        self.visit(conditional_literal.literal)
-        dependants.append(conditional_literal.literal)
-        deps[conditional_literal.literal] = []
-        for condition in conditional_literal.condition:
-            conditions.append(condition)
-            deps[conditional_literal.literal].append(condition)
-        return conditional_literal
-
     def visit_Rule(self, rule: clingo.ast.Rule):
-        print(f"Visiting rule {rule}")
         # Embed the head
-        dependants, conditions, deps = [], [], defaultdict(list)
+        deps = defaultdict(list)
         loc = rule.location
-        _ = self.visit(rule.head, in_head=True, dependants=dependants, conditions=conditions, deps=deps)
+        _ = self.visit(rule.head, deps=deps)
 
-        if is_fact(rule, dependants, conditions, deps) or is_constraint(rule):
+        if is_fact(rule, deps) or is_constraint(rule):
             return [rule]
-        if not dependants:
+        if not deps:
             # if it's a "simple head"
-            dependants.append(rule.head)
             deps[rule.head] = []
         new_rules = []
         for dependant, conditions in deps.items():
@@ -244,7 +229,7 @@ def reify_list(transformations: Iterable[Transformation]) -> List[AST]:
     return reified
 
 
-def extract_symbols(facts, constants=[]):
+def extract_symbols(facts, constants=set()):
     ctl = clingo.Control()
     ctl.add("INTERNAL", [], "".join(f"{str(f)}." for f in facts))
     ctl.add("INTERNAL", [], "".join(f"{str(c)}" for c in constants))
