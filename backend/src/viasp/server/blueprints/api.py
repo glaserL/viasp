@@ -38,7 +38,7 @@ def add_call():
         call = request.json
         if isinstance(call, ClingoMethodCall):
             handle_call_received(call)
-        if isinstance(call, list):
+        elif isinstance(call, list):
             handle_calls_received(call)
         else:
             abort(Response("Invalid call object", 400))
@@ -115,6 +115,6 @@ def paint_model():
     analyzer.add_program(db.get_program())
     reified = reify_list(analyzer.get_sorted_program())
     g = build_graph(marked_models, reified, analyzer)
-    
+
     set_graph(g)
     return "ok", 200
