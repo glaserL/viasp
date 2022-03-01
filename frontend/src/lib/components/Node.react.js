@@ -11,7 +11,7 @@ import {useSettings} from "../contexts/Settings";
 function Symbol(props) {
     const {symbol} = props;
     let atomString = make_atoms_string(symbol)
-    atomString = atomString.length === 0 ? "Ø" : atomString;
+    atomString = atomString.length === 0 ? "" : atomString;
     return <div className={"symbol"}>{atomString}</div>
 }
 
@@ -37,7 +37,7 @@ function NodeContent(props) {
         return <Symbol key={JSON.stringify(s)} symbol={s}/>
     })
     return <div className={containerNames} style={{"color": colorPalette.thirty}}>
-        <span className={classNames2}>{renderedSymbols.length > 0 ? renderedSymbols : "Ø"}</span>
+        <span className={classNames2}>{renderedSymbols.length > 0 ? renderedSymbols : ""}</span>
     </div>
 }
 
