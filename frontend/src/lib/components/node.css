@@ -47,6 +47,8 @@
     width: fit-content;;
     width: -moz-fit-content;
     display: flex;
+    padding-left: 0.25em;
+    padding-right: 0.25em;
 }
 
 
