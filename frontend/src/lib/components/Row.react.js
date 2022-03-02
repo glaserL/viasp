@@ -3,7 +3,7 @@ import {Node} from "./Node.react";
 import './row.css';
 import PropTypes from "prop-types";
 import {RowHeader} from "./RowHeader.react";
-import {HiddenRulesContext} from "../contexts/HiddenRulesContext";
+import {toggleRule, useRules} from "../contexts/rules";
 import {useSettings} from "../contexts/Settings";
 
 function loadMyAsyncData(id, backendURL) {
@@ -16,7 +16,7 @@ export function Row(props) {
     const [overflowBreakingPoint, setOverflowBreakingPoint] = useState(null);
     const {transformation, notifyClick} = props;
     const ref = useRef(null);
-    const [hiddenRules, triggerUpdate] = useContext(HiddenRulesContext);
+    const {state: {rules}, dispatch} = useRules();
     const {backendURL} = useSettings();
     useEffect(() => {
         let mounted = true;
@@ -62,11 +62,11 @@ export function Row(props) {
             </div>
         )
     }
-    const hideNodes = hiddenRules.includes(transformation.id)
+    const showNodes = rules.find(({rule, shown}) => transformation.id === rule.id && shown)
     return <div className="row_container">
-        <RowHeader onToggle={() => triggerUpdate(transformation.id)} rule={transformation.rules}
-                   contentIsHidden={!hideNodes}/>
-        {hideNodes ? null :
+        <RowHeader onToggle={() => dispatch(toggleRule(transformation))} rule={transformation.rules}
+                   contentIsShown={showNodes}/>
+        {!showNodes ? null :
             <div ref={ref} className="row_row">{nodes.map((child) => <Node key={child.uuid} node={child}
                                                                            showMini={isOverflowH}
                                                                            notifyClick={notifyClick}/>)}</div>

@@ -17,9 +17,9 @@ backgroundColor: ${props => props.colorPalette.sixty};
 
 
 export function RowHeader(props) {
-    const {rule, onToggle, contentIsHidden} = props;
+    const {rule, onToggle, contentIsShown} = props;
     const colorPalette = useColorPalette();
-    const hideOrShowButton = contentIsHidden ? "hide" : "show"
+    const hideOrShowButton = contentIsShown ? "hide" : "show"
     return <div className="row_header">
         <div className="row_header_bar" style={{"backgroundColor": colorPalette.sixty}}>
             <ColoredRowHeaderToggle colorPalette={colorPalette}>
@@ -40,7 +40,7 @@ RowHeader.propTypes = {
     /**
      * Whether the user has decided to show or hide the content of the row
      */
-    contentIsHidden: PropTypes.bool,
+    contentIsShown: PropTypes.bool,
 
     /**
      * A callback function when the user clicks on the RuleHeader
