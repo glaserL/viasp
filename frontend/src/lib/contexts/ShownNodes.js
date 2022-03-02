@@ -38,7 +38,7 @@ ShownNodesProvider.propTypes = {
     /**
      * The nodes that are shown initially. Is empty I think.
      */
-    initialState: PropTypes.array,
+    initialState: PropTypes.object,
     /**
      * The reducer function (TODO: Why is this here?)
      */
