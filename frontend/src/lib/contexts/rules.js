@@ -2,9 +2,6 @@ import {showError, useMessages} from "./UserMessages";
 import {useSettings} from "./Settings";
 import React from "react";
 import PropTypes from "prop-types";
-import {filterReducer} from "./Filters";
-
-export const HiddenRulesContext = React.createContext([]);
 
 function fetchRules(backendURL) {
     return fetch(`${backendURL("rules")}`).then(r => {
@@ -90,4 +87,4 @@ const useRules = () => React.useContext(RulesContext);
 RulesProvider.propTypes = {
     children: PropTypes.element,
 }
-export {RulesProvider, RulesContext, useRules}
+export {RulesProvider, RulesContext, useRules, toggleRule}

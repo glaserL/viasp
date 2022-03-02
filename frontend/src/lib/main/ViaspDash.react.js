@@ -8,7 +8,7 @@ import {Facts} from "../components/Facts.react";
 import "./header.css";
 import {Edges} from "../components/Edges.react";
 import {initialState, nodeReducer, ShownNodesProvider} from "../contexts/ShownNodes";
-import {HiddenRulesContext, RulesProvider, useRules} from "../contexts/HiddenRulesContext";
+import {RulesProvider, useRules} from "../contexts/rules";
 import {ColorPaletteProvider} from "../contexts/ColorPalette";
 import {HighlightedNodeProvider} from "../contexts/HighlightedNode";
 import {showError, useMessages, UserMessagesProvider} from "../contexts/UserMessages";
@@ -39,7 +39,6 @@ function GraphContainer(props) {
 function MainWindow(props) {
     const {callback} = props;
     const [detail, setDetail] = useState(null)
-    const [hiddenRules, setHiddenRules] = useState([]);
     const {backendURL} = useSettings();
     const {state: {rules}} = useRules()
 
@@ -50,30 +49,17 @@ function MainWindow(props) {
         })
     }, [])
 
-    function triggerUpdate(toggle_id) {
-        if (hiddenRules.includes(toggle_id)) {
-            const updated = hiddenRules.filter(item => item !== toggle_id)
-            setHiddenRules(updated)
-        } else {
-            const updated = [...hiddenRules]
-            updated.push(toggle_id)
-            setHiddenRules(updated)
-        }
-    }
-
     if (!rules || rules.length === 0) {
         return null
     }
     return <div><Detail shows={detail} clearDetail={() => setDetail(null)}/>
         <div className="content">
             <ShownNodesProvider initialState={initialState} reducer={nodeReducer}>
-                <HiddenRulesContext.Provider value={[hiddenRules, triggerUpdate]}>
-                    <Search/>
-                    <GraphContainer setDetail={setDetail} callback={callback}/>
-                    {
-                        rules.length === 0 ? null : <Edges/>
-                    }
-                </HiddenRulesContext.Provider>
+                <Search/>
+                <GraphContainer setDetail={setDetail} callback={callback}/>
+                {
+                    rules.length === 0 ? null : <Edges/>
+                }
             </ShownNodesProvider>
         </div>
     </div>
