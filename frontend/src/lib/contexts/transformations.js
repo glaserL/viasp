@@ -1,0 +1,94 @@
+import {showError, useMessages} from "./UserMessages";
+import {useSettings} from "./Settings";
+import React from "react";
+import PropTypes from "prop-types";
+
+function fetchTransformations(backendURL) {
+    return fetch(`${backendURL("rules")}`).then(r => {
+        if (r.ok) {
+            return r.json()
+        }
+        throw new Error(r.statusText);
+
+    });
+}
+
+const initialState = {
+    transformations: [],
+};
+
+const HIDE_TRANSFORMATION = 'APP/TRANSFORMATIONS/HIDE';
+const SHOW_TRANSFORMATION = 'APP/TRANSFORMATIONS/SHOW';
+const TOGGLE_TRANSFORMATION = 'APP/TRANSFORMATIONS/TOGGLE';
+const ADD_TRANSFORMATION = 'APP/TRANSFORMATIONS/ADD';
+const hideTransformation = (t) => ({type: HIDE_TRANSFORMATION, t})
+const showTransformation = (t) => ({type: SHOW_TRANSFORMATION, t})
+const toggleTransformation = (t) => ({type: TOGGLE_TRANSFORMATION, t})
+const addTransformation = (t) => ({type: ADD_TRANSFORMATION, t})
+const TransformationContext = React.createContext();
+
+const transformationReducer = (state = initialState, action) => {
+    console.log(`Reducing ${JSON.stringify(state)}, ${JSON.stringify(action)}`)
+    if (action.type === ADD_TRANSFORMATION) {
+        return {
+            ...state,
+            transformations: state.transformations.concat({transformation: action.t, shown: true})
+        }
+    }
+    if (action.type === SHOW_TRANSFORMATION) {
+        return {
+            ...state,
+            transformations: state.transformations.map(container => container.transformation === action.t ? {
+                transformation: container.transformation,
+                shown: true
+            } : container)
+        }
+    }
+    if (action.type === HIDE_TRANSFORMATION) {
+        return {
+            ...state,
+            transformations: state.transformations.map(container => container.transformation === action.t ? {
+                transformation: container.transformation,
+                shown: false
+            } : container)
+        }
+    }
+    if (action.type === TOGGLE_TRANSFORMATION) {
+        return {
+            ...state,
+            transformations: state.transformations.map(container => container.transformation === action.t ? {
+                transformation: container.transformation,
+                shown: !container.shown
+            } : container)
+        }
+    }
+    return {...state}
+}
+
+const TransformationProvider = ({children}) => {
+    const [, message_dispatch] = useMessages()
+    const {backendURL} = useSettings();
+    const [state, dispatch] = React.useReducer(transformationReducer, initialState);
+
+    React.useEffect(() => {
+        let mounted = true;
+        fetchTransformations(backendURL).catch(error => {
+            message_dispatch(showError(`Failed to get transformations: ${error}`))
+        })
+            .then(items => {
+                console.log(`Setting ${items.length} `)
+                if (mounted) {
+                    items.map((t) => (dispatch(addTransformation(t))))
+                }
+            })
+        return () => mounted = false;
+    }, []);
+    return <TransformationContext.Provider value={{state, dispatch}}>{children}</TransformationContext.Provider>
+}
+
+const useTransformations = () => React.useContext(TransformationContext);
+
+TransformationProvider.propTypes = {
+    children: PropTypes.element,
+}
+export {TransformationProvider, TransformationContext, useTransformations, toggleTransformation}

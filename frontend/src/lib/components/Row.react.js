@@ -3,7 +3,7 @@ import {Node} from "./Node.react";
 import './row.css';
 import PropTypes from "prop-types";
 import {RowHeader} from "./RowHeader.react";
-import {toggleRule, useRules} from "../contexts/rules";
+import {toggleTransformation, useTransformations} from "../contexts/transformations";
 import {useSettings} from "../contexts/Settings";
 
 function loadMyAsyncData(id, backendURL) {
@@ -16,7 +16,7 @@ export function Row(props) {
     const [overflowBreakingPoint, setOverflowBreakingPoint] = useState(null);
     const {transformation, notifyClick} = props;
     const ref = useRef(null);
-    const {state: {rules}, dispatch} = useRules();
+    const {state: {transformations}, dispatch} = useTransformations();
     const {backendURL} = useSettings();
     useEffect(() => {
         let mounted = true;
@@ -57,14 +57,14 @@ export function Row(props) {
     if (nodes === null) {
         return (
             <div className="row_container">
-                <RowHeader rule={transformation.rules}/>
+                <RowHeader transformation={transformation.rules}/>
                 <div>Loading Transformations..</div>
             </div>
         )
     }
-    const showNodes = rules.find(({rule, shown}) => transformation.id === rule.id && shown)
+    const showNodes = transformations.find(({transformation: t, shown}) => transformation.id === t.id && shown)
     return <div className="row_container">
-        <RowHeader onToggle={() => dispatch(toggleRule(transformation))} rule={transformation.rules}
+        <RowHeader onToggle={() => dispatch(toggleTransformation(transformation))} transformation={transformation.rules}
                    contentIsShown={showNodes}/>
         {!showNodes ? null :
             <div ref={ref} className="row_row">{nodes.map((child) => <Node key={child.uuid} node={child}
