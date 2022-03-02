@@ -16,7 +16,7 @@ function Symbol(props) {
 }
 
 Symbol.propTypes = {
-    symbol: PropTypes.array
+    symbol: PropTypes.object
 }
 
 function NodeContent(props) {
@@ -86,13 +86,13 @@ export function Node(props) {
     })
 
 
-    return <div className={classNames} style={{"background-color": colorPalette.sixty, "color": colorPalette.ten}}
+    return <div className={classNames} style={{"backgroundColor": colorPalette.sixty, "color": colorPalette.ten}}
                 id={node.uuid} onClick={() => notifyClick(node)}>
-        {showMini ? <div style={{"background-color": colorPalette.thirty, "color": colorPalette.ten}}
+        {showMini ? <div style={{"backgroundColor": colorPalette.thirty, "color": colorPalette.ten}}
                          className={"mini"}>{node.atoms.length}</div> :
             <div className={"set_too_high"} ref={ref}><NodeContent node={node}/></div>}
         {!showMini && isOverflowV ?
-            <div style={{"background-color": colorPalette.ten, "color": colorPalette.thirty}}
+            <div style={{"backgroundColor": colorPalette.ten, "color": colorPalette.thirty}}
                  className={"bauchbinde"}>...</div> : null}
     </div>
 }
