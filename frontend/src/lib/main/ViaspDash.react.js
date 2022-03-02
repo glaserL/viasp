@@ -8,54 +8,40 @@ import {Facts} from "../components/Facts.react";
 import "./header.css";
 import {Edges} from "../components/Edges.react";
 import {initialState, nodeReducer, ShownNodesProvider} from "../contexts/ShownNodes";
-import {HiddenRulesContext} from "../contexts/HiddenRulesContext";
+import {HiddenRulesContext, RulesProvider, useRules} from "../contexts/HiddenRulesContext";
 import {ColorPaletteProvider} from "../contexts/ColorPalette";
 import {HighlightedNodeProvider} from "../contexts/HighlightedNode";
 import {showError, useMessages, UserMessagesProvider} from "../contexts/UserMessages";
 import {Settings} from "../components/settings";
 import {UserMessages} from "../components/messages";
 import {DEFAULT_BACKEND_URL, SettingsProvider, useSettings} from "../contexts/Settings";
-
-function loadMyAsyncData(backendURL) {
-    return fetch(`${backendURL("rules")}`).then(r => {
-        if (r.ok) {
-            return r.json()
-        }
-        throw new Error(r.statusText);
-
-    });
-}
+import {FilterProvider} from "../contexts/Filters";
 
 
-function useRules() {
-    const [rules, setRules] = useState([])
-    const [, dispatch] = useMessages()
-    const {backendURL} = useSettings();
-
-    useEffect(() => {
-        let mounted = true;
-        loadMyAsyncData(backendURL).catch(error => {
-            dispatch(showError(`Failed to get rules: ${error}`))
-        })
-            .then(items => {
-                console.log(`Setting ${items.length} `)
-                if (mounted) {
-                    setRules(items)
-                }
-            })
-        return () => mounted = false;
-    }, []);
-    return rules;
+function GraphContainer(props) {
+    const {setDetail, callback} = props;
+    const {state: {rules}} = useRules()
+    return <div className="graph_container">
+        <Facts notifyClick={(clickedOn) => {
+            notify(callback, clickedOn)
+            setDetail(clickedOn.uuid)
+        }}/><Settings/>
+        {rules.map(({rule}) => <Row
+            key={rule.id}
+            transformation={rule}
+            notifyClick={(clickedOn) => {
+                notify(callback, clickedOn)
+                setDetail(clickedOn.uuid)
+            }}/>)}</div>
 
 }
-
 
 function MainWindow(props) {
     const {callback} = props;
     const [detail, setDetail] = useState(null)
-    const rules = useRules()
     const [hiddenRules, setHiddenRules] = useState([]);
     const {backendURL} = useSettings();
+    const {state: {rules}} = useRules()
 
     const [, dispatch] = useMessages()
     useEffect(() => {
@@ -82,20 +68,11 @@ function MainWindow(props) {
         <div className="content">
             <ShownNodesProvider initialState={initialState} reducer={nodeReducer}>
                 <HiddenRulesContext.Provider value={[hiddenRules, triggerUpdate]}>
-                    <div className="graph_container">
-                        <Facts notifyClick={(clickedOn) => {
-                            notify(callback, clickedOn)
-                            setDetail(clickedOn.uuid)
-                        }}/><Settings/>
-                        {rules.map((transformation) => <Row
-                            key={transformation.id}
-                            transformation={transformation}
-                            notifyClick={(clickedOn) => {
-                                notify(callback, clickedOn)
-                                setDetail(clickedOn.uuid)
-                            }}/>)}</div>
                     <Search/>
-                    {rules.length === 0 ? null : <Edges/>}
+                    <GraphContainer setDetail={setDetail} callback={callback}/>
+                    {
+                        rules.length === 0 ? null : <Edges/>
+                    }
                 </HiddenRulesContext.Provider>
             </ShownNodesProvider>
         </div>
@@ -110,10 +87,14 @@ export default function ViaspDash(props) {
         <ColorPaletteProvider colorPalette={colors}>
             <UserMessagesProvider>
                 <HighlightedNodeProvider>
-                    <SettingsProvider backendURL={backendURL}>
-                        <UserMessages/>
-                        <MainWindow callback={setProps}/>
-                    </SettingsProvider>
+                    <FilterProvider>
+                        <SettingsProvider backendURL={backendURL}>
+                            <RulesProvider>
+                                <UserMessages/>
+                                <MainWindow callback={setProps}/>
+                            </RulesProvider>
+                        </SettingsProvider>
+                    </FilterProvider>
                 </HighlightedNodeProvider>
             </UserMessagesProvider>
         </ColorPaletteProvider>
