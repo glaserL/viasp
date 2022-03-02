@@ -20,19 +20,32 @@ const initialState = {
 const HIDE_TRANSFORMATION = 'APP/TRANSFORMATIONS/HIDE';
 const SHOW_TRANSFORMATION = 'APP/TRANSFORMATIONS/SHOW';
 const TOGGLE_TRANSFORMATION = 'APP/TRANSFORMATIONS/TOGGLE';
+const SHOW_ONLY_TRANSFORMATION = 'APP/TRANSFORMATIONS/ONLY';
 const ADD_TRANSFORMATION = 'APP/TRANSFORMATIONS/ADD';
 const hideTransformation = (t) => ({type: HIDE_TRANSFORMATION, t})
 const showTransformation = (t) => ({type: SHOW_TRANSFORMATION, t})
 const toggleTransformation = (t) => ({type: TOGGLE_TRANSFORMATION, t})
+const showOnlyTransformation = (t) => ({type: SHOW_ONLY_TRANSFORMATION, t})
 const addTransformation = (t) => ({type: ADD_TRANSFORMATION, t})
 const TransformationContext = React.createContext();
 
 const transformationReducer = (state = initialState, action) => {
-    console.log(`Reducing ${JSON.stringify(state)}, ${JSON.stringify(action)}`)
     if (action.type === ADD_TRANSFORMATION) {
         return {
             ...state,
             transformations: state.transformations.concat({transformation: action.t, shown: true})
+        }
+    }
+    if (action.type === SHOW_ONLY_TRANSFORMATION) {
+        return {
+            ...state,
+            transformations: state.transformations.map(container => container.transformation.id !== action.t.id ? {
+                transformation: container.transformation,
+                shown: false
+            } : {
+                transformation: container.transformation,
+                shown: true
+            })
         }
     }
     if (action.type === SHOW_TRANSFORMATION) {
@@ -91,4 +104,4 @@ const useTransformations = () => React.useContext(TransformationContext);
 TransformationProvider.propTypes = {
     children: PropTypes.element,
 }
-export {TransformationProvider, TransformationContext, useTransformations, toggleTransformation}
+export {TransformationProvider, TransformationContext, useTransformations, toggleTransformation, showOnlyTransformation}
