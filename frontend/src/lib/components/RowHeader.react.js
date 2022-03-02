@@ -1,6 +1,5 @@
-import React, {useState} from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import styles from './row.css'
 import styled from 'styled-components';
 import {useColorPalette} from "../contexts/ColorPalette";
 
@@ -17,7 +16,7 @@ backgroundColor: ${props => props.colorPalette.sixty};
 
 
 export function RowHeader(props) {
-    const {rule, onToggle, contentIsShown} = props;
+    const {transformation, onToggle, contentIsShown} = props;
     const colorPalette = useColorPalette();
     const hideOrShowButton = contentIsShown ? "hide" : "show"
     return <div className="row_header">
@@ -27,7 +26,7 @@ export function RowHeader(props) {
             </ColoredRowHeaderToggle>
         </div>
         <div style={{"backgroundColor": colorPalette.sixty, "color": colorPalette.thirty}}
-             className="row_header_rule">{rule}
+             className="row_header_rule">{transformation}
         </div>
     </div>
 }
@@ -36,7 +35,7 @@ RowHeader.propTypes = {
     /**
      * The rule string to be displayed in the header
      */
-    rule: PropTypes.array,
+    transformation: PropTypes.array,
     /**
      * Whether the user has decided to show or hide the content of the row
      */

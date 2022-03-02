@@ -8,7 +8,7 @@ import {Facts} from "../components/Facts.react";
 import "./header.css";
 import {Edges} from "../components/Edges.react";
 import {initialState, nodeReducer, ShownNodesProvider} from "../contexts/ShownNodes";
-import {RulesProvider, useRules} from "../contexts/rules";
+import {TransformationProvider, useTransformations} from "../contexts/transformations";
 import {ColorPaletteProvider} from "../contexts/ColorPalette";
 import {HighlightedNodeProvider} from "../contexts/HighlightedNode";
 import {showError, useMessages, UserMessagesProvider} from "../contexts/UserMessages";
@@ -20,19 +20,22 @@ import {FilterProvider} from "../contexts/Filters";
 
 function GraphContainer(props) {
     const {setDetail, callback} = props;
-    const {state: {rules}} = useRules()
+    const {state: {transformations}} = useTransformations()
     return <div className="graph_container">
         <Facts notifyClick={(clickedOn) => {
             notify(callback, clickedOn)
             setDetail(clickedOn.uuid)
         }}/><Settings/>
-        {rules.map(({rule}) => <Row
-            key={rule.id}
-            transformation={rule}
-            notifyClick={(clickedOn) => {
-                notify(callback, clickedOn)
-                setDetail(clickedOn.uuid)
-            }}/>)}</div>
+        {transformations.map(({transformation}) => {
+            console.log(transformation)
+            return <Row
+                key={transformation.id}
+                transformation={transformation}
+                notifyClick={(clickedOn) => {
+                    notify(callback, clickedOn)
+                    setDetail(clickedOn.uuid)
+                }}/>
+        })}</div>
 
 }
 
@@ -40,7 +43,7 @@ function MainWindow(props) {
     const {callback} = props;
     const [detail, setDetail] = useState(null)
     const {backendURL} = useSettings();
-    const {state: {rules}} = useRules()
+    const {state: {transformations}} = useTransformations()
 
     const [, dispatch] = useMessages()
     useEffect(() => {
@@ -49,7 +52,7 @@ function MainWindow(props) {
         })
     }, [])
 
-    if (!rules || rules.length === 0) {
+    if (!transformations || transformations.length === 0) {
         return null
     }
     return <div><Detail shows={detail} clearDetail={() => setDetail(null)}/>
@@ -58,7 +61,7 @@ function MainWindow(props) {
                 <Search/>
                 <GraphContainer setDetail={setDetail} callback={callback}/>
                 {
-                    rules.length === 0 ? null : <Edges/>
+                    transformations.length === 0 ? null : <Edges/>
                 }
             </ShownNodesProvider>
         </div>
@@ -75,10 +78,12 @@ export default function ViaspDash(props) {
                 <HighlightedNodeProvider>
                     <FilterProvider>
                         <SettingsProvider backendURL={backendURL}>
-                            <RulesProvider>
-                                <UserMessages/>
-                                <MainWindow callback={setProps}/>
-                            </RulesProvider>
+                            <TransformationProvider>
+                                <div>
+                                    <UserMessages/>
+                                    <MainWindow callback={setProps}/>
+                                </div>
+                            </TransformationProvider>
                         </SettingsProvider>
                     </FilterProvider>
                 </HighlightedNodeProvider>
