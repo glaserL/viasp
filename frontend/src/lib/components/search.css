@@ -6,11 +6,18 @@
 }
 
 
-.search_set:before {
+.search_node:before {
     content: "{}";
     position: absolute;
     left: 0;
     color: #FF1C89;
+}
+
+.search_signature:before {
+    content: "/";
+    position: absolute;
+    left: 0;
+    color: #AAAA55;
 }
 
 
@@ -47,6 +54,10 @@
     border-radius: 500px;
     left: 0;
     background-color: #cccccc;
+}
+
+.active_filters_list {
+    list-style: none;
 }
 
 .close {
