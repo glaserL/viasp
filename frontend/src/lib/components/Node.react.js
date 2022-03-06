@@ -6,7 +6,17 @@ import {hideNode, showNode, useShownNodes} from "../contexts/ShownNodes";
 import {useColorPalette} from "../contexts/ColorPalette";
 import {useHighlightedNode} from "../contexts/HighlightedNode";
 import {useSettings} from "../contexts/Settings";
+import {SYMBOL} from "../types/propTypes";
+import {useFilters} from "../contexts/Filters";
 
+function any(iterable) {
+    for (let index = 0; index < iterable.length; index++) {
+        if (iterable[index]) {
+            return true;
+        }
+    }
+    return false;
+}
 
 function Symbol(props) {
     const {symbol} = props;
@@ -16,7 +26,7 @@ function Symbol(props) {
 }
 
 Symbol.propTypes = {
-    symbol: PropTypes.object
+    symbol: SYMBOL
 }
 
 function NodeContent(props) {
@@ -24,16 +34,23 @@ function NodeContent(props) {
     const {state} = useSettings();
     const {node} = props;
     const colorPalette = useColorPalette();
+    const [{activeFilters},] = useFilters();
     let contentToShow;
     if (state.show_all) {
         contentToShow = node.atoms;
     } else {
         contentToShow = node.diff;
     }
+
+    function symbolShouldBeShown(symbol) {
+        return activeFilters.length === 0 || any(activeFilters.filter(filter => filter._type === "Signature")
+            .map(filter => filter.name === symbol.name && filter.args === symbol.arguments.length));
+    }
+
     const classNames2 = `set_value`
     const containerNames = `set_container`
 
-    const renderedSymbols = contentToShow.map(s => {
+    const renderedSymbols = contentToShow.filter(symbol => symbolShouldBeShown(symbol)).map(s => {
         return <Symbol key={JSON.stringify(s)} symbol={s}/>
     })
     return <div className={containerNames} style={{"color": colorPalette.thirty}}>
@@ -41,6 +58,7 @@ function NodeContent(props) {
     </div>
 }
 
+// FIXME: Parameterize proptypes
 NodeContent.propTypes = {
     node: PropTypes.exact({
         diff: PropTypes.array,
