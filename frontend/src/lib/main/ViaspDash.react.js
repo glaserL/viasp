@@ -5,7 +5,6 @@ import "../components/main.css"
 import {Detail} from "../components/Detail.react";
 import {Search} from "../components/Search.react";
 import {Facts} from "../components/Facts.react";
-import "./header.css";
 import {Edges} from "../components/Edges.react";
 import {initialState, nodeReducer, ShownNodesProvider} from "../contexts/ShownNodes";
 import {TransformationProvider, useTransformations} from "../contexts/transformations";
