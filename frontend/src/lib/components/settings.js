@@ -1,15 +1,20 @@
 import React from "react";
 import {useColorPalette} from "../contexts/ColorPalette";
 import {setBackendURL, toggleShowAll, useSettings} from "../contexts/Settings";
-import {GoCheck, GoStop} from "react-icons/all";
+import {GoCheck, GoStop, IoCloseSharp, IoOptionsSharp} from "react-icons/all";
 import {IconContext} from "react-icons";
+import './settings.css'
+import PropTypes from "prop-types";
+
+const FORM_ID = 'settings_form'
 
 function useToggleState(toggle_state) {
-    let classNameAll = `toggle_part left ${toggle_state.show_all ? "selected" : ""}`;
-    let classNameNew = `toggle_part right ${toggle_state.show_all ? "" : "selected"}`;
+    let classNameAll = `toggle_part left ${toggle_state.show_all ? "selected" : "unselected"}`;
+    let classNameNew = `toggle_part right ${toggle_state.show_all ? "unselected" : "selected"}`;
     React.useEffect(() => {
-        classNameAll = `toggle_part left ${toggle_state.show_all ? "selected" : ""}`;
-        classNameNew = `toggle_part right ${toggle_state.show_all ? "" : "selected"}`;
+        classNameAll = `toggle_part left ${toggle_state.show_all ? "selected" : "unselected"}`;
+        classNameNew = `toggle_part right ${toggle_state.show_all ? "unselected" : "selected"}`;
+
     }, [toggle_state.show_all])
     return [classNameAll, classNameNew]
 
@@ -19,74 +24,116 @@ function ShowAllToggle() {
     const {state, dispatch} = useSettings()
     const [classNameAll, classNameNew] = useToggleState(state);
     const colorPalette = useColorPalette();
-    return <div>Node text: <span style={{backgroundColor: colorPalette.sixty}}
-                                 className="display_all_toggle_span noselect"
-                                 onClick={() => dispatch(toggleShowAll())}>
+    return <tr>
+        <td align="right">Nodes show:</td>
+        <td align="right">
+        <span style={{backgroundColor: colorPalette.sixty}}
+              className="display_all_toggle_span noselect"
+              onClick={() => dispatch(toggleShowAll())}>
         <span className={classNameAll} style={state.show_all ? {
             backgroundColor: colorPalette.ten,
             "color": colorPalette.sixty
-        } : null}>All</span>
+        } : null}>All symbols</span>
         <span className={classNameNew} style={state.show_all ? null : {
             backgroundColor: colorPalette.ten,
             "color": colorPalette.sixty
-        }}>New</span>
+        }}>Added symbols</span>
     </span>
-    </div>
+        </td>
+    </tr>
 }
 
-
-function BackendURLSetting() {
-
-    const {state, dispatch, backendURL} = useSettings()
-    const [input, setInput] = React.useState(state.backend_url)
+function BackendHealthCheck() {
+    const {state, backendURL} = useSettings()
     const [backendReachable, setBackendReachable] = React.useState(true)
-
-    const handleChange = (event) => setInput(event.target.value)
-
     React.useEffect(() => {
-        // TODO: make a proper health check endpoint
         fetch(backendURL("ping")).then(() => {
             setBackendReachable(true)
         }).catch(() => {
             setBackendReachable(false)
         })
     }, [state.backend_url])
+    return <tr>
+        <td align="right">Health:</td>
+        <td>{backendReachable ?
+            <span style={{"fontSize": "12px"}}><IconContext.Provider
+                value={{color: "green"}}><GoCheck/></IconContext.Provider> Backend reachable</span> :
+            <span style={{"fontSize": "12px"}}><IconContext.Provider
+                value={{color: "red"}}><GoStop/></IconContext.Provider> Backend unreachable</span>}</td>
+    </tr>
+}
 
-    function handleSubmit(event) {
-        dispatch(setBackendURL(input))
-        event.preventDefault();
+function BackendURLSetting(props) {
+    const {input} = props;
+
+    return <tr>
+        <td align="right">URL:</td>
+        <td>
+            <input id="form_backendURL" type="text" form={FORM_ID} defaultValue={input}/>
+            <input type="submit" form={FORM_ID} value="Save"/>
+        </td>
+    </tr>
+}
+
+BackendURLSetting.propTypes = {
+    /**
+     * The default value to be displayed
+     */
+    input: PropTypes.string
+}
+
+function Header(props) {
+    const {text} = props;
+    return <tr>
+        <td className="settings_header" align="center" colSpan="3">{text}</td>
+    </tr>
+}
+
+Header.propTypes = {
+    /**
+     * The text to be displayed in the header
+     */
+    text: PropTypes.string
+}
+
+
+function SettingsTable() {
+
+    const {state, dispatch} = useSettings()
+
+    function onSubmit(e) {
+        dispatch(setBackendURL(e.target.elements.form_backendURL.value))
+        e.preventDefault()
     }
 
-    return <div>
-        <h3>Backend</h3>
-        <form onSubmit={handleSubmit}>
-            <label>
-                URL:
-                <input type="text" value={input} onChange={handleChange}/>
-            </label>
-            <input type="submit" value="Save"/>
-        </form>
-        <div>Health: {backendReachable ?
-            <IconContext.Provider value={{color: "green"}}><GoCheck/></IconContext.Provider> :
-            <IconContext.Provider value={{color: "red"}}><GoStop/></IconContext.Provider>}</div>
-
-    </div>
+    return <React.Fragment>
+        <form method="GET" id={FORM_ID} onSubmit={onSubmit}/>
+        <table border={1} frame={"hsides"} rules={"rows"}>
+            <tbody>
+            <Header text="Display"/>
+            <ShowAllToggle/>
+            <Header text="Backend"/>
+            <BackendURLSetting input={state.backend_url}/>
+            <BackendHealthCheck/>
+            </tbody>
+        </table>
+    </React.Fragment>
 }
 
 export function Settings() {
     const colorPalette = useColorPalette();
-    const [drawnOut, setDrawnOut] = React.useState(true);
+    const [drawnOut, setDrawnOut] = React.useState(false);
     return <div className="settings noselect">
-                <span className="drawler_toggle" style={{backgroundColor: colorPalette.sixty}}
-                      onClick={() => setDrawnOut(!drawnOut)}>{drawnOut ? ">" : "<"}</span>
-        <div className="drawer">
+                <span className="drawer_toggle" style={{backgroundColor: colorPalette.ten, color: colorPalette.sixty}}
+                      onClick={() => setDrawnOut(!drawnOut)}>{drawnOut ? <IoCloseSharp size={28}/> :
+                    <IoOptionsSharp size={28}/>}</span>
+        <div className="drawer" style={{backgroundColor: colorPalette.sixty}}>
             <div className="drawer_content"
                  style={drawnOut ? {
                      maxWidth: "500px",
                      backgroundColor: colorPalette.sixty
                  } : {maxWidth: "0px", backgroundColor: colorPalette.sixty}}>
-                <ShowAllToggle/>
-                <BackendURLSetting/>
+                <SettingsTable/>
             </div>
         </div>
     </div>
