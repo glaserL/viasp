@@ -2,15 +2,17 @@ import React from "react";
 import {make_atoms_string, make_rules_string} from "../utils/index";
 import PropTypes from "prop-types";
 import {NODE, SIGNATURE, TRANSFORMATION} from "../types/propTypes";
+import {useSettings} from "../contexts/Settings";
 
-function SearchResultContent(props) {
+function SuggestionContent(props) {
     const {value} = props;
+    const {state} = useSettings()
     let className = "";
     let display = "UNKNOWN FILTER"
 
     if (value._type === "Node") {
         className = "search_node"
-        display = make_atoms_string(value.atoms)
+        display = make_atoms_string(state.show_all ? value.atoms : value.diff)
     }
     if (value._type === "Signature") {
         className = "search_signature"
@@ -25,7 +27,7 @@ function SearchResultContent(props) {
 }
 
 
-SearchResultContent.propTypes = {
+SuggestionContent.propTypes = {
     /**
      * The Search Result to be displayed, either a Transformation, a Node or a Signature
      */
@@ -36,20 +38,20 @@ SearchResultContent.propTypes = {
     ]),
 }
 
-export function SearchResult(props) {
+export function Suggestion(props) {
     const {value, active, select} = props;
 
     const classes = ["search_row"];
     if (active) {
         classes.push("active")
     }
-    return <li className={classes.join(" ")} renameme={value} onClick={() => select(value)}><SearchResultContent
+    return <li className={classes.join(" ")} renameme={value} onClick={() => select(value)}><SuggestionContent
         value={value}/>
     </li>
 
 }
 
-SearchResult.propTypes = {
+Suggestion.propTypes = {
     /**
      * The Search Result to be displayed, either a Transformation, a Node or a Signature
      */

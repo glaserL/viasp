@@ -1,6 +1,6 @@
 import React from 'react';
 import "./search.css";
-import {SearchResult} from "./SearchResult.react";
+import {Suggestion} from "./SearchResult.react";
 import PropTypes from "prop-types";
 import {useHighlightedNode} from "../contexts/HighlightedNode";
 import {useSettings} from "../contexts/Settings";
@@ -140,8 +140,8 @@ export function Search(props) {
             suggestionsListComponent = (
                 <ul className="search_result_list">
                     {filteredSuggestions.map((suggestion, index) => {
-                        return <SearchResult active={index === activeSuggestion} key={index}
-                                             value={suggestion} select={select}/>
+                        return <Suggestion active={index === activeSuggestion} key={index}
+                                           value={suggestion} select={select}/>
                     })}
                 </ul>
             );
