@@ -67,7 +67,7 @@ function MainWindow(props) {
     return <div><Detail shows={detail} clearDetail={() => setDetail(null)}/>
         <div className="content">
             <ShownNodesProvider initialState={initialState} reducer={nodeReducer}>
-                <Search/>
+                <Search setDetail={setDetail}/>
                 <GraphContainer setDetail={setDetail} notifyDash={notifyDash}/>
                 {
                     transformations.length === 0 ? null : <Edges/>

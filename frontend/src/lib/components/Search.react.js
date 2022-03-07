@@ -60,7 +60,9 @@ ActiveFilter.propTypes = {
 }
 
 
-export function Search() {
+export function Search(props) {
+    const {setDetail} = props;
+
     const [activeSuggestion, setActiveSuggestion] = React.useState(0);
     const [filteredSuggestions, setFilteredSuggestions] = React.useState([]);
     const [showSuggestions, setShowSuggestions] = React.useState(false);
@@ -98,13 +100,13 @@ export function Search() {
 
     function handleSelection(selection) {
         if (selection._type === "Signature") {
-            dispatch(addSignature(selection))
+            dispatch(addSignature(selection));
         }
         if (selection._type === "Node") {
-
+            setDetail(selection.uuid);
         }
         if (selection._type === "Transformation") {
-            dispatchT(showOnlyTransformation(selection))
+            dispatchT(showOnlyTransformation(selection));
         }
     }
 
@@ -166,8 +168,8 @@ export function Search() {
 
 Search.propTypes = {
     /**
-     * The ID used to identify this component in Dash callbacks.
+     * If the detail component should be opened, set use this function to set the uuid
      */
-    id: PropTypes.string
+    setDetail: PropTypes.func,
 
 }
