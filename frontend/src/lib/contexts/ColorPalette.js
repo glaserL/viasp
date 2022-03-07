@@ -31,7 +31,6 @@ export const updateColorPalette = (custom_colors) => {
 
 export const useColorPalette = () => useContext(ColorPaletteContext);
 export const ColorPaletteProvider = ({children, colorPalette}) => {
-    console.log(colorPalette)
     const updatedColorPalette = updateColorPalette(colorPalette)
     return <ColorPaletteContext.Provider value={updatedColorPalette}>{children}</ColorPaletteContext.Provider>
 }

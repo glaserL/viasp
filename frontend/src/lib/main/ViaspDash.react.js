@@ -27,7 +27,6 @@ function GraphContainer(props) {
             setDetail(clickedOn.uuid)
         }}/><Settings/>
         {transformations.map(({transformation}) => {
-            console.log(transformation)
             return <Row
                 key={transformation.id}
                 transformation={transformation}

@@ -18,7 +18,6 @@ function useToggleState(toggle_state) {
 function ShowAllToggle() {
     const {state, dispatch} = useSettings()
     const [classNameAll, classNameNew] = useToggleState(state);
-    console.log(state)
     const colorPalette = useColorPalette();
     return <div>Node text: <span style={{backgroundColor: colorPalette.sixty}}
                                  className="display_all_toggle_span noselect"
