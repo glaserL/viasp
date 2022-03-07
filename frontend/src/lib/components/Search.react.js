@@ -7,6 +7,7 @@ import {useSettings} from "../contexts/Settings";
 import {addSignature, clear, useFilters} from "../contexts/Filters";
 import {NODE, SIGNATURE, TRANSFORMATION} from "../types/propTypes";
 import {showOnlyTransformation, useTransformations} from "../contexts/transformations";
+import {useColorPalette} from "../contexts/ColorPalette";
 
 
 const KEY_DOWN = 40;
@@ -23,7 +24,8 @@ function ActiveFilters() {
 
 function CloseButton(props) {
     const {onClose} = props;
-    return <span className='close' onClick={onClose}>X</span>
+    const {sixty} = useColorPalette();
+    return <span style={{color: sixty}} className='close' onClick={onClose}>X</span>
 }
 
 CloseButton.propTypes = {
@@ -36,6 +38,7 @@ CloseButton.propTypes = {
 function ActiveFilter(props) {
     const {filter} = props;
     const [, dispatch] = useFilters();
+    const {ten, sixty} = useColorPalette();
     const classes = ["filter", "search_row"]
     if (filter._type === "Transformation") {
         classes.push("search_rule")
@@ -51,7 +54,9 @@ function ActiveFilter(props) {
         dispatch(clear(filter))
     }
 
-    return <li className={classes.join(" ")} key={filter.name}>{filter.name}<CloseButton onClose={onClose}/>
+    return <li style={{backgroundColor: ten, color: sixty}} className={classes.join(" ")}
+               key={filter.name}>{filter.name}/{filter.args}<CloseButton
+        onClose={onClose}/>
     </li>
 }
 
@@ -71,6 +76,7 @@ export function Search(props) {
     const [, dispatch] = useFilters();
     const {dispatch: dispatchT} = useTransformations()
     const {backendURL} = useSettings();
+    const {sixty} = useColorPalette();
     let suggestionsListComponent;
     React.useEffect(() => {
         const highlighted = filteredSuggestions[activeSuggestion]
@@ -138,7 +144,7 @@ export function Search(props) {
     if (showSuggestions && userInput) {
         if (filteredSuggestions.length) {
             suggestionsListComponent = (
-                <ul className="search_result_list">
+                <ul className="search_result_list" style={{backgroundColor: sixty}}>
                     {filteredSuggestions.map((suggestion, index) => {
                         return <Suggestion active={index === activeSuggestion} key={index}
                                            value={suggestion} select={select}/>
@@ -156,6 +162,7 @@ export function Search(props) {
             {suggestionsListComponent}
             <ActiveFilters/>
             <input
+                style={{width: '200px'}}
                 type="text"
                 onChange={onChange}
                 onKeyDown={onKeyDown}
