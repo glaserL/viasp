@@ -26,7 +26,7 @@ export function RowHeader(props) {
             </ColoredRowHeaderToggle>
         </div>
         <div style={{"backgroundColor": colorPalette.sixty, "color": colorPalette.thirty}}
-             className="row_header_rule">{transformation}
+             className="row_header_rule">{transformation.map(rule => <div key={rule}>{rule}</div>)}
         </div>
     </div>
 }
