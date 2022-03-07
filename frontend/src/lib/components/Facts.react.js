@@ -5,6 +5,7 @@ import {hideNode, showNode, useShownNodes} from "../contexts/ShownNodes";
 import {useColorPalette} from "../contexts/ColorPalette";
 import {useSettings} from "../contexts/Settings";
 import {NODE} from "../types/propTypes";
+import {Node} from "./Node.react";
 
 function loadFacts(backendURL) {
     return fetch(`${backendURL("facts")}`).then(r => r.json());
@@ -32,7 +33,11 @@ export function Facts(props) {
             </div>
         )
     }
-    return <FactBanner fact={fact}/>
+    return fact === null ? null :
+        <div className="row_row"><Node key={fact.uuid} node={fact}
+                                       showMini={false}
+                                       notifyClick={notifyClick}/></div>
+
 }
 
 Facts.propTypes = {
