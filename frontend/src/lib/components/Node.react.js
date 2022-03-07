@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React from "react";
 import {make_atoms_string} from "../utils/index";
 import './node.css'
 import PropTypes from "prop-types";
@@ -74,7 +74,7 @@ function useHighlightedNodeToCreateClassName(node) {
     const [highlightedNode,] = useHighlightedNode()
     let classNames = `node_border mouse_over_shadow ${node.uuid} ${highlightedNode === node.uuid ? "highlighted_node" : null}`
 
-    useEffect(() => {
+    React.useEffect(() => {
             classNames = `node_border mouse_over_shadow ${node.uuid} ${highlightedNode === node.uuid ? "highlighted_node" : null}`
         }, [node.uuid, highlightedNode]
     )
@@ -82,24 +82,24 @@ function useHighlightedNodeToCreateClassName(node) {
 }
 
 export function Node(props) {
-    const [isOverflowV, setIsOverflowV] = useState(false);
+    const [isOverflowV, setIsOverflowV] = React.useState(false);
     const {node, notifyClick, showMini} = props;
     const colorPalette = useColorPalette();
     const [, dispatch] = useShownNodes()
     const classNames = useHighlightedNodeToCreateClassName(node)
 
-    const ref = useCallback(x => {
+    const ref = React.useCallback(x => {
         if (x !== null) {
             setIsOverflowV(x.scrollHeight > x.offsetHeight + 2);
         }
     }, []);
-    useEffect(() => {
+    React.useEffect(() => {
         dispatch(showNode(node.uuid))
         return () => {
             dispatch(hideNode(node.uuid))
         }
     }, [])
-    useEffect(() => {
+    React.useEffect(() => {
 
     })
 

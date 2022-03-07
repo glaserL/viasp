@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {make_atoms_string} from "../utils/index";
 import './detail.css';
 import PropTypes from "prop-types";
@@ -17,7 +17,7 @@ function DetailSymbolPill(props) {
 }
 
 function DetailForSignature(props) {
-    const [showChildren, setShowChildren] = useState(true);
+    const [showChildren, setShowChildren] = React.useState(true);
     const {signature, atoms, uuid} = props;
     const openCloseSymbol = showChildren ? "v" : ">"
     return <div>
@@ -33,11 +33,11 @@ function loadDataForDetail(uuid, url_provider) {
 }
 
 export function Detail(props) {
-    const [data, setData] = useState(null);
+    const [data, setData] = React.useState(null);
     const {shows, clearDetail} = props;
     const {backendURL} = useSettings();
     const colorPalette = useColorPalette();
-    useEffect(() => {
+    React.useEffect(() => {
         let mounted = true;
         if (shows !== null) {
             loadDataForDetail(shows, backendURL)

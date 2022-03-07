@@ -1,4 +1,4 @@
-import React, {createContext, useContext} from "react";
+import React from "react";
 import PropTypes from "prop-types";
 
 export const defaultPalette = {
@@ -14,7 +14,7 @@ export const defaultPalette = {
     error_sixty: "#FCE8E8"
 };
 
-const ColorPaletteContext = createContext([]);
+const ColorPaletteContext = React.createContext([]);
 export const updateColorPalette = (custom_colors) => {
     if ("ten" in custom_colors) {
         defaultPalette.ten = custom_colors.ten;
@@ -25,11 +25,11 @@ export const updateColorPalette = (custom_colors) => {
     if ("sixty" in custom_colors) {
         defaultPalette.sixty = custom_colors.sixty;
     }
-    useContext(ColorPaletteContext)
+    React.useContext(ColorPaletteContext)
     return defaultPalette;
 };
 
-export const useColorPalette = () => useContext(ColorPaletteContext);
+export const useColorPalette = () => React.useContext(ColorPaletteContext);
 export const ColorPaletteProvider = ({children, colorPalette}) => {
     const updatedColorPalette = updateColorPalette(colorPalette)
     return <ColorPaletteContext.Provider value={updatedColorPalette}>{children}</ColorPaletteContext.Provider>

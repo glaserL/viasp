@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import {useColorPalette} from "../contexts/ColorPalette";
 import {RiErrorWarningFill} from "react-icons/all";
@@ -37,11 +37,11 @@ export function UserMessages() {
 }
 
 function Expire(props) {
-    const [isShowingAlert, setShowingAlert] = useState(true);
-    const [unmount, setUnmount] = useState(false);
+    const [isShowingAlert, setShowingAlert] = React.useState(true);
+    const [unmount, setUnmount] = React.useState(false);
     const {delay} = props;
 
-    useEffect(() => {
+    React.useEffect(() => {
         setTimeout(() => {
             setShowingAlert(false);
         }, delay);

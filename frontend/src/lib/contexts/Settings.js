@@ -1,5 +1,5 @@
 // https://www.thisdot.co/blog/creating-a-global-state-with-react-hooks
-import React, {createContext, useContext, useReducer} from "react"
+import React from "react"
 import PropTypes from "prop-types";
 
 export const DEFAULT_BACKEND_URL = "http://localhost:5000";
@@ -32,14 +32,14 @@ export function initSettings(initialArgs) {
 }
 
 // PROVIDER STUFF
-export const Settings = createContext({
+export const Settings = React.createContext({
     state: initSettings(),
     dispatch: () => null
 })
 
 export const useSettings = () => {
 
-    const [state, dispatch] = useContext(Settings)
+    const [state, dispatch] = React.useContext(Settings)
 
     function backendURL(route) {
         return `${state.backend_url}/${route}`
@@ -49,7 +49,7 @@ export const useSettings = () => {
 }
 export const SettingsProvider = ({children, backendURL}) => {
     const initialArgs = {show_all: true, backend_url: backendURL}
-    const [state, dispatch] = useReducer(reducer, initialArgs, initSettings)
+    const [state, dispatch] = React.useReducer(reducer, initialArgs, initSettings)
 
     return (
         <Settings.Provider value={[state, dispatch]}>

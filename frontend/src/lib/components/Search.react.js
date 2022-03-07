@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import "./search.css";
 import {SearchResult} from "./SearchResult.react";
 import PropTypes from "prop-types";
@@ -61,16 +61,16 @@ ActiveFilter.propTypes = {
 
 
 export function Search() {
-    const [activeSuggestion, setActiveSuggestion] = useState(0);
-    const [filteredSuggestions, setFilteredSuggestions] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
-    const [userInput, setUserInput] = useState("");
+    const [activeSuggestion, setActiveSuggestion] = React.useState(0);
+    const [filteredSuggestions, setFilteredSuggestions] = React.useState([]);
+    const [showSuggestions, setShowSuggestions] = React.useState(false);
+    const [userInput, setUserInput] = React.useState("");
     const [, setHighlightedNode] = useHighlightedNode();
     const [, dispatch] = useFilters();
     const {dispatch: dispatchT} = useTransformations()
     const {backendURL} = useSettings();
     let suggestionsListComponent;
-    useEffect(() => {
+    React.useEffect(() => {
         const highlighted = filteredSuggestions[activeSuggestion]
 
         if (highlighted && highlighted._type === "Node") {

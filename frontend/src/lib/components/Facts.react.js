@@ -1,5 +1,5 @@
 import "./facts.css";
-import React, {useEffect, useState} from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import {hideNode, showNode, useShownNodes} from "../contexts/ShownNodes";
 import {useColorPalette} from "../contexts/ColorPalette";
@@ -14,8 +14,8 @@ export function Facts(props) {
     const {notifyClick} = props;
     const {backendURL} = useSettings();
 
-    const [fact, setFact] = useState(null);
-    useEffect(() => {
+    const [fact, setFact] = React.useState(null);
+    React.useEffect(() => {
         let mounted = true;
         loadFacts(backendURL)
             .then(items => {
@@ -52,7 +52,7 @@ function ActualFactThingy(props) {
     const [, dispatch] = useShownNodes()
     const colorPalette = useColorPalette();
 
-    useEffect(() => {
+    React.useEffect(() => {
         dispatch(showNode(fact.uuid))
         return () => {
             dispatch(hideNode(fact.uuid))

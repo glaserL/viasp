@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {Row} from "../components/Row.react";
 import "../components/main.css"
@@ -40,12 +40,12 @@ function GraphContainer(props) {
 
 function MainWindow(props) {
     const {callback} = props;
-    const [detail, setDetail] = useState(null)
+    const [detail, setDetail] = React.useState(null)
     const {backendURL} = useSettings();
     const {state: {transformations}} = useTransformations()
 
     const [, dispatch] = useMessages()
-    useEffect(() => {
+    React.useEffect(() => {
         fetch(backendURL("/rules")).catch(() => {
             dispatch(showError(`Couldn't connect to server at ${backendURL("")}`))
         })
