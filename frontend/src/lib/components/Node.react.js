@@ -84,17 +84,18 @@ function useHighlightedNodeToCreateClassName(node) {
 }
 
 export function Node(props) {
-    const [isOverflowV, setIsOverflowV] = React.useState(false);
     const {node, notifyClick, showMini} = props;
+    const [isOverflowV, setIsOverflowV] = React.useState(false);
     const colorPalette = useColorPalette();
     const [, dispatch] = useShownNodes()
+    const {state} = useSettings();
     const classNames = useHighlightedNodeToCreateClassName(node)
 
     const ref = React.useCallback(x => {
         if (x !== null) {
             setIsOverflowV(x.scrollHeight > x.offsetHeight + 2);
         }
-    }, []);
+    }, [state]);
     React.useEffect(() => {
         dispatch(showNode(node.uuid))
         return () => {
