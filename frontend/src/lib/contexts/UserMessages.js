@@ -1,5 +1,5 @@
+import React from "react";
 import PropTypes from "prop-types";
-import React, {createContext, useContext, useReducer} from "react";
 
 export const initialState = {activeMessages: []}
 export const ERROR = 'APP/MESSAGES/ERROR';
@@ -21,10 +21,10 @@ export const messageReducer = (state = initialState, action) => {
     }
     return {...state}
 }
-const UserMessagesContext = createContext([]);
-export const useMessages = () => useContext(UserMessagesContext);
+const UserMessagesContext = React.createContext([]);
+export const useMessages = () => React.useContext(UserMessagesContext);
 export const UserMessagesProvider = ({children}) => {
-    const [state, dispatch] = useReducer(messageReducer, initialState);
+    const [state, dispatch] = React.useReducer(messageReducer, initialState);
     return <UserMessagesContext.Provider value={[state, dispatch]}>{children}</UserMessagesContext.Provider>
 }
 

@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useReducer} from "react";
+import React from "react";
 import PropTypes from "prop-types";
 
 export const initialState = {
@@ -23,10 +23,10 @@ export const nodeReducer = (state = initialState, action) => {
     }
     return {...state}
 }
-const ShownNodesContext = createContext([]);
-export const useShownNodes = () => useContext(ShownNodesContext);
+const ShownNodesContext = React.createContext([]);
+export const useShownNodes = () => React.useContext(ShownNodesContext);
 export const ShownNodesProvider = ({children, initialState, reducer}) => {
-    const [globalState, dispatch] = useReducer(reducer, initialState);
+    const [globalState, dispatch] = React.useReducer(reducer, initialState);
     return <ShownNodesContext.Provider value={[globalState, dispatch]}>{children}</ShownNodesContext.Provider>
 }
 

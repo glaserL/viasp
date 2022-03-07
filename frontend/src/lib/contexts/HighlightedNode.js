@@ -1,13 +1,13 @@
-import React, {createContext, useContext, useState} from "react";
+import React from "react";
 import PropTypes from "prop-types";
 
 const defaultHighlightedNode = null;
 
-const HighlightedNodeContext = createContext(defaultHighlightedNode);
+const HighlightedNodeContext = React.createContext(defaultHighlightedNode);
 
-export const useHighlightedNode = () => useContext(HighlightedNodeContext);
+export const useHighlightedNode = () => React.useContext(HighlightedNodeContext);
 export const HighlightedNodeProvider = ({children}) => {
-    const [highlightedNode, setHighlightedNode] = useState(defaultHighlightedNode);
+    const [highlightedNode, setHighlightedNode] = React.useState(defaultHighlightedNode);
 
 
     return <HighlightedNodeContext.Provider

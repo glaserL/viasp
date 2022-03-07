@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, {createContext, useContext, useReducer} from "react";
+import React from "react";
 
 export const initialState = {activeFilters: []}
 export const ADD_SIGNATURE = 'FILTERS/SIGNATURE/ADD';
@@ -26,10 +26,10 @@ export const filterReducer = (state = initialState, action) => {
     }
     return {...state}
 }
-const FilterContext = createContext([]);
-export const useFilters = () => useContext(FilterContext);
+const FilterContext = React.createContext([]);
+export const useFilters = () => React.useContext(FilterContext);
 export const FilterProvider = ({children}) => {
-    const [state, dispatch] = useReducer(filterReducer, initialState);
+    const [state, dispatch] = React.useReducer(filterReducer, initialState);
     return <FilterContext.Provider value={[state, dispatch]}>{children}</FilterContext.Provider>
 }
 

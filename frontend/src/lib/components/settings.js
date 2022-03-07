@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {useColorPalette} from "../contexts/ColorPalette";
 import {setBackendURL, toggleShowAll, useSettings} from "../contexts/Settings";
 import {GoCheck, GoStop} from "react-icons/all";
@@ -7,7 +7,7 @@ import {IconContext} from "react-icons";
 function useToggleState(toggle_state) {
     let classNameAll = `toggle_part left ${toggle_state.show_all ? "selected" : ""}`;
     let classNameNew = `toggle_part right ${toggle_state.show_all ? "" : "selected"}`;
-    useEffect(() => {
+    React.useEffect(() => {
         classNameAll = `toggle_part left ${toggle_state.show_all ? "selected" : ""}`;
         classNameNew = `toggle_part right ${toggle_state.show_all ? "" : "selected"}`;
     }, [toggle_state.show_all])
@@ -38,12 +38,12 @@ function ShowAllToggle() {
 function BackendURLSetting() {
 
     const {state, dispatch, backendURL} = useSettings()
-    const [input, setInput] = useState(state.backend_url)
-    const [backendReachable, setBackendReachable] = useState(true)
+    const [input, setInput] = React.useState(state.backend_url)
+    const [backendReachable, setBackendReachable] = React.useState(true)
 
     const handleChange = (event) => setInput(event.target.value)
 
-    useEffect(() => {
+    React.useEffect(() => {
         // TODO: make a proper health check endpoint
         fetch(backendURL("ping")).then(() => {
             setBackendReachable(true)
@@ -75,7 +75,7 @@ function BackendURLSetting() {
 
 export function Settings() {
     const colorPalette = useColorPalette();
-    const [drawnOut, setDrawnOut] = useState(true);
+    const [drawnOut, setDrawnOut] = React.useState(true);
     return <div className="settings noselect">
                 <span className="drawler_toggle" style={{backgroundColor: colorPalette.sixty}}
                       onClick={() => setDrawnOut(!drawnOut)}>{drawnOut ? ">" : "<"}</span>

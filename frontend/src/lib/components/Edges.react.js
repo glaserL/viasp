@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import LineTo from "react-lineto";
 import PropTypes from "prop-types";
 import useResizeObserver from "@react-hook/resize-observer";
@@ -27,13 +27,13 @@ const useResize = (target) => {
 }
 
 export function Edges() {
-    const [edges, setEdges] = useState([]);
+    const [edges, setEdges] = React.useState([]);
     const target = React.useRef(null)
     useResize(target)
     const [{shownNodes},] = useShownNodes()
     const {state, backendURL} = useSettings()
 
-    useEffect(() => {
+    React.useEffect(() => {
         let mounted = true;
 
         loadEdges(shownNodes, backendURL)
