@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import {useColorPalette} from "../contexts/ColorPalette";
 import {useSettings} from "../contexts/Settings";
 import {SIGNATURE, SYMBOL} from "../types/propTypes";
+import {IoCloseSharp} from "react-icons/all";
 
 function DetailSymbolPill(props) {
     const {symbol} = props;
@@ -26,12 +27,12 @@ DetailSymbolPill.propTypes = {
 
 
 function DetailForSignature(props) {
-    const [showChildren, setShowChildren] = React.useState(true);
     const {signature, symbols} = props;
+    const [showChildren, setShowChildren] = React.useState(true);
     const openCloseSymbol = showChildren ? "v" : ">"
     return <div>
         <h3 className="detail_atom_view_heading"
-            onClick={() => setShowChildren(!showChildren)}>{openCloseSymbol} {signature}</h3>
+            onClick={() => setShowChildren(!showChildren)}>{openCloseSymbol} {signature.name}/{signature.args}</h3>
         {showChildren ? symbols.map(symbol => <DetailSymbolPill key={JSON.stringify(symbol)}
                                                                 symbol={symbol}/>) : null}
     </div>
@@ -49,7 +50,12 @@ DetailForSignature.propTypes = {
 }
 
 function loadDataForDetail(uuid, url_provider) {
-    return fetch(`${url_provider("model")}?uuid=${uuid}`).then(r => r.json())
+    return fetch(`${url_provider("detail")}/?uuid=${uuid}`).then(r => r.json())
+}
+
+function CloseButton(props) {
+    const {onClick} = props;
+    return <span style={{'cursor': 'pointer'}} onClick={onClick}><IoCloseSharp size={20}/></span>
 }
 
 export function Detail(props) {
@@ -74,14 +80,16 @@ export function Detail(props) {
     }
     if (data === null) {
         return <div id="detailSidebar" className="detail">
-            <h3>Stable Models</h3>
+            <h3><CloseButton onClick={clearDetail}/>Stable Models</h3>
             Loading..
         </div>
     }
     return <div id="detailSidebar" style={{backgroundColor: colorPalette.sixty}} className="detail">
-        <h3><span aria-hidden="true" onClick={clearDetail} className="closeButton">&times;</span>Stable Models</h3>
+        <h3><CloseButton onClick={clearDetail}/>Stable Models
+        </h3>
         {data.map((resp) =>
-            <DetailForSignature key={resp[0]} signature={resp[0]} symbols={resp[1]} uuid={shows}/>)}
+            <DetailForSignature key={`${resp[0].name}/${resp[0].args}`} signature={resp[0]} symbols={resp[1]}
+                                uuid={shows}/>)}
     </div>
 }
 

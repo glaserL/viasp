@@ -55,7 +55,7 @@ function MainWindow(props) {
 
     const [, dispatch] = useMessages()
     React.useEffect(() => {
-        fetch(backendURL("/rules")).catch(() => {
+        fetch(backendURL("rules")).catch(() => {
             dispatch(showError(`Couldn't connect to server at ${backendURL("")}`))
         })
     }, [])
