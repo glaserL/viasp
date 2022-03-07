@@ -12,7 +12,6 @@ export const addSignature = (signature) => ({type: ADD_SIGNATURE, signature: sig
 export const clearSignature = () => ({type: REMOVE_SIGNATURE})
 const clear = (filter) => ({type: REMOVE, filter: filter})
 export const filterReducer = (state = initialState, action) => {
-    console.log(`Reducing ${JSON.stringify(state)}, ${JSON.stringify(action)}`)
     if (action.type === ADD_SIGNATURE) {
         return {
             ...state,

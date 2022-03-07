@@ -89,7 +89,6 @@ const TransformationProvider = ({children}) => {
             message_dispatch(showError(`Failed to get transformations: ${error}`))
         })
             .then(items => {
-                console.log(`Setting ${items.length} `)
                 if (mounted) {
                     items.map((t) => (dispatch(addTransformation(t))))
                 }
