@@ -62,7 +62,7 @@ SettingsProvider.propTypes = {
     /**
      * The subtree that requires access to this context.
      */
-    children: PropTypes.any,
+    children: PropTypes.element,
     /**
      * The backendURL viASP that provides the graph
      */

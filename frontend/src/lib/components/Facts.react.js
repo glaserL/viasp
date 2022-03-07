@@ -4,13 +4,13 @@ import PropTypes from "prop-types";
 import {hideNode, showNode, useShownNodes} from "../contexts/ShownNodes";
 import {useColorPalette} from "../contexts/ColorPalette";
 import {useSettings} from "../contexts/Settings";
+import {NODE} from "../types/propTypes";
 
 function loadFacts(backendURL) {
     return fetch(`${backendURL("facts")}`).then(r => r.json());
 }
 
 export function Facts(props) {
-
     const {notifyClick} = props;
     const {backendURL} = useSettings();
 
@@ -32,22 +32,17 @@ export function Facts(props) {
             </div>
         )
     }
-    //
-    // return <div className="row_container">
-    //     <RowHeader onToggle={() => setHideNodes(!hideNodes)} rule={["<Facts>"]}/>
-    //     {hideNodes ? null : <div className="row_row"><Node key={fact.uuid} node={fact}
-    //                                                        notifyClick={notifyClick}/>
-    //     </div>}
-    // </div>
-    //
-    return <ActualFactThingy fact={fact}/>
+    return <FactBanner fact={fact}/>
 }
 
 Facts.propTypes = {
-    notify: PropTypes.func
+    /**
+     * The function to be called if the facts are clicked on
+     */
+    notifyClick: PropTypes.func
 }
 
-function ActualFactThingy(props) {
+function FactBanner(props) {
     const {fact} = props;
     const [, dispatch] = useShownNodes()
     const colorPalette = useColorPalette();
@@ -63,16 +58,10 @@ function ActualFactThingy(props) {
                 style={{"color": colorPalette.sixty, "backgroundColor": colorPalette.ten}}>Facts</div>
 }
 
-ActualFactThingy.propTypes = {
+FactBanner.propTypes = {
     /**
      * The ID used to identify this component in Dash callbacks.
      */
     id: PropTypes.string,
-    fact: PropTypes.exact({
-        diff: PropTypes.array,
-        atoms: PropTypes.array,
-        uuid: PropTypes.string,
-        _type: PropTypes.string,
-        rule_nr: PropTypes.number
-    }),
+    fact: NODE
 }

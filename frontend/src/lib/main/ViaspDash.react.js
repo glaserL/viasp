@@ -19,11 +19,11 @@ import {FilterProvider} from "../contexts/Filters";
 
 
 function GraphContainer(props) {
-    const {setDetail, callback} = props;
+    const {setDetail, notifyDash} = props;
     const {state: {transformations}} = useTransformations()
     return <div className="graph_container">
         <Facts notifyClick={(clickedOn) => {
-            notify(callback, clickedOn)
+            notifyDash(clickedOn)
             setDetail(clickedOn.uuid)
         }}/><Settings/>
         {transformations.map(({transformation}) => {
@@ -31,15 +31,25 @@ function GraphContainer(props) {
                 key={transformation.id}
                 transformation={transformation}
                 notifyClick={(clickedOn) => {
-                    notify(callback, clickedOn)
+                    notifyDash(clickedOn)
                     setDetail(clickedOn.uuid)
                 }}/>
         })}</div>
+}
 
+GraphContainer.propTypes = {
+    /**
+     * Objects passed to this functions will be available to Dash callbacks.
+     */
+    notifyDash: PropTypes.func,
+    /**
+     * If the detail component should be opened, set use this function to set the uuid
+     */
+    setDetail: PropTypes.func,
 }
 
 function MainWindow(props) {
-    const {callback} = props;
+    const {notifyDash} = props;
     const [detail, setDetail] = React.useState(null)
     const {backendURL} = useSettings();
     const {state: {transformations}} = useTransformations()
@@ -58,7 +68,7 @@ function MainWindow(props) {
         <div className="content">
             <ShownNodesProvider initialState={initialState} reducer={nodeReducer}>
                 <Search/>
-                <GraphContainer setDetail={setDetail} callback={callback}/>
+                <GraphContainer setDetail={setDetail} notifyDash={notifyDash}/>
                 {
                     transformations.length === 0 ? null : <Edges/>
                 }
@@ -67,9 +77,22 @@ function MainWindow(props) {
     </div>
 }
 
+MainWindow.propTypes = {
+    /**
+     * Objects passed to this functions will be available to Dash callbacks.
+     */
+    notifyDash: PropTypes.func,
+}
+
+/**
+ * ViaspDash is the main dash component
+ */
 export default function ViaspDash(props) {
     const {id, setProps, backendURL, colors} = props;
 
+    function notifyDash(clickedOn) {
+        setProps({clickedOn: clickedOn})
+    }
 
     return <div id={id}>
         <ColorPaletteProvider colorPalette={colors}>
@@ -80,7 +103,7 @@ export default function ViaspDash(props) {
                             <TransformationProvider>
                                 <div>
                                     <UserMessages/>
-                                    <MainWindow callback={setProps}/>
+                                    <MainWindow notifyDash={notifyDash}/>
                                 </div>
                             </TransformationProvider>
                         </SettingsProvider>
@@ -91,9 +114,6 @@ export default function ViaspDash(props) {
     </div>
 }
 
-function notify(setProps, clickedOn) {
-    setProps({clickedOn: clickedOn})
-}
 
 ViaspDash.propTypes = {
     /**
@@ -111,17 +131,18 @@ ViaspDash.propTypes = {
      */
     colors: PropTypes.object,
     /**
-     *
+     * Object to set by the notifyDash callback
      */
     clickedOn: PropTypes.object,
 
     /**
-     *
+     * The url to the viasp backend server
      */
     backendURL: PropTypes.string
 };
 
 ViaspDash.defaultProps = {
     colors: {},
+    clickedOn: {},
     backendURL: DEFAULT_BACKEND_URL
 }
