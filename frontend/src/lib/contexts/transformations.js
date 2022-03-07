@@ -101,6 +101,9 @@ const TransformationProvider = ({children}) => {
 const useTransformations = () => React.useContext(TransformationContext);
 
 TransformationProvider.propTypes = {
+    /**
+     * The subtree that requires access to this context.
+     */
     children: PropTypes.element,
 }
 export {TransformationProvider, TransformationContext, useTransformations, toggleTransformation, showOnlyTransformation}

@@ -4,9 +4,10 @@ import './detail.css';
 import PropTypes from "prop-types";
 import {useColorPalette} from "../contexts/ColorPalette";
 import {useSettings} from "../contexts/Settings";
+import {SIGNATURE, SYMBOL} from "../types/propTypes";
 
 function DetailSymbolPill(props) {
-    const {symbol, uuid} = props;
+    const {symbol} = props;
     const colorPalette = useColorPalette();
     return <span className="detail_atom_view_content"
                  style={{
@@ -16,16 +17,35 @@ function DetailSymbolPill(props) {
 
 }
 
+DetailSymbolPill.propTypes = {
+    /**
+     * The symbol to display.
+     */
+    symbol: SYMBOL
+}
+
+
 function DetailForSignature(props) {
     const [showChildren, setShowChildren] = React.useState(true);
-    const {signature, atoms, uuid} = props;
+    const {signature, symbols} = props;
     const openCloseSymbol = showChildren ? "v" : ">"
     return <div>
         <h3 className="detail_atom_view_heading"
             onClick={() => setShowChildren(!showChildren)}>{openCloseSymbol} {signature}</h3>
-        {showChildren ? atoms.map(symbol => <DetailSymbolPill key={JSON.stringify(symbol)}
-                                                              symbol={symbol} uuid={uuid}/>) : null}
+        {showChildren ? symbols.map(symbol => <DetailSymbolPill key={JSON.stringify(symbol)}
+                                                                symbol={symbol}/>) : null}
     </div>
+}
+
+DetailForSignature.propTypes = {
+    /**
+     * The signature to display in the header
+     */
+    signature: SIGNATURE,
+    /**
+     * The atoms that should be shown for this exact signature
+     */
+    symbols: PropTypes.arrayOf(SYMBOL)
 }
 
 function loadDataForDetail(uuid, url_provider) {
@@ -61,7 +81,7 @@ export function Detail(props) {
     return <div id="detailSidebar" style={{backgroundColor: colorPalette.sixty}} className="detail">
         <h3><span aria-hidden="true" onClick={clearDetail} className="closeButton">&times;</span>Stable Models</h3>
         {data.map((resp) =>
-            <DetailForSignature key={resp[0]} signature={resp[0]} atoms={resp[1]} uuid={shows}/>)}
+            <DetailForSignature key={resp[0]} signature={resp[0]} symbols={resp[1]} uuid={shows}/>)}
     </div>
 }
 
@@ -70,5 +90,10 @@ Detail.propTypes = {
     /**
      * The node to show
      */
-    shows: PropTypes.string
+    shows: PropTypes.string,
+
+    /**
+     * The function that should be called to close the detail again.
+     */
+    clearDetail: PropTypes.func
 }

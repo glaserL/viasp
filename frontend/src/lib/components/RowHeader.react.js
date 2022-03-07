@@ -35,7 +35,7 @@ RowHeader.propTypes = {
     /**
      * The rule string to be displayed in the header
      */
-    transformation: PropTypes.array,
+    transformation: PropTypes.arrayOf(PropTypes.string),
     /**
      * Whether the user has decided to show or hide the content of the row
      */

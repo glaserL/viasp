@@ -29,5 +29,8 @@ export const UserMessagesProvider = ({children}) => {
 }
 
 UserMessagesProvider.propTypes = {
+    /**
+     * The subtree that requires access to this context.
+     */
     children: PropTypes.element
 }

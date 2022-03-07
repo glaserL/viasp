@@ -15,5 +15,8 @@ export const HighlightedNodeProvider = ({children}) => {
 }
 
 HighlightedNodeProvider.propTypes = {
+    /**
+     * The subtree that requires access to this context.
+     */
     children: PropTypes.element,
 }

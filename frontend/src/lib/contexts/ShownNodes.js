@@ -34,7 +34,7 @@ ShownNodesProvider.propTypes = {
     /**
      * The subtree that requires access to this context.
      */
-    children: PropTypes.any,
+    children: PropTypes.array,
     /**
      * The nodes that are shown initially. Is empty I think.
      */

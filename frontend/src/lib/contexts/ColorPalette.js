@@ -36,7 +36,13 @@ export const ColorPaletteProvider = ({children, colorPalette}) => {
 }
 
 ColorPaletteProvider.propTypes = {
+    /**
+     * The subtree that requires access to this context.
+     */
     children: PropTypes.element,
+    /**
+     * The color palette to update the color palette with
+     */
     colorPalette: PropTypes.exact({
         ten: PropTypes.string,
         thirty: PropTypes.string,

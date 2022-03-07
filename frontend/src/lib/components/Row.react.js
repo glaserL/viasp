@@ -5,19 +5,22 @@ import PropTypes from "prop-types";
 import {RowHeader} from "./RowHeader.react";
 import {toggleTransformation, useTransformations} from "../contexts/transformations";
 import {useSettings} from "../contexts/Settings";
+import {TRANSFORMATION} from "../types/propTypes";
 
 function loadMyAsyncData(id, backendURL) {
     return fetch(`${backendURL("children")}/?rule_id=${id}&ids_only=True`).then(r => r.json());
 }
 
 export function Row(props) {
+    const {transformation, notifyClick} = props;
+
     const [nodes, setNodes] = React.useState(null);
     const [isOverflowH, setIsOverflowH] = React.useState(false);
     const [overflowBreakingPoint, setOverflowBreakingPoint] = React.useState(null);
-    const {transformation, notifyClick} = props;
     const ref = React.useRef(null);
     const {state: {transformations}, dispatch} = useTransformations();
     const {backendURL} = useSettings();
+
     React.useEffect(() => {
         let mounted = true;
         loadMyAsyncData(transformation.id, backendURL)
@@ -62,7 +65,10 @@ export function Row(props) {
             </div>
         )
     }
-    const showNodes = transformations.find(({transformation: t, shown}) => transformation.id === t.id && shown)
+    const showNodes = transformations.find(({
+                                                transformation: t,
+                                                shown
+                                            }) => transformation.id === t.id && shown) !== undefined
     return <div className="row_container">
         <RowHeader onToggle={() => dispatch(toggleTransformation(transformation))} transformation={transformation.rules}
                    contentIsShown={showNodes}/>
@@ -78,11 +84,7 @@ Row.propTypes = {
     /**
      * The Transformation object to be displayed
      */
-    transformation: PropTypes.exact({
-        _type: PropTypes.string,
-        rules: PropTypes.array,
-        id: PropTypes.number
-    }),
+    transformation: TRANSFORMATION,
 
     /**
      * A callback function when the user clicks on the RuleHeader

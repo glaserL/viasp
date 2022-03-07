@@ -6,7 +6,7 @@ import {hideNode, showNode, useShownNodes} from "../contexts/ShownNodes";
 import {useColorPalette} from "../contexts/ColorPalette";
 import {useHighlightedNode} from "../contexts/HighlightedNode";
 import {useSettings} from "../contexts/Settings";
-import {SYMBOL} from "../types/propTypes";
+import {NODE, SYMBOL} from "../types/propTypes";
 import {useFilters} from "../contexts/Filters";
 
 function any(iterable) {
@@ -26,6 +26,9 @@ function Symbol(props) {
 }
 
 Symbol.propTypes = {
+    /**
+     * The symbol to display
+     */
     symbol: SYMBOL
 }
 
@@ -60,13 +63,13 @@ function NodeContent(props) {
 
 // FIXME: Parameterize proptypes
 NodeContent.propTypes = {
-    node: PropTypes.exact({
-        diff: PropTypes.array,
-        atoms: PropTypes.array,
-        uuid: PropTypes.string,
-        _type: PropTypes.string,
-        rule_nr: PropTypes.number
-    }),
+    /**
+     * object containing the node data to be displayed
+     */
+    node: NODE,
+    /**
+     * If the Node will overflow vertically
+     */
     overflowV: PropTypes.bool
 }
 
@@ -116,14 +119,17 @@ export function Node(props) {
 }
 
 Node.propTypes = {
-    node: PropTypes.exact({
-        diff: PropTypes.array,
-        atoms: PropTypes.array,
-        uuid: PropTypes.string,
-        _type: PropTypes.string,
-        rule_nr: PropTypes.number
-    }),
+    /**
+     * object containing the node data to be displayed
+     */
+    node: NODE,
+    /**
+     * The function to be called if the facts are clicked on
+     */
     notifyClick: PropTypes.func,
+    /**
+     * If true, shows the minified node without displaying its symbols
+     */
     showMini: PropTypes.bool
 }
 
