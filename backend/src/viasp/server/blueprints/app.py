@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any
 
 from flask import render_template, Blueprint, request, abort, jsonify
+from flask_cors import cross_origin
 
 from ...shared.io import DataclassJSONEncoder, DataclassJSONDecoder
 from ...shared.model import Filter
@@ -113,5 +114,6 @@ def clear_filters():
 
 
 @bp.route("/ping", methods=["GET"])
+@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def check_available():
     return "ok"
