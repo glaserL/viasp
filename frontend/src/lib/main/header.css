@@ -4,14 +4,17 @@
     align-content: center;
     float: right;
     display: flex;
-    /*height: 5vh;*/
-    /*flex: 0 1 auto;*/
+    position: fixed;
+    z-index: 10;
+    right: 0;
+    top: 0;
 }
 
 .drawer_content {
     transition: .3s;
     z-index: 1;
     box-shadow: 0 2px 2px -2px rgba(0, 0, 0, .2);
+    border-radius: 0 0 0 5px;
 }
 
 .toggle_part {
