@@ -11,6 +11,10 @@ build/
 *.idea
 #js
 *node_modules
+*.build_cache
+*inst
+*deps
+*man
 # notes
 *.md
 # ignore build of viasp dash
