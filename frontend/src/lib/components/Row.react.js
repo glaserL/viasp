@@ -54,6 +54,10 @@ export function Row(props) {
     }
 
     React.useEffect(() => {
+        checkForOverflow()
+    }, [nodes])
+
+    React.useEffect(() => {
         window.addEventListener('resize', checkForOverflow)
         return _ => window.removeEventListener('resize', checkForOverflow)
     })
