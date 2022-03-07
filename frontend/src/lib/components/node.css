@@ -76,4 +76,6 @@
     width: fit-content;
     height: fit-content;
     font-size: 12pt;
+    min-width: 8px;
+    min-height: 8px;
 }

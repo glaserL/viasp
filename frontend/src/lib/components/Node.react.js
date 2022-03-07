@@ -61,7 +61,6 @@ function NodeContent(props) {
     </div>
 }
 
-// FIXME: Parameterize proptypes
 NodeContent.propTypes = {
     /**
      * object containing the node data to be displayed
@@ -109,8 +108,8 @@ export function Node(props) {
 
     return <div className={classNames} style={{"backgroundColor": colorPalette.sixty, "color": colorPalette.ten}}
                 id={node.uuid} onClick={() => notifyClick(node)}>
-        {showMini ? <div style={{"backgroundColor": colorPalette.thirty, "color": colorPalette.ten}}
-                         className={"mini"}>{node.atoms.length}</div> :
+        {showMini ? <div style={{"backgroundColor": colorPalette.ten, "color": colorPalette.ten}}
+                         className={"mini"}/> :
             <div className={"set_too_high"} ref={ref}><NodeContent node={node}/></div>}
         {!showMini && isOverflowV ?
             <div style={{"backgroundColor": colorPalette.ten, "color": colorPalette.thirty}}
