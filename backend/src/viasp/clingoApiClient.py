@@ -35,7 +35,7 @@ class ClingoClient(Client):
         else:
             self.headless = False
         if not backend_is_running():
-            log("Backend is unavailable", Level.WARN)
+            log(f"Backend at is unavailable ({BACKEND_URL})", Level.WARN)
 
     def is_available(self):
         return backend_is_running(self.backend_url)
@@ -43,18 +43,15 @@ class ClingoClient(Client):
     def save_function_call(self, call: ClingoMethodCall):
         if backend_is_running() and not self.headless:
             serialized = json.dumps(call, cls=DataclassJSONEncoder)
-            r = requests.post(f"{self.backend_url}control/call",
+            r = requests.post(f"{self.backend_url}/control/call",
                               data=serialized,
                               headers={'Content-Type': 'application/json'})
             print(r.status_code, r.reason)
-        else:
-            # TODO: only log once or sometimes, look at TTLCache
-            warn(f"Backend dead.")
 
     def set_target_stable_model(self, stable_models: Collection[StableModel]):
         if backend_is_running() and not self.headless:
             serialized = json.dumps(stable_models, cls=DataclassJSONEncoder)
-            r = requests.post(f"{self.backend_url}control/models", data=serialized,
+            r = requests.post(f"{self.backend_url}/control/models", data=serialized,
                               headers={'Content-Type': 'application/json'})
             if r.ok:
                 log(f"Set models.")
@@ -64,7 +61,7 @@ class ClingoClient(Client):
     def paint(self):
         self._reconstruct()
         if backend_is_running() and not self.headless:
-            r = requests.post(f"{self.backend_url}control/paint")
+            r = requests.post(f"{self.backend_url}/control/paint")
             if r.ok:
                 log(f"Painting in progress.")
             else:
@@ -72,7 +69,7 @@ class ClingoClient(Client):
 
     def _reconstruct(self):
         if backend_is_running() and not self.headless:
-            r = requests.get(f"{self.backend_url}control/solve")
+            r = requests.get(f"{self.backend_url}/control/solve")
             if r.ok:
                 log(f"Solving in progress.")
             else:

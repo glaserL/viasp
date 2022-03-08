@@ -173,3 +173,55 @@ jobs:
       - name: Run Tests
         working-directory: backend
         run: PYTHONPATH=src pytest test
+
+
+  test-integration:
+    name: Integration testing
+    runs-on: ubuntu-latest
+    needs: [ build-backend, frontend ]
+    steps:
+      - name: Checking out repository
+        uses: actions/checkout@v2
+      - name: Get backend artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: backend-${{ github.sha }}
+      - name: Get frontend artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: frontend-${{ github.sha }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Get python packages from cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}
+        id: cache
+
+      - name: Install dev dependencies, backend and frontend
+        shell: bash -l {0}
+        run: |
+          pip install --upgrade --upgrade-strategy eager -r requirements.txt
+          pip install "viasp_backend-$(sh .github/backend-version.sh)-py3-none-any.whl"
+          pip install "viasp_dash-$(sh .github/frontend-version.sh)-py3-none-any.whl"
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Run Tests
+        working-directory: examples
+        run: |
+          viasp &
+          BACKENDPID=$!
+          echo Giving backend time to startup..
+          sleep 15s
+          python example.py &
+          PID=$!
+          sleep 15s
+          echo Killing processes..
+          kill -9 $PID
+          kill -9 $BACKENDPID
+          echo Killed.
