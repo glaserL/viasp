@@ -1,16 +1,14 @@
-from dataclasses import asdict
 import json
 from typing import Collection
 
 import requests
-from clingo import Model
-
+from .shared.config import BACKEND_URL
 from .shared.io import DataclassJSONEncoder
 from .shared.model import ClingoMethodCall, StableModel
 from .shared.simple_logging import log, Level, warn, error
 
 
-def backend_is_running(url="http://127.0.0.1:5000/"):
+def backend_is_running(url=BACKEND_URL):
     try:
         r = requests.head(url)
         return r.status_code == 200
@@ -29,7 +27,7 @@ def dict_factory_that_supports_uuid(kv_pairs):
 class ClingoClient(Client):
 
     def __init__(self, **kwargs):
-        self.backend_url = "http://127.0.0.1:5000/"
+        self.backend_url = BACKEND_URL
         if "headless" in kwargs:
             self.headless = kwargs["headless"]
         else:
