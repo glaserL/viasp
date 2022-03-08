@@ -49,12 +49,16 @@
 }
 
 .detail_atom_view_content {
-    /*background-color: whitesmoke;*/
-    /*color: #333333;*/
     width: fit-content;
     padding: 5px;
     margin-left: 5px;
+    margin-top: 5px;
     border-radius: 10px 10px 10px 10px;
+}
+
+.detail_atom_view_content_container {
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .closeButton {
