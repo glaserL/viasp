@@ -209,7 +209,7 @@ jobs:
           pip install --upgrade --upgrade-strategy eager -r requirements.txt
           pip install "viasp_backend-$(sh .github/backend-version.sh)-py3-none-any.whl"
           pip install "viasp_dash-$(sh .github/frontend-version.sh)-py3-none-any.whl"
-        if: steps.cache.outputs.cache-hit != 'true'
+        #if: steps.cache.outputs.cache-hit != 'true'
 
       - name: Run Tests
         working-directory: examples
