@@ -25,34 +25,16 @@
     overflow: hidden;
     font-size: 11pt;
     text-align: left;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
 }
 
-.detail_atom_view_heading:after {
-    background-color: #cccccc;
-    color: #cccccc;
-    content: "";
-    display: inline-block;
-    height: 1px;
-    position: relative;
-    /*vertical-align: middle;*/
-    width: 75%;
-}
-
-.detail_atom_view_heading:before {
-    right: 0.5em;
-    margin-left: -50%;
-}
-
-.detail_atom_view_heading:after {
-    left: 0.5em;
-    margin-right: -50%;
-}
 
 .detail_atom_view_content {
     width: fit-content;
     padding: 5px;
-    margin-left: 5px;
-    margin-top: 5px;
+    margin: 5px;
     border-radius: 10px 10px 10px 10px;
 }
 

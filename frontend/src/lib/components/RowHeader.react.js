@@ -4,14 +4,14 @@ import styled from 'styled-components';
 import {useColorPalette} from "../contexts/ColorPalette";
 
 const ColoredRowHeaderToggle = styled.div`
-color: ${props => props.colorPalette.ten};
-backgroundColor: ${props => props.colorPalette.sixty};
-    width: -moz-fit-content;
-    width: fit-content;
+color: ${props => props.colorPalette.ten.bright};
+background-color: ${props => props.colorPalette.sixty.dark};
+width: -moz-fit-content;
+width: fit-content;
 &:hover {
-    color: ${props => props.colorPalette.sixty}; 
-    backgroundColor: ${props => props.colorPalette.ten};
-  };
+    color: ${props => props.colorPalette.sixty.dark};
+    background-color: ${props => props.colorPalette.ten.bright};
+};
 `
 
 
@@ -20,12 +20,12 @@ export function RowHeader(props) {
     const colorPalette = useColorPalette();
     const hideOrShowButton = contentIsShown ? "hide" : "show"
     return <div className="row_header">
-        <div className="row_header_bar" style={{"backgroundColor": colorPalette.sixty}}>
+        <div className="row_header_bar" style={{"backgroundColor": colorPalette.sixty.dark}}>
             <ColoredRowHeaderToggle colorPalette={colorPalette}>
                 <div className={"row_toggle noselect"} onClick={onToggle}>{hideOrShowButton}</div>
             </ColoredRowHeaderToggle>
         </div>
-        <div style={{"backgroundColor": colorPalette.sixty, "color": colorPalette.thirty}}
+        <div style={{"backgroundColor": colorPalette.sixty.dark, "color": colorPalette.thirty.dark}}
              className="row_header_rule">{transformation.map(rule => <div key={rule}>{rule}</div>)}
         </div>
     </div>

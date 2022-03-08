@@ -27,16 +27,16 @@ function ShowAllToggle() {
     return <tr>
         <td align="right">Nodes show:</td>
         <td align="right">
-        <span style={{backgroundColor: colorPalette.sixty}}
+        <span style={{backgroundColor: colorPalette.sixty.bright}}
               className="display_all_toggle_span noselect"
               onClick={() => dispatch(toggleShowAll())}>
         <span className={classNameAll} style={state.show_all ? {
-            backgroundColor: colorPalette.ten,
-            "color": colorPalette.sixty
+            backgroundColor: colorPalette.ten.bright,
+            "color": colorPalette.sixty.bright
         } : null}>All symbols</span>
         <span className={classNameNew} style={state.show_all ? null : {
-            backgroundColor: colorPalette.ten,
-            "color": colorPalette.sixty
+            backgroundColor: colorPalette.ten.bright,
+            "color": colorPalette.sixty.bright
         }}>Added symbols</span>
     </span>
         </td>
@@ -124,15 +124,16 @@ export function Settings() {
     const colorPalette = useColorPalette();
     const [drawnOut, setDrawnOut] = React.useState(false);
     return <div className="settings noselect">
-                <span className="drawer_toggle" style={{backgroundColor: colorPalette.ten, color: colorPalette.sixty}}
+                <span className="drawer_toggle"
+                      style={{backgroundColor: colorPalette.ten.dark, color: colorPalette.sixty.bright}}
                       onClick={() => setDrawnOut(!drawnOut)}>{drawnOut ? <IoCloseSharp size={28}/> :
                     <IoOptionsSharp size={28}/>}</span>
-        <div className="drawer" style={{backgroundColor: colorPalette.sixty}}>
+        <div className="drawer" style={{backgroundColor: colorPalette.sixty.dark}}>
             <div className="drawer_content"
                  style={drawnOut ? {
                      maxWidth: "500px",
-                     backgroundColor: colorPalette.sixty
-                 } : {maxWidth: "0px", backgroundColor: colorPalette.sixty}}>
+                     backgroundColor: colorPalette.sixty.dark
+                 } : {maxWidth: "0px", backgroundColor: colorPalette.sixty.dark}}>
                 <SettingsTable/>
             </div>
         </div>

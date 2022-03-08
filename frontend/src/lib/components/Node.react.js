@@ -56,7 +56,7 @@ function NodeContent(props) {
     const renderedSymbols = contentToShow.filter(symbol => symbolShouldBeShown(symbol)).map(s => {
         return <Symbol key={JSON.stringify(s)} symbol={s}/>
     })
-    return <div className={containerNames} style={{"color": colorPalette.thirty}}>
+    return <div className={containerNames} style={{"color": colorPalette.thirty.bright}}>
         <span className={classNames2}>{renderedSymbols.length > 0 ? renderedSymbols : ""}</span>
     </div>
 }
@@ -107,14 +107,15 @@ export function Node(props) {
     })
 
 
-    return <div className={classNames} style={{"backgroundColor": colorPalette.sixty, "color": colorPalette.ten}}
+    return <div className={classNames}
+                style={{"backgroundColor": colorPalette.sixty.dark, "color": colorPalette.ten.dark}}
                 id={node.uuid} onClick={() => notifyClick(node)}>
-        {showMini ? <div style={{"backgroundColor": colorPalette.ten, "color": colorPalette.ten}}
+        {showMini ? <div style={{"backgroundColor": colorPalette.ten.dark, "color": colorPalette.ten.dark}}
                          className={"mini"}/> :
             <div className={"set_too_high"} ref={ref}><NodeContent node={node}/></div>}
         {!showMini && isOverflowV ?
-            <div style={{"backgroundColor": colorPalette.ten, "color": colorPalette.thirty}}
-                 className={"bauchbinde"}>...</div> : null}
+            <div style={{"backgroundColor": colorPalette.ten.dark, "color": colorPalette.sixty.dark}}
+                 className={"noselect bauchbinde"}>...</div> : null}
     </div>
 }
 
