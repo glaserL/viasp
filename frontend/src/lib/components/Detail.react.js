@@ -33,8 +33,9 @@ function DetailForSignature(props) {
     return <div>
         <h3 className="detail_atom_view_heading"
             onClick={() => setShowChildren(!showChildren)}>{openCloseSymbol} {signature.name}/{signature.args}</h3>
-        {showChildren ? symbols.map(symbol => <DetailSymbolPill key={JSON.stringify(symbol)}
-                                                                symbol={symbol}/>) : null}
+        <div className="detail_atom_view_content_container">
+            {showChildren ? symbols.map(symbol => <DetailSymbolPill key={JSON.stringify(symbol)}
+                                                                    symbol={symbol}/>) : null}</div>
     </div>
 }
 
@@ -56,6 +57,13 @@ function loadDataForDetail(uuid, url_provider) {
 function CloseButton(props) {
     const {onClick} = props;
     return <span style={{'cursor': 'pointer'}} onClick={onClick}><IoCloseSharp size={20}/></span>
+}
+
+CloseButton.propTypes = {
+    /**
+     * The function to be called when the button is clicked.
+     */
+    onClick: PropTypes.func
 }
 
 export function Detail(props) {
