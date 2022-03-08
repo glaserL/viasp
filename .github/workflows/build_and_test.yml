@@ -224,4 +224,3 @@ jobs:
           echo Killing processes..
           kill -9 $PID
           kill -9 $BACKENDPID
-          echo Killed.
