@@ -8,14 +8,15 @@ from dataclasses import asdict, is_dataclass
 
 from .clingoApiClient import ClingoClient
 from .server.database import ClingoMethodCall
-from .shared.io import model_to_json, model_to_dict, clingo_model_to_stable_model
+from .shared.config import BACKEND_URL
+from .shared.io import clingo_model_to_stable_model
 from .shared.model import StableModel
 from .shared.simple_logging import warn
 
 
 def backend_is_running():
     try:
-        r = requests.head("http://127.0.0.1:5000/")
+        r = requests.head(BACKEND_URL)
         return r.status_code == 200
     except requests.exceptions.ConnectionError:
         return False
@@ -37,7 +38,6 @@ class PaintConnector:
             raise Exception("Server is not available")
         self._database.set_target_stable_model(self._marked)
         self._database.paint()
-
 
     def unmark(self, model: Model):
         serialized = clingo_model_to_stable_model(model)
