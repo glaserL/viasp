@@ -1,14 +1,11 @@
-import json
 from typing import Tuple, Any, Dict, Iterable
 
 from flask import request, Blueprint, jsonify, abort, Response
-from networkx import node_link_data
 
 from .dag_api import set_graph
 from ..database import CallCenter, ProgramDatabase
 from ...asp.justify import build_graph
 from ...asp.reify import ProgramAnalyzer, reify_list
-from ...shared.io import DataclassJSONEncoder
 from ...shared.model import ClingoMethodCall, StableModel
 from ...asp.replayer import apply_multiple
 
@@ -20,11 +17,9 @@ ctl = None
 
 def handle_call_received(call: ClingoMethodCall) -> None:
     global ctl
-    if ctl is None:
-        calls.append(call)
-    else:
-        # ToDo: Implement this. Probably a bit more complicated, as the transformation needs to be taken care of.
-        abort(666)
+    calls.append(call)
+    if ctl is not None:
+        ctl = apply_multiple(calls.get_pending(), ctl)
 
 
 def handle_calls_received(calls: Iterable[ClingoMethodCall]) -> None:

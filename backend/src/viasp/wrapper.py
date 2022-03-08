@@ -62,9 +62,6 @@ class Control(InnerControl):
         self.viasp = PaintConnector(**kwargs)
         if not backend_is_running():
             warn("You are using the vizgo control object and no server is running right now")
-            # app = factory.create_app()
-            # from waitress import serve
-            # serve(app, host="0.0.0.0", port=8080)
             # TODO: output good warning
         self.viasp.register_function_call("__init__", signature(super().__init__), args, kwargs)
         super().__init__(*args, **kwargs)
