@@ -108,7 +108,7 @@ function SettingsTable() {
 
     return <React.Fragment>
         <form method="GET" id={FORM_ID} onSubmit={onSubmit}/>
-        <table border={1} frame={"hsides"} rules={"rows"}>
+        <table>
             <tbody>
             <Header text="Display"/>
             <ShowAllToggle/>
