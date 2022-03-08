@@ -12,6 +12,7 @@
 
 .row_header_rule {
     padding: 5px;
+    border-radius: 0 0 5px 0;
 }
 
 .row_header_bar {
@@ -22,7 +23,7 @@
 }
 
 .row_toggle {
-    font-size: 9pt;
+    font-size: 10pt;
     cursor: pointer;
     padding-left: 10px;
     padding-right: 10px;

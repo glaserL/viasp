@@ -25,7 +25,7 @@ function ActiveFilters() {
 function CloseButton(props) {
     const {onClose} = props;
     const {sixty} = useColorPalette();
-    return <span style={{color: sixty}} className='close' onClick={onClose}>X</span>
+    return <span style={{color: sixty.bright}} className='close' onClick={onClose}>X</span>
 }
 
 CloseButton.propTypes = {
@@ -54,7 +54,7 @@ function ActiveFilter(props) {
         dispatch(clear(filter))
     }
 
-    return <li style={{backgroundColor: ten, color: sixty}} className={classes.join(" ")}
+    return <li style={{backgroundColor: ten.bright, color: sixty.dark}} className={classes.join(" ")}
                key={filter.name}>{filter.name}/{filter.args}<CloseButton
         onClose={onClose}/>
     </li>
@@ -144,7 +144,7 @@ export function Search(props) {
     if (showSuggestions && userInput) {
         if (filteredSuggestions.length) {
             suggestionsListComponent = (
-                <ul className="search_result_list" style={{backgroundColor: sixty}}>
+                <ul className="search_result_list" style={{backgroundColor: sixty.dark}}>
                     {filteredSuggestions.map((suggestion, index) => {
                         return <Suggestion active={index === activeSuggestion} key={index}
                                            value={suggestion} select={select}/>

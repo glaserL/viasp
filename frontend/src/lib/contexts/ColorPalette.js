@@ -2,13 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 
 export const defaultPalette = {
-    // ten: "#FF0032",
-    ten: "#2F97C1",
-    // thirty: "#AAFFAA",
-    thirty: "#000000",
-    // sixty: "#FFAAFF",
-    sixty: "#F6F4F3",
-    // background: "#FF00AA"
+    ten: {dark: "#3FA7D1", bright: "#3FA7E1"},
+    thirty: {dark: "#444", bright: "#454545"},
+    sixty: {dark: "#F6F4F3", bright: "#FEFEFE"},
     error_ten: "#EB4A4E",
     error_thirty: "#4C191A",
     error_sixty: "#FCE8E8"

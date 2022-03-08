@@ -5,15 +5,16 @@ import PropTypes from "prop-types";
 import {useColorPalette} from "../contexts/ColorPalette";
 import {useSettings} from "../contexts/Settings";
 import {SIGNATURE, SYMBOL} from "../types/propTypes";
-import {IoCloseSharp} from "react-icons/all";
+import {IoChevronDown, IoChevronForward, IoCloseSharp} from "react-icons/all";
+
 
 function DetailSymbolPill(props) {
     const {symbol} = props;
     const colorPalette = useColorPalette();
     return <span className="detail_atom_view_content"
                  style={{
-                     backgroundColor: colorPalette.ten,
-                     color: colorPalette.sixty
+                     backgroundColor: colorPalette.ten.bright,
+                     color: colorPalette.sixty.dark
                  }}>{make_atoms_string(symbol)}</span>
 
 }
@@ -29,26 +30,29 @@ DetailSymbolPill.propTypes = {
 function DetailForSignature(props) {
     const {signature, symbols} = props;
     const [showChildren, setShowChildren] = React.useState(true);
-    const openCloseSymbol = showChildren ? "v" : ">"
+    const openCloseSymbol = showChildren ? <IoChevronDown/> : <IoChevronForward/>
     return <div>
-        <h3 className="detail_atom_view_heading"
+        <hr/>
+        <h3 className="detail_atom_view_heading noselect"
             onClick={() => setShowChildren(!showChildren)}>{openCloseSymbol} {signature.name}/{signature.args}</h3>
+        <hr/>
         <div className="detail_atom_view_content_container">
             {showChildren ? symbols.map(symbol => <DetailSymbolPill key={JSON.stringify(symbol)}
                                                                     symbol={symbol}/>) : null}</div>
     </div>
 }
 
-DetailForSignature.propTypes = {
-    /**
-     * The signature to display in the header
-     */
-    signature: SIGNATURE,
-    /**
-     * The atoms that should be shown for this exact signature
-     */
-    symbols: PropTypes.arrayOf(SYMBOL)
-}
+DetailForSignature.propTypes =
+    {
+        /**
+         * The signature to display in the header
+         */
+        signature: SIGNATURE,
+        /**
+         * The atoms that should be shown for this exact signature
+         */
+        symbols: PropTypes.arrayOf(SYMBOL)
+    }
 
 function loadDataForDetail(uuid, url_provider) {
     return fetch(`${url_provider("detail")}/?uuid=${uuid}`).then(r => r.json())
@@ -59,12 +63,13 @@ function CloseButton(props) {
     return <span style={{'cursor': 'pointer'}} onClick={onClick}><IoCloseSharp size={20}/></span>
 }
 
-CloseButton.propTypes = {
-    /**
-     * The function to be called when the button is clicked.
-     */
-    onClick: PropTypes.func
-}
+CloseButton.propTypes =
+    {
+        /**
+         * The function to be called when the button is clicked.
+         */
+        onClick: PropTypes.func
+    }
 
 export function Detail(props) {
     const [data, setData] = React.useState(null);
@@ -92,7 +97,8 @@ export function Detail(props) {
             Loading..
         </div>
     }
-    return <div id="detailSidebar" style={{backgroundColor: colorPalette.sixty}} className="detail">
+    return <div id="detailSidebar" style={{backgroundColor: colorPalette.sixty.dark, color: colorPalette.thirty.bright}}
+                className="detail">
         <h3><CloseButton onClick={clearDetail}/>Stable Models
         </h3>
         {data.map((resp) =>
@@ -102,14 +108,15 @@ export function Detail(props) {
 }
 
 
-Detail.propTypes = {
-    /**
-     * The node to show
-     */
-    shows: PropTypes.string,
+Detail.propTypes =
+    {
+        /**
+         * The node to show
+         */
+        shows: PropTypes.string,
 
-    /**
-     * The function that should be called to close the detail again.
-     */
-    clearDetail: PropTypes.func
-}
+        /**
+         * The function that should be called to close the detail again.
+         */
+        clearDetail: PropTypes.func
+    }

@@ -77,5 +77,6 @@
     height: fit-content;
     font-size: 12pt;
     min-width: 8px;
+    cursor: pointer;
     min-height: 8px;
 }
