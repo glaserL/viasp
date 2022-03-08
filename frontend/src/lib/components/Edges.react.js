@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import useResizeObserver from "@react-hook/resize-observer";
 import {useShownNodes} from "../contexts/ShownNodes";
 import {useSettings} from "../contexts/Settings";
+import {useFilters} from "../contexts/Filters";
 
 function loadEdges(shownNodes, backendURL) {
     return fetch(`${backendURL("edges")}`, {
@@ -32,6 +33,7 @@ export function Edges() {
     useResize(target)
     const [{shownNodes},] = useShownNodes()
     const {state, backendURL} = useSettings()
+    const [{activeFilters},] = useFilters();
 
     React.useEffect(() => {
         let mounted = true;
@@ -43,7 +45,7 @@ export function Edges() {
                 }
             })
         return () => mounted = false;
-    }, [shownNodes, state]);
+    }, [shownNodes, state, activeFilters]);
 
     return <div ref={target} className="edge_container">{edges.map(link => <LineTo
         key={link.src + "-" + link.tgt} from={link.src} fromAnchor={"bottom center"} toAnchor={"top center"}
