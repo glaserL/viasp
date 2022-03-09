@@ -16,38 +16,26 @@ from helper import get_stable_models_for_program
 
 def test_justification_creates_a_graph_with_a_single_path():
     orig_program = "c(1). c(2). b(X) :- c(X). a(X) :- b(X)."
-    analyzer = ProgramAnalyzer()
-    sorted_program = analyzer.sort_program(orig_program)
-    saved_models = get_stable_models_for_program(orig_program)
-    reified = reify_list(sorted_program)
-
-    g = build_graph(saved_models, reified, analyzer)
+    g = get_graph_of_sorted_program(orig_program)
     assert len(g.nodes()) == 3
     assert len(g.edges()) == 2
 
 
 def test_justification_creates_a_graph_with_three_paths_on_choice_rules():
     orig_program = "a(1). a(2). { b(X) } :- a(X)."
-    analyzer = ProgramAnalyzer()
-    sorted_program = analyzer.sort_program(orig_program)
-    saved_models = get_stable_models_for_program(orig_program)
-    reified = reify_list(sorted_program)
-
-    g = build_graph(saved_models, reified, analyzer)
+    g = get_graph_of_sorted_program(orig_program)
     assert len(g.nodes()) == 5
     assert len(g.edges()) == 4
 
 
-def test_justification_creates_a_graph_with_three_paths_on_multiple_choice_rules_merging_isomorphic_partial_paths():
-    orig_program = "a(1). {b(X)} :- a(X). d(X) :- b(X). {c(X)} :- b(X)."
+def get_graph_of_sorted_program(program: str):
     analyzer = ProgramAnalyzer()
-    sorted_program = analyzer.sort_program(orig_program)
-    saved_models = get_stable_models_for_program(orig_program)
+    sorted_program = analyzer.sort_program(program)
+    saved_models = get_stable_models_for_program(program)
     reified = reify_list(sorted_program)
 
     g = build_graph(saved_models, reified, analyzer)
-    assert len(g.nodes()) == 9
-    assert len(g.edges()) == 8
+    return g
 
 
 def test_pairwise_works():
