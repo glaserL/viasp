@@ -62,7 +62,8 @@ def test_detail_endpoint_returns_details_on_valid_uuid(client_with_a_graph, sing
     client_with_a_graph.post("graph", json=serializable_graph)
     res = client_with_a_graph.get(f"detail/?uuid={uuid.hex}")
     assert res.status_code == 200
-    assert a_1 in res.json[0][1]
+    assert a_1 in res.json[1][0][1]
+    assert res.json[0] == "Stable Model"
 
 
 def test_get_transformation(client_with_a_graph):
