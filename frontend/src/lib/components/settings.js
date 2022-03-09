@@ -1,7 +1,7 @@
 import React from "react";
 import {useColorPalette} from "../contexts/ColorPalette";
 import {setBackendURL, toggleShowAll, useSettings} from "../contexts/Settings";
-import {GoCheck, GoStop, IoCloseSharp, IoOptionsSharp} from "react-icons/all";
+import {GoCheck, GoStop, IoCloseSharp, IoInformationCircleOutline, IoOptionsSharp} from "react-icons/all";
 import {IconContext} from "react-icons";
 import './settings.css'
 import PropTypes from "prop-types";
@@ -52,7 +52,7 @@ function BackendHealthCheck() {
         }).catch(() => {
             setBackendReachable(false)
         })
-    }, [state.backend_url])
+    }, [backendURL])
     return <tr>
         <td align="right">Health:</td>
         <td>{backendReachable ?
@@ -115,6 +115,10 @@ function SettingsTable() {
             <Header text="Backend"/>
             <BackendURLSetting input={state.backend_url}/>
             <BackendHealthCheck/>
+            <tr>
+                <td align="right" colSpan="3"><IoInformationCircleOutline/><i style={{fontSize: '9pt'}}>Requires reload
+                    to take effect</i></td>
+            </tr>
             </tbody>
         </table>
     </React.Fragment>

@@ -2,7 +2,7 @@
 import React from "react"
 import PropTypes from "prop-types";
 
-export const DEFAULT_BACKEND_URL = "http://localhost:5000";
+export const DEFAULT_BACKEND_URL = "http://localhost:5050";
 // REDUCER STUFF
 const TOGGLE_SHOW = "APP/SETTINGS/TOGGLE_SHOW"
 const SET_BACKEND_URL = "APP/SETTINGS/BACKEND_URL/SET"
@@ -17,6 +17,7 @@ const reducer = (state, action) => {
                 show_all: !state.show_all
             }
         case SET_BACKEND_URL:
+            window.sessionStorage.setItem("backend_url", action.backend_url);
             return {
                 ...state,
                 backend_url: action.backend_url
@@ -37,12 +38,15 @@ export const Settings = React.createContext({
     dispatch: () => null
 })
 
+
 export const useSettings = () => {
 
     const [state, dispatch] = React.useContext(Settings)
+    const backend_url = window.sessionStorage.getItem("backend_url") || DEFAULT_BACKEND_URL
+    state.backend_url = backend_url
 
     function backendURL(route) {
-        return `${state.backend_url}/${route}`
+        return `${backend_url}/${route}`
     }
 
     return {state, dispatch, backendURL}
