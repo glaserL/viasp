@@ -1,7 +1,6 @@
 from typing import List
 
 import networkx as nx
-import pytest
 from clingo import Function
 from clingo.ast import AST
 
@@ -39,7 +38,6 @@ def test_justification_creates_a_graph_with_three_paths_on_choice_rules():
     assert len(g.edges()) == 4
 
 
-@pytest.mark.skip(reason="Not implemented yet.")
 def test_justification_creates_a_graph_with_three_paths_on_multiple_choice_rules_merging_isomorphic_partial_paths():
     orig_program = "a(1). {b(X)} :- a(X). d(X) :- b(X). {c(X)} :- b(X)."
     analyzer = ProgramAnalyzer()
@@ -48,8 +46,8 @@ def test_justification_creates_a_graph_with_three_paths_on_multiple_choice_rules
     reified = reify_list(sorted_program)
 
     g = build_graph(saved_models, reified, analyzer)
-    assert len(g.nodes()) == 6
-    # assert len(g.edges()) == 5
+    assert len(g.nodes()) == 8
+    assert len(g.edges()) == 7
 
 
 def test_pairwise_works():
@@ -119,11 +117,6 @@ def test_behemoth():
 
     g = build_graph(saved_models, reified, analyzer)
     assert len(g)
-
-
-@pytest.mark.skip(reason="Not implemented yet.")
-def test_that_rules_that_never_fire_somehow_are_registered():
-    pass
 
 
 def test_negative_recursion_gets_treated_correctly():

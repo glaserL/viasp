@@ -9,19 +9,6 @@ def reset_db(client):
     client.delete("graph/clear")
 
 
-@pytest.mark.skip(reason="Unused, I think?")
-def test_tracing(client_with_a_graph, single_node_graph):
-    client_with_a_graph.delete("graph/clear")
-    single_node: Node = list(single_node_graph.nodes)[0]
-    uuid = single_node.uuid
-    symbol = list(single_node.atoms)[0]
-
-    serializable_graph = node_link_data(single_node_graph)
-    client_with_a_graph.post("graph", json=serializable_graph)
-    res = client_with_a_graph.post(f"trace/?uuid={uuid}")
-    assert res.status_code == 200
-
-
 def test_query_endpoints_methods(client_with_a_graph):
     res = client_with_a_graph.get("query")
     assert res.status_code == 200

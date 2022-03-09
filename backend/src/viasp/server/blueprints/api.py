@@ -108,7 +108,8 @@ def paint_model():
     db = ProgramDatabase()
     analyzer = ProgramAnalyzer()
     analyzer.add_program(db.get_program())
-    reified = reify_list(analyzer.get_sorted_program())
+    reified = reify_list(analyzer.get_sorted_program(), h=analyzer.get_conflict_free_h(),
+                         model=analyzer.get_conflict_free_model())
     g = build_graph(marked_models, reified, analyzer)
 
     set_graph(g)

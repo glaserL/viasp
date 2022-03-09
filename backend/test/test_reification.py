@@ -1,7 +1,6 @@
 import clingo
-import pytest
 from clingo.ast import Rule, parse_string, ASTType
-from viasp.asp.reify import transform, ProgramReifier, ProgramAnalyzer
+from viasp.asp.reify import transform, ProgramAnalyzer
 
 
 def assertProgramEqual(actual, expected, message=None):
@@ -43,11 +42,13 @@ def test_multiple_nested_variable_gets_transformed_correctly():
     assertProgramEqual(transform(program), parse_program_to_ast(expected))
 
 
-@pytest.mark.skip(reason="Not implemented yet.")
 def test_conflict_variables_are_resolved():
-    program = "h(42, 11). x(X) :- y(X)."
-    expected = "h(42, 11). h_(1, x(X)) :- model(x(X)), y(X). h(1, x(X)) :- h_(_, x(X))."
-    assertProgramEqual(transform(program), parse_program_to_ast(expected))
+    program = "h(42, 11). model(X) :- y(X). h_(1,2)."
+    expected = "h(42, 11). h_(1,2). h__(1, model(X)) :- model_(model(X)), y(X). model(X) :- h__(_, model(X))."
+    analyzer = ProgramAnalyzer()
+    analyzer.add_program(program)
+    assertProgramEqual(transform(program, h=analyzer.get_conflict_free_h(), model=analyzer.get_conflict_free_model()),
+                       parse_program_to_ast(expected))
 
 
 def test_normal_rule_with_negation_is_transformed_correctly():
@@ -195,31 +196,8 @@ def get_reasons(prg, model):
     ctl = clingo.Control()
     ctl.add("base", [], prg)
     ctl.add("base", [], "".join(model))
-    x = ctl.ground([("base", [])])
+    ctl.ground([("base", [])])
     reasons = []
     for x in ctl.symbolic_atoms.by_signature("h", 2):
         reasons.append(x.symbol)
     return set(reasons)
-
-
-@pytest.mark.skip(reason="Not implemented yet.")
-def test_traveling_salesperson_works():
-    pass
-
-
-@pytest.mark.skip(reason="Not implemented yet.")
-def test_remmmme():
-    prg = """
-a(1).
-h(1, b(X)) :- model(b(X)), a(X).
-b(X) :- h(_, b(X))."""
-    models = [["model(a(1)).",
-               "model(b(1))."],
-              ["model(a(1))."]]
-
-    reasons = []
-
-    for model in models:
-        reasons.append(get_reasons(prg, model))
-    assert len(reasons[0]) == 1
-    assert len(reasons[1]) == 0

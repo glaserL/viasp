@@ -64,18 +64,3 @@ def test_client_clear_removes_all(client, sample_models):
     r = client.get("control/models")
     assert r.status_code == 200
     assert len(r.json) == 0
-
-
-@pytest.mark.skip(reason="Not implemented yet")
-def test_client_no_marked_model_uses_all_to_paint():
-    pass
-
-
-@pytest.mark.skip(reason="Not implemented yet")
-def test_paint_with_stable_model_that_does_not_belong_to_models_throws():
-    pass
-
-
-@pytest.mark.skip(reason="Not implemented yet")
-def test_querying_the_graph_without_calling_the_rerun_throws():
-    pass
