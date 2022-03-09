@@ -2,7 +2,7 @@ import json
 from enum import IntEnum
 from json import JSONEncoder, JSONDecoder
 from dataclasses import is_dataclass
-from typing import Any, Union, Collection
+from typing import Any, Union, Collection, Iterable
 from uuid import UUID
 
 import clingo
@@ -73,28 +73,36 @@ def dataclass_to_dict(o):
 
 class DataclassJSONEncoder(JSONEncoder):
     def default(self, o):
-        if isinstance(o, clingo_Model):
-            x = model_to_dict(o)
-            return x
-        elif isinstance(o, ModelType):
-            return {"__enum__": str(o)}
-        elif isinstance(o, Symbol):
-            x = symbol_to_dict(o)
-            return x
-        elif is_dataclass(o):
-            result = dataclass_to_dict(o)
-            return result
-        elif isinstance(o, nx.Graph):
-            return {"_type": "Graph", "_graph": nx.node_link_data(o)}
-        elif isinstance(o, UUID):
-            return o.hex
-        elif isinstance(o, frozenset):
-            return list(o)
-        elif isinstance(o, set):
-            return list(o)
-        elif isinstance(o, AST):
-            return str(o)
+        encoded = encode_object(o)
+        if encoded is not None:
+            return encoded
         return super().default(o)
+
+
+def encode_object(o):
+    if isinstance(o, clingo_Model):
+        x = model_to_dict(o)
+        return x
+    elif isinstance(o, ModelType):
+        return {"__enum__": str(o)}
+    elif isinstance(o, Symbol):
+        x = symbol_to_dict(o)
+        return x
+    elif is_dataclass(o):
+        result = dataclass_to_dict(o)
+        return result
+    elif isinstance(o, nx.Graph):
+        return {"_type": "Graph", "_graph": nx.node_link_data(o)}
+    elif isinstance(o, UUID):
+        return o.hex
+    elif isinstance(o, frozenset):
+        return list(o)
+    elif isinstance(o, set):
+        return list(o)
+    elif isinstance(o, AST):
+        return str(o)
+    elif isinstance(o, Iterable):
+        return list(o)
 
 
 def model_to_dict(model: clingo_Model) -> dict:
@@ -105,20 +113,11 @@ def model_to_dict(model: clingo_Model) -> dict:
     return model_dict
 
 
-def hae(s):
-    if isinstance(s, list):
-        return [hae(e) for e in s]
-    if isinstance(s, Symbol):
-        if s.type == clingo.SymbolType.Function:
-            return clingo.Function(s.name, hae(s.arguments), s.positive)
-        if s.type == clingo.SymbolType.Number:
-            return clingo.Number(s.number)
-
-
 def clingo_model_to_stable_model(model: clingo_Model) -> StableModel:
-    return StableModel(model.cost, model.optimality_proven, model.type, hae(model.symbols(atoms=True)),
-                       hae(model.symbols(terms=True)), hae(model.symbols(shown=True)), hae(model.symbols(csp=True)),
-                       hae(model.symbols(theory=True)))
+    return StableModel(model.cost, model.optimality_proven, model.type, encode_object(model.symbols(atoms=True)),
+                       encode_object(model.symbols(terms=True)), encode_object(model.symbols(shown=True)),
+                       encode_object(model.symbols(csp=True)),
+                       encode_object(model.symbols(theory=True)))
 
 
 def symbol_to_dict(symbol: clingo.Symbol) -> dict:

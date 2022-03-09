@@ -61,7 +61,7 @@ class ClingoMethodCall:
 
 @dataclass
 class StableModel:
-    cost: int
+    cost: Collection[int]
     optimality_proven: bool
     type: ModelType
     atoms: Collection[Symbol]
