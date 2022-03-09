@@ -97,6 +97,18 @@ def test_rules_are_transferred_to_transformations():
         assert type(next(iter(tr.rules))) == AST
 
 
+def test_empty_stable_model_with_initial_choice():
+    program = """{rain; sprinkler} 1.
+wet :- rain.
+wet :- sprinkler."""
+    analyzer = ProgramAnalyzer()
+    sorted_program = analyzer.sort_program(program)
+    saved_models = get_stable_models_for_program(program)
+    reified = reify_list(sorted_program)
+    g = build_graph(saved_models, reified, analyzer)
+    assert len(list(g.nodes)) == 10
+
+
 def test_behemoth():
     orig_program = "c(1). e(1). 1 #sum { X,Y : a(X,Y) : b(Y), c(X) ; X,Z : b(X,Z) : e(Z) }  :- c(X)."
 

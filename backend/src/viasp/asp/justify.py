@@ -113,7 +113,7 @@ def build_graph(wrapped_stable_models: Collection[str], transformed_prg: Collect
     facts = analyzer.get_facts()
     sorted_program = analyzer.get_sorted_program()
     mapping = list_of_transformations_to_mapping_prob_u_can_throw_this_away(sorted_program)
-    fact_node = Node(frozenset(facts), 0, frozenset(facts))
+    fact_node = Node(frozenset(facts), -1, frozenset(facts))
     if not len(mapping):
         info(f"Program only contains facts. {fact_node}")
         single_node_graph = nx.DiGraph()
