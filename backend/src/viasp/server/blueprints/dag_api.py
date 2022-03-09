@@ -1,17 +1,16 @@
 import json
 import os
 from collections import defaultdict
-from functools import lru_cache as f_cache
 from typing import Union, Collection
 
 import networkx as nx
-from flask import Blueprint, request, jsonify, abort, session, Response
+from flask import Blueprint, request, jsonify, abort, Response
 from flask_cors import cross_origin
 from networkx import DiGraph
 
 from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder, deserialize
 from ...shared.model import Transformation, Filter, Node, Signature
-from ...shared.util import get_start_node_from_graph, get_leafs_from_graph, pairwise
+from ...shared.util import get_start_node_from_graph, pairwise
 from .app import storage
 
 bp = Blueprint("dag_api", __name__, template_folder='../templates', static_folder='../static/',
@@ -201,19 +200,34 @@ def set_graph(data: DiGraph):
 
 
 def get_atoms_in_path_by_signature(uuid: str):
-    graph = get_graph()
-
-    matching_nodes = [x for x, y in graph.nodes(data=True) if x.uuid == uuid]
-
-    if len(matching_nodes) != 1:
-        abort(Response(f"No node with uuid {uuid}.", 404))
     signature_to_atom_mapping = defaultdict(set)
-    node = matching_nodes[0]
+    node = find_node_by_uuid(uuid)
     for symbol in node.atoms:
         signature = Signature(symbol.name, len(symbol.arguments))
         signature_to_atom_mapping[signature].add(symbol)
     return [(s, signature_to_atom_mapping[s])
             for s in signature_to_atom_mapping.keys()]
+
+
+def find_node_by_uuid(uuid: str):
+    graph = get_graph()
+    matching_nodes = [x for x, y in graph.nodes(data=True) if x.uuid == uuid]
+
+    if len(matching_nodes) != 1:
+        abort(Response(f"No node with uuid {uuid}.", 404))
+    return matching_nodes[0]
+
+
+def get_kind(uuid: str) -> str:
+    graph = get_graph()
+    node = find_node_by_uuid(uuid)
+    facts = get_start_node_from_graph(graph)
+    if len(graph.out_edges(node)) == 0:
+        return "Stable Model"
+    elif len(graph.in_edges(node)) == 0:
+        return "Facts"
+    else:
+        return "Model"
 
 
 @bp.route("/detail/")
@@ -224,8 +238,9 @@ def model():
         key = request.args["uuid"]
     if key is None:
         abort(Response("Parameter 'key' required.", 400))
+    kind = get_kind(key)
     path = get_atoms_in_path_by_signature(key)
-    return jsonify(path)
+    return jsonify((kind, path))
 
 
 def get_all_signatures(graph: nx.Graph):

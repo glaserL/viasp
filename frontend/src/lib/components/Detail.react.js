@@ -73,6 +73,7 @@ CloseButton.propTypes =
 
 export function Detail(props) {
     const [data, setData] = React.useState(null);
+    const [type, setType] = React.useState("Model");
     const {shows, clearDetail} = props;
     const {backendURL} = useSettings();
     const colorPalette = useColorPalette();
@@ -82,25 +83,29 @@ export function Detail(props) {
             loadDataForDetail(shows, backendURL)
                 .then(items => {
                     if (mounted) {
-                        setData(items)
+                        setData(items[1])
+                        setType(items[0])
+
                     }
                 })
         }
         return () => mounted = false;
     }, [shows])
+
     if (shows === null) {
         return null;
     }
     if (data === null) {
-        return <div id="detailSidebar" className="detail">
-            <h3><CloseButton onClick={clearDetail}/>Stable Models</h3>
+        return <div id="detailSidebar"
+                    style={{backgroundColor: colorPalette.sixty.dark, color: colorPalette.thirty.bright}}
+                    className="detail">
+            <h3><CloseButton onClick={clearDetail}/>{type}</h3>
             Loading..
         </div>
     }
     return <div id="detailSidebar" style={{backgroundColor: colorPalette.sixty.dark, color: colorPalette.thirty.bright}}
                 className="detail">
-        <h3><CloseButton onClick={clearDetail}/>Stable Models
-        </h3>
+        <h3><CloseButton onClick={clearDetail}/>{type}</h3>
         {data.map((resp) =>
             <DetailForSignature key={`${resp[0].name}/${resp[0].args}`} signature={resp[0]} symbols={resp[1]}
                                 uuid={shows}/>)}
