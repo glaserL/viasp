@@ -1,6 +1,6 @@
 """This module is concerned with finding reasons for why a stable model is found."""
 from collections import defaultdict
-from typing import List, Collection, Dict, Iterable
+from typing import List, Collection, Dict, Iterable, Union
 
 import networkx as nx
 
@@ -18,7 +18,11 @@ def stringify_fact(fact: Function) -> str:
     return f"{str(fact)}."
 
 
-def get_h_symbols_from_model(wrapped_stable_model: Iterable[Symbol], transformed_prg, facts, constants) -> List[Symbol]:
+def get_h_symbols_from_model(wrapped_stable_model: Iterable[Symbol],
+                             transformed_prg: Collection[Union[str, AST]],
+                             facts: List[Symbol],
+                             constants: List[Symbol],
+                             h="h") -> List[Symbol]:
     rules_that_are_reasons_why = []
     ctl = Control()
     stringified = "".join(map(str, transformed_prg))
@@ -27,7 +31,7 @@ def get_h_symbols_from_model(wrapped_stable_model: Iterable[Symbol], transformed
     ctl.add("base", [], stringified)
     ctl.add("base", [], "".join(map(str, wrapped_stable_model)))
     ctl.ground([("base", [])])
-    for x in ctl.symbolic_atoms.by_signature("h", 2):  # TODO: this might not be h if we had to substitute with _h
+    for x in ctl.symbolic_atoms.by_signature(h, 2):
         rules_that_are_reasons_why.append(x.symbol)
     return rules_that_are_reasons_why
 
@@ -69,7 +73,7 @@ def insert_atoms_into_nodes(path: List[Node]):
         v.atoms = frozenset(state)
 
 
-def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, rule_mapping: Dict[int, AST],
+def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, rule_mapping: Dict[int, Union[AST, str]],
                                                 fact_node: Node, h_syms, pad=True) -> nx.DiGraph:
     h_syms = collect_h_symbols_and_create_nodes(h_syms, rule_mapping.keys(), pad)
     h_syms.sort(key=lambda node: node.rule_nr)
@@ -119,7 +123,8 @@ def build_graph(wrapped_stable_models: Collection[str], transformed_prg: Collect
         single_node_graph.add_node(fact_node)
         return single_node_graph
     for model in wrapped_stable_models:
-        h_symbols = get_h_symbols_from_model(model, transformed_prg, facts, analyzer.get_constants())
+        h_symbols = get_h_symbols_from_model(model, transformed_prg, facts, analyzer.get_constants(),
+                                             analyzer.get_conflict_free_h())
         new_path = make_reason_path_from_facts_to_stable_model(model, mapping, fact_node, h_symbols)
         paths.append(new_path)
 

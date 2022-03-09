@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, List, Tuple, Iterable, Set
+from typing import Dict, List, Tuple, Iterable, Set, Collection
 
 import clingo
 import networkx as nx
@@ -55,6 +55,25 @@ class ProgramAnalyzer(DependencyCollector):
         self.rule2signatures = defaultdict(set)
         self.facts: Set[Symbol] = set()
         self.constants: Set[Symbol] = set()
+
+    def _get_conflict_free_version_of_name(self, name: str) -> Collection[str]:
+        candidates = [name for name, _ in self.dependants.keys()]
+        candidates.extend([name for name, _ in self.conditions.keys()])
+        candidates.extend([fact.atom.symbol.name for fact in self.facts])
+        candidates = set(candidates)
+        current_best = name
+        for _ in range(10):
+            if current_best in candidates:
+                current_best = f"{current_best}_"
+            else:
+                return current_best
+        raise ValueError(f"Could not create conflict free variable name for {name}!")
+
+    def get_conflict_free_h(self):
+        return self._get_conflict_free_version_of_name("h")
+
+    def get_conflict_free_model(self):
+        return self._get_conflict_free_version_of_name("model")
 
     def get_facts(self):
         return extract_symbols(self.facts, self.constants)
@@ -140,15 +159,17 @@ class ProgramAnalyzer(DependencyCollector):
 
 class ProgramReifier(DependencyCollector):
 
-    def __init__(self, rule_nr=1):
+    def __init__(self, rule_nr=1, h="h", model="model"):
         self.rule_nr = rule_nr
+        self.h = h
+        self.model = model
 
     def _nest_rule_head_in_h(self, loc: ast.Location, dependant: ast.Literal):
         loc_fun = ast.Function(loc, str(self.rule_nr), [], False)
         loc_atm = ast.SymbolicAtom(loc_fun)
         loc_lit = ast.Literal(loc, ast.Sign.NoSign, loc_atm)
 
-        return [ast.Function(loc, "h", [loc_lit, dependant], 0)]
+        return [ast.Function(loc, self.h, [loc_lit, dependant], 0)]
 
     def _make_head_switch(self, head: clingo.ast.AST, location):
         """In: H :- B.
@@ -158,7 +179,7 @@ class ProgramReifier(DependencyCollector):
         wild_card_fun = ast.Function(location, "_", [], False)
         wild_card_atm = ast.SymbolicAtom(wild_card_fun)
         wild_card_lit = ast.Literal(head.location, ast.Sign.NoSign, wild_card_atm)
-        fun = ast.Function(head.location, "h", [wild_card_lit, head], 0)
+        fun = ast.Function(head.location, self.h, [wild_card_lit, head], 0)
         return ast.Rule(location, head, [fun])
 
     def _nest_rule_head_in_model(self, head):
@@ -167,7 +188,7 @@ class ProgramReifier(DependencyCollector):
         Out: model(H).
         """
         loc = head.location
-        new_head = ast.Function(loc, "model", [head], 0)
+        new_head = ast.Function(loc, self.model, [head], 0)
         return new_head
 
     def visit_Rule(self, rule: clingo.ast.Rule):
@@ -205,26 +226,26 @@ def register_rules(rule_or_list_of_rules, rulez):
             rulez.append(rule_or_list_of_rules)
 
 
-def transform(program: str, visitor=None):
+def transform(program: str, visitor=None, **kwargs):
     if visitor is None:
-        visitor = ProgramReifier()
+        visitor = ProgramReifier(**kwargs)
     rulez = []
     parse_string(program, lambda rule: register_rules(visitor.visit(rule), rulez))
     return rulez
 
 
-def reify(transformation: Transformation):
-    visitor = ProgramReifier(transformation.id)
+def reify(transformation: Transformation, **kwargs):
+    visitor = ProgramReifier(transformation.id, **kwargs)
     result = []
     for rule in transformation.rules:
         result.extend(visitor.visit(rule))
     return result
 
 
-def reify_list(transformations: Iterable[Transformation]) -> List[AST]:
+def reify_list(transformations: Iterable[Transformation], **kwargs) -> List[AST]:
     reified = []
     for part in transformations:
-        reified.extend(reify(part))
+        reified.extend(reify(part, **kwargs))
     return reified
 
 
