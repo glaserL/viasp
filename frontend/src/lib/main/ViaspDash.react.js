@@ -60,9 +60,6 @@ function MainWindow(props) {
         })
     }, [])
 
-    if (!transformations || transformations.length === 0) {
-        return null
-    }
     return <div><Detail shows={detail} clearDetail={() => setDetail(null)}/>
         <div className="content">
             <ShownNodesProvider initialState={initialState} reducer={nodeReducer}>
