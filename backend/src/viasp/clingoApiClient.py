@@ -2,13 +2,13 @@ import json
 from typing import Collection
 
 import requests
-from .shared.config import BACKEND_URL
+from .shared.defaults import DEFAULT_BACKEND_URL
 from .shared.io import DataclassJSONEncoder
 from .shared.model import ClingoMethodCall, StableModel
 from .shared.simple_logging import log, Level, warn, error
 
 
-def backend_is_running(url=BACKEND_URL):
+def backend_is_running(url=DEFAULT_BACKEND_URL):
     try:
         r = requests.head(url)
         return r.status_code == 200
@@ -27,13 +27,16 @@ def dict_factory_that_supports_uuid(kv_pairs):
 class ClingoClient(Client):
 
     def __init__(self, **kwargs):
-        self.backend_url = BACKEND_URL
+        if "backend_url" in kwargs:
+            self.backend_url = kwargs["backend_url"]
+        else:
+            self.backend_url = DEFAULT_BACKEND_URL
         if "headless" in kwargs:
             self.headless = kwargs["headless"]
         else:
             self.headless = False
         if not backend_is_running():
-            log(f"Backend at is unavailable ({BACKEND_URL})", Level.WARN)
+            log(f"Backend at is unavailable ({DEFAULT_BACKEND_URL})", Level.WARN)
 
     def is_available(self):
         return backend_is_running(self.backend_url)

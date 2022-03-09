@@ -8,7 +8,7 @@ from dataclasses import asdict, is_dataclass
 
 from .clingoApiClient import ClingoClient
 from .server.database import ClingoMethodCall
-from .shared.config import BACKEND_URL
+from .shared.defaults import DEFAULT_BACKEND_URL
 from .shared.io import clingo_model_to_stable_model
 from .shared.model import StableModel
 from .shared.simple_logging import warn
@@ -16,7 +16,7 @@ from .shared.simple_logging import warn
 
 def backend_is_running():
     try:
-        r = requests.head(BACKEND_URL)
+        r = requests.head(DEFAULT_BACKEND_URL)
         return r.status_code == 200
     except requests.exceptions.ConnectionError:
         return False
@@ -61,8 +61,7 @@ class Control(InnerControl):
     def __init__(self, *args, **kwargs):
         self.viasp = PaintConnector(**kwargs)
         if not backend_is_running():
-            warn("You are using the vizgo control object and no server is running right now")
-            # TODO: output good warning
+            warn("You are using the viasp control object and no server is running right now")
         self.viasp.register_function_call("__init__", signature(super().__init__), args, kwargs)
         super().__init__(*args, **kwargs)
 
