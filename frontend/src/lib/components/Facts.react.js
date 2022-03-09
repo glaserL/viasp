@@ -29,7 +29,6 @@ export function Facts(props) {
     if (fact === null) {
         return (
             <div className="row_container">
-                <div>Loading facts..</div>
             </div>
         )
     }
