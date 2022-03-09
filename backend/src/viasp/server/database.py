@@ -1,38 +1,14 @@
-from abc import ABC, abstractmethod
-from os import PathLike
 from os.path import join, dirname, abspath
 from typing import Optional, Set, List
 from uuid import UUID
 
+from ..shared.defaults import PROGRAM_STORAGE_PATH
 from ..shared.event import Event, subscribe
 from ..shared.model import ClingoMethodCall
 
 
-class Database(ABC):
-
-    @abstractmethod
-    def append(self, call: ClingoMethodCall):
-        pass
-
-    @abstractmethod
-    def extend(self, calls: List[ClingoMethodCall]):
-        pass
-
-    @abstractmethod
-    def get_all(self) -> List[ClingoMethodCall]:
-        pass
-
-    @abstractmethod
-    def get_pending(self) -> Optional[List[ClingoMethodCall]]:
-        pass
-
-    @abstractmethod
-    def mark_call_as_used(self, call: ClingoMethodCall):
-        pass
-
-
 class ProgramDatabase:
-    def __init__(self, path="prg.lp"):
+    def __init__(self, path=PROGRAM_STORAGE_PATH):
         self.path: str = join(dirname(abspath(__file__)), path)
 
     def get_program(self):
@@ -58,7 +34,7 @@ class ProgramDatabase:
             f.write("")
 
 
-class CallCenter(Database):
+class CallCenter:
 
     def __init__(self):
         self.calls: List[ClingoMethodCall] = []

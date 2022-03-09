@@ -5,7 +5,7 @@ import requests
 from .shared.defaults import DEFAULT_BACKEND_URL
 from .shared.io import DataclassJSONEncoder
 from .shared.model import ClingoMethodCall, StableModel
-from .shared.simple_logging import log, Level, warn, error
+from .shared.simple_logging import log, Level, error
 
 
 def backend_is_running(url=DEFAULT_BACKEND_URL):
@@ -47,7 +47,7 @@ class ClingoClient(Client):
             r = requests.post(f"{self.backend_url}/control/call",
                               data=serialized,
                               headers={'Content-Type': 'application/json'})
-            print(r.status_code, r.reason)
+            error(f"{r.status_code} {r.reason}")
 
     def set_target_stable_model(self, stable_models: Collection[StableModel]):
         if backend_is_running() and not self.headless:

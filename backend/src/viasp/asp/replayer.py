@@ -2,11 +2,10 @@ from typing import Sequence, Optional, Callable
 
 from clingo import Control
 
-from .reify import ProgramAnalyzer
 from ..server.database import ProgramDatabase
 from ..shared.event import Event, publish
 from ..shared.model import ClingoMethodCall
-from ..shared.simple_logging import info, warn
+from ..shared.simple_logging import warn
 
 
 def handler(cls):
@@ -40,7 +39,6 @@ class ClingoReconstructor:
         if func is None:
             warn(f"No function for {call.name} found. Defaulting to NOOP.")
             return self.no_op(ctl, call)
-        info(f"Handling {call.name} with {func.__name__}()")
         return func(self, ctl, call)
 
     @handles("DEFAULT")
@@ -49,8 +47,7 @@ class ClingoReconstructor:
 
     @handles("ground")
     def identity(self, ctl: Control, call: ClingoMethodCall) -> Control:
-        func = getattr(ctl, call.name)  # TODO: Error handling
-        # TODO: Do you even need ground here?
+        func = getattr(ctl, call.name)
         func(**call.kwargs)
         return ctl
 
@@ -58,8 +55,8 @@ class ClingoReconstructor:
     def add(self, ctl: Control, call: ClingoMethodCall) -> Control:
         db = ProgramDatabase()
         db.add_to_program(call.kwargs["program"])
-        func = getattr(ctl, call.name)  # TODO: Error handling
-        func(**call.kwargs)  # TODO: DO WE NEED THIS WITH NEW ARCHITECTURE?
+        func = getattr(ctl, call.name)
+        func(**call.kwargs)
         return ctl
 
     @handles("__init__")

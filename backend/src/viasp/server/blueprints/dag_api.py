@@ -8,10 +8,10 @@ from flask import Blueprint, request, jsonify, abort, Response
 from flask_cors import cross_origin
 from networkx import DiGraph
 
-from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder, deserialize
-from ...shared.model import Transformation, Filter, Node, Signature
-from ...shared.util import get_start_node_from_graph, pairwise
-from .app import storage
+from ...shared.defaults import GRAPH_PATH
+from ...shared.io import DataclassJSONDecoder, DataclassJSONEncoder
+from ...shared.model import Transformation, Node, Signature
+from ...shared.util import get_start_node_from_graph
 
 bp = Blueprint("dag_api", __name__, template_folder='../templates', static_folder='../static/',
                static_url_path='/static')
@@ -19,10 +19,10 @@ bp = Blueprint("dag_api", __name__, template_folder='../templates', static_folde
 GRAPH = None
 
 
-class GraphDataBaseKEKL:
+class GraphAccessor:
 
     def __init__(self):
-        self.path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "graph_storage.json")
+        self.path = os.path.join(os.path.dirname(os.path.abspath(__file__)), GRAPH_PATH)
 
     def save(self, graph: Union[nx.Graph, dict]):
         if isinstance(graph, nx.Graph):
@@ -48,44 +48,22 @@ class GraphDataBaseKEKL:
 
 
 def get_database():
-    return GraphDataBaseKEKL()
+    return GraphAccessor()
 
 
 def get_graph():
     global GRAPH
     if GRAPH is None:
-        print(f"CACHE MISS")
-        GRAPH = GraphDataBaseKEKL().load(False)
-    else:
-        print("CACHE HIT")
+        GRAPH = GraphAccessor().load(False)
     return GRAPH
-
-
-def prune_graph(graph, fltr: Filter):
-    uuids = [f.on.uuid for f in fltr]
-    start = get_start_node_from_graph(graph)
-    filtered = nx.DiGraph()
-    for node in graph.nodes:
-        if graph.out_degree(node) == 0:
-            path = nx.shortest_path(graph, start, node)
-            if any(node.uuid in uuids for node in path):
-                for src, tgt in pairwise(path):
-                    filtered.add_edge(src, tgt, transformation=graph[src][tgt]["transformation"])
-    return filtered
 
 
 def handle_request_for_children(data) -> Collection[Node]:
     graph = get_graph()
     rule_id = data["rule_id"]
     children = list()
-    if storage.has("filter"):
-        node_filters = [fltr for fltr in storage.get("filter") if isinstance(fltr.on, Node)]
-        if len(node_filters):
-            graph = prune_graph(graph, node_filters)
-
     for u, v, d in graph.edges(data=True):
         edge: Transformation = d['transformation']
-        # print(f"{u}-[{d}]->{v}")
         if str(edge.id) == rule_id:
             children.append(v)
 
@@ -169,7 +147,6 @@ def get_all_rules():
     graph = get_graph()
     returning = []
     for u, v in graph.edges:
-        # print(f"Looking at {u.uuid}-[{graph[u][v]['transformation']}->{v.uuid}")
         transformation = graph[u][v]["transformation"]
         if transformation not in returning:
             returning.append(transformation)
@@ -269,23 +246,3 @@ def search():
                 result.append(transformation)
         return jsonify(result[:10])
     return jsonify([])
-
-
-@bp.route("/trace", methods=["POST"])
-@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
-def trace():
-    graph = get_graph()
-    beginning = get_start_node_from_graph(graph)
-    symbol = deserialize(request.data)
-    uuid = request.args["uuid"]
-    matching_nodes = [x for x, y in graph.nodes(data=True) if x.uuid == uuid]
-    assert len(matching_nodes) == 1
-    end = matching_nodes[0]
-    path: [Node] = nx.shortest_path(graph, beginning, end)
-    trace = []
-    for step in path:
-        if symbol in step.diff:
-            trace.append(step.uuid)
-            break
-        trace.append(step.uuid)
-    return jsonify(trace), 200

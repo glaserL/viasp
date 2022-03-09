@@ -58,12 +58,6 @@ class ClingoMethodCall:
             args_dict[param_names[index]] = arg
         return cls(name, args_dict)
 
-    #
-    # model_dict = {"cost": model.cost, "optimality_proven": model.optimality_proven, "type": model.type,
-    #               "atoms": model.symbols(atoms=True), "terms": model.symbols(terms=True),
-    #               "shown": model.symbols(shown=True), "csp": model.symbols(csp=True),
-    #               "theory": model.symbols(theory=True), "_type": "Model"}
-
 
 @dataclass
 class StableModel:

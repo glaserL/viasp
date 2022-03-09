@@ -53,7 +53,6 @@ class PaintConnector:
     def register_function_call(self, name, sig, args, kwargs):
         serializable_call = ClingoMethodCall.merge(name, sig, args, kwargs)
         self._database.save_function_call(serializable_call)
-        print(f"Registered {serializable_call}")
 
 
 class Control(InnerControl):

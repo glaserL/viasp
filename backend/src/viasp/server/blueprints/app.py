@@ -2,12 +2,12 @@ import json
 from pathlib import Path
 from typing import Any
 
-from flask import render_template, Blueprint, request, abort, jsonify
+from flask import Blueprint, request, abort, jsonify
 from flask_cors import cross_origin
 
 from ...shared.io import DataclassJSONEncoder, DataclassJSONDecoder
 from ...shared.model import Filter
-from ...shared.simple_logging import info, log
+from ...shared.simple_logging import log
 
 bp = Blueprint("app", __name__, template_folder='../templates', static_folder='../static/', static_url_path='/static')
 
@@ -61,7 +61,6 @@ def hello_world():
 
 
 def change_setting(key: str, value: Any):
-    info(f"Changing setting: {key} ({type(key)})={value} ({type(value)})")
     storage.set(key, value)
 
 

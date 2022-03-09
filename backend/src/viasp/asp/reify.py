@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, List, Collection, Tuple, Optional, Iterable, Set
+from typing import Dict, List, Tuple, Iterable, Set
 
 import clingo
 import networkx as nx
@@ -46,7 +46,6 @@ class DependencyCollector(Transformer):
 class ProgramAnalyzer(DependencyCollector):
     """
     Receives a ASP program and finds it's dependencies within, can sort a program by it's dependencies.
-    Will merge recursive rules and rules that produce the same head into a Transformation. TODO: is this sitll teh case
     """
 
     def __init__(self):
@@ -229,7 +228,9 @@ def reify_list(transformations: Iterable[Transformation]) -> List[AST]:
     return reified
 
 
-def extract_symbols(facts, constants=set()):
+def extract_symbols(facts, constants=None):
+    if constants is None:
+        constants = set()
     ctl = clingo.Control()
     ctl.add("INTERNAL", [], "".join(f"{str(f)}." for f in facts))
     ctl.add("INTERNAL", [], "".join(f"{str(c)}" for c in constants))

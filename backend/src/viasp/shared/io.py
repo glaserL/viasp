@@ -1,8 +1,7 @@
 import json
-import sys
 from enum import IntEnum
 from json import JSONEncoder, JSONDecoder
-from dataclasses import is_dataclass, asdict
+from dataclasses import is_dataclass
 from typing import Any, Union, Collection
 from uuid import UUID
 
@@ -11,7 +10,7 @@ import networkx as nx
 from _clingo.lib import clingo_model_type_brave_consequences, clingo_model_type_cautious_consequences, \
     clingo_model_type_stable_model
 from clingo import Model as clingo_Model, ModelType, Symbol
-from clingo.ast import AST, Function
+from clingo.ast import AST
 
 from .model import Node, Transformation, Signature, Filter, StableModel, ClingoMethodCall
 
@@ -50,9 +49,7 @@ def object_hook(obj):
 
 class DataclassJSONDecoder(JSONDecoder):
     def __init__(self, *args, **kwargs):
-        print("INIT")
         JSONDecoder.__init__(self, object_hook=object_hook, *args, **kwargs)
-        print("INITED")
 
 
 def dataclass_to_dict(o):
