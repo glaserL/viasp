@@ -1,6 +1,6 @@
 """This module is concerned with finding reasons for why a stable model is found."""
 from collections import defaultdict
-from typing import List, Collection, Tuple, Dict, Iterable
+from typing import List, Collection, Dict, Iterable
 
 import networkx as nx
 
@@ -83,8 +83,7 @@ def make_reason_path_from_facts_to_stable_model(wrapped_stable_model, rule_mappi
         g.add_edge(fact_node, Node(frozenset(), min(rule_mapping.keys()), frozenset(fact_node.diff)),
                    transformation=rule_mapping[min(rule_mapping.keys())])
         return g
-    # g.add_edge(facts, h_syms[0],
-    #           transformation=Transformation(min(rule_mapping.keys()), rule_mapping[min(rule_mapping.keys())]))
+
     for a, b in pairwise(h_syms):
         g.add_edge(a, b, transformation=rule_mapping[b.rule_nr])
 
@@ -129,7 +128,6 @@ def build_graph(wrapped_stable_models: Collection[str], transformed_prg: Collect
 
 
 def save_model(model: Model) -> Collection[str]:
-    x = 0
     wrapped = []
     for part in model.symbols(atoms=True):
         wrapped.append(f"model({part}).")

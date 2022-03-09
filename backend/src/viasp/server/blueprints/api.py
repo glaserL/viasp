@@ -59,14 +59,14 @@ def reconstruct():
 
 class DataContainer:
     def __init__(self):
-        self.hihi = []
+        self.models = []
 
 
 dc = DataContainer()
 
 
 def handle_models_received(parsed_models):
-    dc.hihi = parsed_models
+    dc.models = parsed_models
 
 
 @bp.route("/control/models", methods=["GET", "POST"])
@@ -78,14 +78,14 @@ def set_stable_models():
             return "Invalid model object", 400
         handle_models_received(parsed_models)
     elif request.method == "GET":
-        return jsonify(dc.hihi)
+        return jsonify(dc.models)
     return "ok"
 
 
 @bp.route("/control/models/clear", methods=["POST"])
 def models_clear():
     if request.method == "POST":
-        dc.hihi.clear()
+        dc.models.clear()
         global ctl
         ctl = None
 
@@ -102,7 +102,7 @@ def someshithandling(marked_models: Iterable[StableModel]):
 
 @bp.route("/control/paint", methods=["POST"])
 def paint_model():
-    marked_models = dc.hihi
+    marked_models = dc.models
     marked_models = someshithandling(marked_models)
 
     db = ProgramDatabase()
