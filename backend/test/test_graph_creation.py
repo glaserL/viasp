@@ -46,8 +46,8 @@ def test_justification_creates_a_graph_with_three_paths_on_multiple_choice_rules
     reified = reify_list(sorted_program)
 
     g = build_graph(saved_models, reified, analyzer)
-    assert len(g.nodes()) == 8
-    assert len(g.edges()) == 7
+    assert len(g.nodes()) == 9
+    assert len(g.edges()) == 8
 
 
 def test_pairwise_works():
