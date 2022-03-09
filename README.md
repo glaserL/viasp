@@ -28,10 +28,18 @@ will install all necessary dependencies.
 viASP has two parts, its frontend [Dash](https://dash.plotly.com) component and the backend server. To get everything
 running, do the following:
 
-1. `viasp-start` (or `viasp-start &` to run it in the background)
-2. `python examples/example.py`
+1. `viasp` (or `viasp &` to run it in the background)
+2. Start your dash app, a basic version can be found at [`examples/minimal_dash.py`](examples/minimal_dash.py)
 3. Replace `clingo.Control` with `viasp.Control` in your python scripts and use `.mark(model)` to select the models you
    want to show
+
+### Quick start
+
+If you don't have any scripts handy that use the python API of clingo, you can use our quickstart script.
+
+**IMPORTANT** You will still need to start viasp (`viasp` or `viasp &`)
+
+Then run [`examples/quickstart.py`](examples/quickstart.py). Modify the clingo program in there to your linking.
 
 If you now run your ASP programs, you can inspect them using viASP at [http://127.0.0.1:8050/](http://127.0.0.1:8050/)
 or what ever port you have set.
