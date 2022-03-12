@@ -12,7 +12,7 @@ from _clingo.lib import clingo_model_type_brave_consequences, clingo_model_type_
 from clingo import Model as clingo_Model, ModelType, Symbol
 from clingo.ast import AST
 
-from .model import Node, Transformation, Signature, Filter, StableModel, ClingoMethodCall
+from .model import Node, Transformation, Signature, StableModel, ClingoMethodCall
 
 
 def model_to_json(model: Union[clingo_Model, Collection[clingo_Model]], *args, **kwargs) -> str:
@@ -36,8 +36,6 @@ def object_hook(obj):
         return Transformation(**obj)
     elif type == "Signature":
         return Signature(**obj)
-    elif type == "Filter":
-        return Filter(**obj)
     elif type == "Graph":
         return nx.node_link_graph(obj["_graph"])
     elif type == "StableModel":
@@ -53,9 +51,7 @@ class DataclassJSONDecoder(JSONDecoder):
 
 
 def dataclass_to_dict(o):
-    if isinstance(o, Filter):
-        return {"_type": "Filter", "on": o.on}
-    elif isinstance(o, Node):
+    if isinstance(o, Node):
         return {"_type": "Node", "atoms": o.atoms, "diff": o.diff, "uuid": o.uuid,
                 "rule_nr": o.rule_nr}
     elif isinstance(o, Signature):

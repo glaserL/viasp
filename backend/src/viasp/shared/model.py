@@ -40,11 +40,6 @@ class Signature:
 
 
 @dataclass
-class Filter:
-    on: Union[Signature, Node, Transformation]
-
-
-@dataclass
 class ClingoMethodCall:
     name: str
     kwargs: Dict[str, Any]
