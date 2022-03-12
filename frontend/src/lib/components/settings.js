@@ -47,7 +47,7 @@ function BackendHealthCheck() {
     const {state, backendURL} = useSettings()
     const [backendReachable, setBackendReachable] = React.useState(true)
     React.useEffect(() => {
-        fetch(backendURL("ping")).then(() => {
+        fetch(backendURL("healthcheck")).then(() => {
             setBackendReachable(true)
         }).catch(() => {
             setBackendReachable(false)

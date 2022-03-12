@@ -7,7 +7,7 @@ import {useSettings} from "../contexts/Settings";
 import {useFilters} from "../contexts/Filters";
 
 function loadEdges(shownNodes, backendURL) {
-    return fetch(`${backendURL("edges")}`, {
+    return fetch(`${backendURL("graph/edges")}`, {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
@@ -41,6 +41,8 @@ export function Edges() {
         loadEdges(shownNodes, backendURL)
             .then(items => {
                 if (mounted) {
+                    console.log("SETTING items")
+                    console.log(items)
                     setEdges(items)
                 }
             })

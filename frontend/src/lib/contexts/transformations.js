@@ -4,7 +4,7 @@ import {useSettings} from "./Settings";
 import PropTypes from "prop-types";
 
 function fetchTransformations(backendURL) {
-    return fetch(`${backendURL("rules")}`).then(r => {
+    return fetch(`${backendURL("graph/transformations")}`).then(r => {
         if (r.ok) {
             return r.json()
         }

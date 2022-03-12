@@ -1,11 +1,11 @@
-def test_ping_endpoint(client):
-    res = client.get("/ping")
+def test_healthcheck_endpoint(client):
+    res = client.get("/healthcheck")
     assert res.status_code == 200
-    res = client.post("/ping")
+    res = client.post("/healthcheck")
     assert res.status_code == 405
-    res = client.delete("/ping")
+    res = client.delete("/healthcheck")
     assert res.status_code == 405
-    res = client.put("/ping")
+    res = client.put("/healthcheck")
     assert res.status_code == 405
 
 

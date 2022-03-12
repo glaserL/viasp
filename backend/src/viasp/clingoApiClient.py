@@ -44,7 +44,7 @@ class ClingoClient(Client):
     def save_function_call(self, call: ClingoMethodCall):
         if backend_is_running() and not self.headless:
             serialized = json.dumps(call, cls=DataclassJSONEncoder)
-            r = requests.post(f"{self.backend_url}/control/call",
+            r = requests.post(f"{self.backend_url}/control/add_call",
                               data=serialized,
                               headers={'Content-Type': 'application/json'})
             error(f"{r.status_code} {r.reason}")
@@ -59,19 +59,19 @@ class ClingoClient(Client):
             else:
                 error(f"Setting models failed [{r.status_code}] ({r.reason})")
 
-    def paint(self):
+    def show(self):
         self._reconstruct()
         if backend_is_running() and not self.headless:
-            r = requests.post(f"{self.backend_url}/control/paint")
+            r = requests.post(f"{self.backend_url}/control/show")
             if r.ok:
-                log(f"Painting in progress.")
+                log(f"Drawing in progress.")
             else:
-                error(f"Painting failed [{r.status_code}] ({r.reason})")
+                error(f"Drawing failed [{r.status_code}] ({r.reason})")
 
     def _reconstruct(self):
         if backend_is_running() and not self.headless:
-            r = requests.get(f"{self.backend_url}/control/solve")
+            r = requests.get(f"{self.backend_url}/control/reconstruct")
             if r.ok:
-                log(f"Solving in progress.")
+                log(f"Reconstructing in progress.")
             else:
-                error(f"Painting failed [{r.status_code}] ({r.reason})")
+                error(f"Reconstructing failed [{r.status_code}] ({r.reason})")

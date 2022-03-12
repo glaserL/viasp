@@ -1,4 +1,3 @@
-import json
 from inspect import signature
 from typing import Dict, List
 from uuid import uuid4
@@ -16,7 +15,7 @@ from viasp.asp.reify import ProgramAnalyzer, reify_list
 from viasp.server.blueprints.api import bp as api_bp
 from viasp.server.blueprints.app import bp as app_bp
 from viasp.server.blueprints.dag_api import bp as dag_bp
-from viasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder, model_to_json, clingo_model_to_stable_model
+from viasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder, clingo_model_to_stable_model
 from viasp.shared.model import ClingoMethodCall, Node, StableModel
 
 

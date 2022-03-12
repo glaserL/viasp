@@ -27,7 +27,7 @@ def handle_calls_received(calls: Iterable[ClingoMethodCall]) -> None:
         handle_call_received(call)
 
 
-@bp.route("/control/call", methods=["POST"])
+@bp.route("/control/add_call", methods=["POST"])
 def add_call():
     if request.method == "POST":
         call = request.json
@@ -49,7 +49,7 @@ def get_by_name_or_index_from_args_or_kwargs(name: str, index: int, *args: Tuple
         raise TypeError(f"No argument {name} found in kwargs or at index {index}.")
 
 
-@bp.route("/control/solve", methods=["GET"])
+@bp.route("/control/reconstruct", methods=["GET"])
 def reconstruct():
     if calls:
         global ctl
@@ -90,7 +90,7 @@ def models_clear():
         ctl = None
 
 
-def someshithandling(marked_models: Iterable[StableModel]):
+def wrap_marked_models(marked_models: Iterable[StableModel]):
     result = []
     for model in marked_models:
         wrapped = []
@@ -100,10 +100,10 @@ def someshithandling(marked_models: Iterable[StableModel]):
     return result
 
 
-@bp.route("/control/paint", methods=["POST"])
-def paint_model():
+@bp.route("/control/show", methods=["POST"])
+def show_selected_models():
     marked_models = dc.models
-    marked_models = someshithandling(marked_models)
+    marked_models = wrap_marked_models(marked_models)
 
     db = ProgramDatabase()
     analyzer = ProgramAnalyzer()
