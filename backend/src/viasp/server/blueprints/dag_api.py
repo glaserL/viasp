@@ -58,14 +58,16 @@ def get_graph():
     return GRAPH
 
 
-def handle_request_for_children(data) -> Collection[Node]:
+def handle_request_for_children(transformation_id, ids_only) -> Collection[Union[Node, int]]:
     graph = get_graph()
-    rule_id = data["rule_id"]
     children = list()
     for u, v, d in graph.edges(data=True):
         edge: Transformation = d['transformation']
-        if str(edge.id) == rule_id:
-            children.append(v)
+        if str(edge.id) == transformation_id:
+            if ids_only:
+                children.append(v.uuid)
+            else:
+                children.append(v)
 
     return children
 
@@ -77,11 +79,12 @@ def clear_graph():
     return "ok", 200
 
 
-@bp.route("/children/", methods=["GET"])
+@bp.route("/graph/children/<transformation_id>", methods=["GET"])
 @cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
-def get_children():
+def get_children(transformation_id):
     if request.method == "GET":
-        to_be_returned = handle_request_for_children(request.args)
+        ids_only = request.args["ids_only"] if "ids_only" in request.args else False
+        to_be_returned = handle_request_for_children(transformation_id, ids_only)
         return jsonify(to_be_returned)
     raise NotImplementedError
 
@@ -99,7 +102,21 @@ def get_src_tgt_mapping_from_graph(ids=None):
     return [{"src": src.uuid, "tgt": tgt.uuid} for src, tgt in graph.edges()]
 
 
-@bp.route("/edges", methods=["GET", "POST"])
+@bp.route("/graph/transformations", methods=["GET"])
+@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
+def get_all_transformations():
+    graph = get_graph()
+    returning = []
+    for u, v in graph.edges:
+        transformation = graph[u][v]["transformation"]
+        if transformation not in returning:
+            returning.append(transformation)
+
+    r = jsonify(returning)
+    return r
+
+
+@bp.route("/graph/edges", methods=["GET", "POST"])
 @cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def get_edges():
     if request.method == "POST":
@@ -111,7 +128,7 @@ def get_edges():
     return jsonified
 
 
-@bp.route("/rule/<uuid>", methods=["GET"])
+@bp.route("/graph/transformation/<uuid>", methods=["GET"])
 @cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def get_rule(uuid):
     graph = get_graph()
@@ -122,7 +139,7 @@ def get_rule(uuid):
     abort(404)
 
 
-@bp.route("/node/<uuid>", methods=["GET"])
+@bp.route("/graph/model/<uuid>", methods=["GET"])
 @cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def get_node(uuid):
     graph = get_graph()
@@ -132,26 +149,12 @@ def get_node(uuid):
     abort(400)
 
 
-@bp.route("/facts", methods=["GET"])
+@bp.route("/graph/facts", methods=["GET"])
 @cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def get_facts():
     graph = get_graph()
     facts = get_start_node_from_graph(graph)
     r = jsonify(facts)
-    return r
-
-
-@bp.route("/rules", methods=["GET"])
-@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
-def get_all_rules():
-    graph = get_graph()
-    returning = []
-    for u, v in graph.edges:
-        transformation = graph[u][v]["transformation"]
-        if transformation not in returning:
-            returning.append(transformation)
-
-    r = jsonify(returning)
     return r
 
 
@@ -207,16 +210,13 @@ def get_kind(uuid: str) -> str:
         return "Model"
 
 
-@bp.route("/detail/")
+@bp.route("/detail/<uuid>")
 @cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
-def model():
-    key = None
-    if "uuid" in request.args.keys():
-        key = request.args["uuid"]
-    if key is None:
+def model(uuid):
+    if uuid is None:
         abort(Response("Parameter 'key' required.", 400))
-    kind = get_kind(key)
-    path = get_atoms_in_path_by_signature(key)
+    kind = get_kind(uuid)
+    path = get_atoms_in_path_by_signature(uuid)
     return jsonify((kind, path))
 
 

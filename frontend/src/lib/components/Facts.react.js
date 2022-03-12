@@ -8,7 +8,7 @@ import {NODE} from "../types/propTypes";
 import {Node} from "./Node.react";
 
 function loadFacts(backendURL) {
-    return fetch(`${backendURL("facts")}`).then(r => r.json());
+    return fetch(`${backendURL("graph/facts")}`).then(r => r.json());
 }
 
 export function Facts(props) {

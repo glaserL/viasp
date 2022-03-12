@@ -112,7 +112,7 @@ def clear_filters():
     return "", 200
 
 
-@bp.route("/ping", methods=["GET"])
+@bp.route("/healthcheck", methods=["GET"])
 @cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def check_available():
     return "ok"

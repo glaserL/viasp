@@ -5,28 +5,28 @@ from viasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder
 from viasp.shared.model import ClingoMethodCall
 
 
-def test_call_endpoint(client, clingo_call_run_sample):
+def test_add_call_endpoint(client, clingo_call_run_sample):
     bad_value = {"foo": "bar"}
-    res = client.post("/control/call", data=bad_value)
+    res = client.post("/control/add_call", data=bad_value)
     assert res.status_code == 400
-    res = client.post("/control/call", json=clingo_call_run_sample)
+    res = client.post("/control/add_call", json=clingo_call_run_sample)
     assert res.status_code == 200
-    res = client.delete("/control/call")
+    res = client.delete("/control/add_call")
     assert res.status_code == 405
-    res = client.put("/control/call")
+    res = client.put("/control/add_call")
     assert res.status_code == 405
 
 
-def test_solve_endpoint(client, clingo_call_run_sample):
-    res = client.post("/control/call", json=clingo_call_run_sample)
+def test_reconstruct_endpoint(client, clingo_call_run_sample):
+    res = client.post("/control/add_call", json=clingo_call_run_sample)
     assert res.status_code == 200
-    res = client.get("/control/solve")
+    res = client.get("/control/reconstruct")
     assert res.status_code == 200
-    res = client.post("/control/solve")
+    res = client.post("/control/reconstruct")
     assert res.status_code == 405
-    res = client.delete("/control/solve")
+    res = client.delete("/control/reconstruct")
     assert res.status_code == 405
-    res = client.put("/control/solve")
+    res = client.put("/control/reconstruct")
     assert res.status_code == 405
 
 
@@ -41,12 +41,12 @@ def test_model_endpoint(client, clingo_stable_models):
     assert len(res.json) == 0
 
 
-def test_paint_endpoint(client, clingo_stable_models):
+def test_show_endpoint(client, clingo_stable_models):
     client.delete("/graph")
     res = client.get("/graph")
     assert len(list(res.json.nodes)) == 0
     client.post("/control/models", json=clingo_stable_models)
-    res = client.post("/control/paint")
+    res = client.post("/control/show")
     assert res.status_code == 200
     res = client.get("/graph")
     assert len(list(res.json.nodes)) > 0

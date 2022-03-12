@@ -26,18 +26,18 @@ def is_non_cython_function_call(attr: classmethod):
     return hasattr(attr, "__call__") and not attr.__name__.startswith("_") and not attr.__name__.startswith("<")
 
 
-class PaintConnector:
+class ShowConnector:
 
     def __init__(self, **kwargs):
         self._marked: List[StableModel] = []
         self._database = ClingoClient(**kwargs)
         self._connection = None
 
-    def paint(self):
+    def show(self):
         if not backend_is_running():
             raise Exception("Server is not available")
         self._database.set_target_stable_model(self._marked)
-        self._database.paint()
+        self._database.show()
 
     def unmark(self, model: Model):
         serialized = clingo_model_to_stable_model(model)
@@ -58,7 +58,7 @@ class PaintConnector:
 class Control(InnerControl):
 
     def __init__(self, *args, **kwargs):
-        self.viasp = PaintConnector(**kwargs)
+        self.viasp = ShowConnector(**kwargs)
         if not backend_is_running():
             warn("You are using the viasp control object and no server is running right now")
         self.viasp.register_function_call("__init__", signature(super().__init__), args, kwargs)

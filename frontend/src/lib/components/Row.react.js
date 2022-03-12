@@ -8,7 +8,7 @@ import {useSettings} from "../contexts/Settings";
 import {TRANSFORMATION} from "../types/propTypes";
 
 function loadMyAsyncData(id, backendURL) {
-    return fetch(`${backendURL("children")}/?rule_id=${id}&ids_only=True`).then(r => r.json());
+    return fetch(`${backendURL("graph/children")}/${id}`).then(r => r.json());
 }
 
 export function Row(props) {

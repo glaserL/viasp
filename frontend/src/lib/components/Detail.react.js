@@ -55,7 +55,7 @@ DetailForSignature.propTypes =
     }
 
 function loadDataForDetail(uuid, url_provider) {
-    return fetch(`${url_provider("detail")}/?uuid=${uuid}`).then(r => r.json())
+    return fetch(`${url_provider("detail")}/${uuid}`).then(r => r.json())
 }
 
 function CloseButton(props) {
