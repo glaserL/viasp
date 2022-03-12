@@ -18,7 +18,7 @@ def test_calls_are_filtered_after_application(clingo_call_run_sample):
 
 def test_client_works(client):
     """Test if the test client is ok"""
-    assert client.get("/").status_code == 200
+    assert client.get("/healthcheck").status_code == 200
 
 
 @pytest.fixture
