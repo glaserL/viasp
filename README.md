@@ -64,5 +64,5 @@ ctl.ground([("base", [])])
 with ctl.solve(yield_=True) as handle:
     for model in handle:
         ctl.viasp.mark(model)
-ctl.viasp.paint()
+ctl.viasp.show()
 ```
