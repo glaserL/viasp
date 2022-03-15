@@ -80,7 +80,7 @@ const transformationReducer = (state = initialState, action) => {
 
 const TransformationProvider = ({children}) => {
     const [, message_dispatch] = useMessages()
-    const {backendURL} = useSettings();
+    const {state: settingsState, backendURL} = useSettings();
     const [state, dispatch] = React.useReducer(transformationReducer, initialState);
 
     React.useEffect(() => {
@@ -94,7 +94,7 @@ const TransformationProvider = ({children}) => {
                 }
             })
         return () => mounted = false;
-    }, []);
+    }, [settingsState.backend_url]);
     return <TransformationContext.Provider value={{state, dispatch}}>{children}</TransformationContext.Provider>
 }
 
