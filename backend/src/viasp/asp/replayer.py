@@ -41,7 +41,7 @@ class ClingoReconstructor:
             return self.no_op(ctl, call)
         return func(self, ctl, call)
 
-    @handles("DEFAULT")
+    @handles("DEFAULT", "solve")
     def no_op(self, ctl, _) -> Control:
         return ctl
 
@@ -61,6 +61,8 @@ class ClingoReconstructor:
 
     @handles("__init__")
     def create_(self, _, call: ClingoMethodCall):
+        db = ProgramDatabase()
+        db.clear_program()
         return Control(**call.kwargs)
 
 
