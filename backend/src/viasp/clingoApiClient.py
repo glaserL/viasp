@@ -31,18 +31,14 @@ class ClingoClient(Client):
             self.backend_url = kwargs["backend_url"]
         else:
             self.backend_url = DEFAULT_BACKEND_URL
-        if "headless" in kwargs:
-            self.headless = kwargs["headless"]
-        else:
-            self.headless = False
-        if not backend_is_running():
+        if not backend_is_running(self.backend_url):
             log(f"Backend at is unavailable ({DEFAULT_BACKEND_URL})", Level.WARN)
 
     def is_available(self):
         return backend_is_running(self.backend_url)
 
     def save_function_call(self, call: ClingoMethodCall):
-        if backend_is_running() and not self.headless:
+        if backend_is_running():
             serialized = json.dumps(call, cls=DataclassJSONEncoder)
             r = requests.post(f"{self.backend_url}/control/add_call",
                               data=serialized,
@@ -50,28 +46,25 @@ class ClingoClient(Client):
             error(f"{r.status_code} {r.reason}")
 
     def set_target_stable_model(self, stable_models: Collection[StableModel]):
-        if backend_is_running() and not self.headless:
-            serialized = json.dumps(stable_models, cls=DataclassJSONEncoder)
-            r = requests.post(f"{self.backend_url}/control/models", data=serialized,
-                              headers={'Content-Type': 'application/json'})
-            if r.ok:
-                log(f"Set models.")
-            else:
-                error(f"Setting models failed [{r.status_code}] ({r.reason})")
+        serialized = json.dumps(stable_models, cls=DataclassJSONEncoder)
+        r = requests.post(f"{self.backend_url}/control/models", data=serialized,
+                          headers={'Content-Type': 'application/json'})
+        if r.ok:
+            log(f"Set models.")
+        else:
+            error(f"Setting models failed [{r.status_code}] ({r.reason})")
 
     def show(self):
         self._reconstruct()
-        if backend_is_running() and not self.headless:
-            r = requests.post(f"{self.backend_url}/control/show")
-            if r.ok:
-                log(f"Drawing in progress.")
-            else:
-                error(f"Drawing failed [{r.status_code}] ({r.reason})")
+        r = requests.post(f"{self.backend_url}/control/show")
+        if r.ok:
+            log(f"Drawing in progress.")
+        else:
+            error(f"Drawing failed [{r.status_code}] ({r.reason})")
 
     def _reconstruct(self):
-        if backend_is_running() and not self.headless:
-            r = requests.get(f"{self.backend_url}/control/reconstruct")
-            if r.ok:
-                log(f"Reconstructing in progress.")
-            else:
-                error(f"Reconstructing failed [{r.status_code}] ({r.reason})")
+        r = requests.get(f"{self.backend_url}/control/reconstruct")
+        if r.ok:
+            log(f"Reconstructing in progress.")
+        else:
+            error(f"Reconstructing failed [{r.status_code}] ({r.reason})")
