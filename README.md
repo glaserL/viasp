@@ -30,8 +30,8 @@ running, do the following:
 
 1. `viasp` (or `viasp &` to run it in the background)
 2. Start your dash app, a basic version can be found at [`examples/minimal_dash.py`](examples/minimal_dash.py)
-3. Replace `clingo.Control` with `viasp.Control` in your python scripts and use `.mark(model)` to select the models you
-   want to show
+3. Replace `clingo.Control` with `viasp.Control` in your python scripts and use `viasp.mark(model)` to select the models
+   you want to show
 
 ### Quick start
 
