@@ -6,12 +6,9 @@ import networkx as nx
 from clingo import ast, Symbol
 from clingo.ast import Transformer, parse_string, Rule, ASTType, AST, Literal
 
+from .utils import is_constraint, merge_constraints
 from ..asp.utils import merge_cycles, remove_loops
 from ..shared.model import Transformation
-
-
-def is_constraint(rule: Rule):
-    return "atom" in rule.head.child_keys and rule.head.atom.ast_type == ASTType.BooleanConstant
 
 
 def is_fact(rule, dependencies):
@@ -92,7 +89,7 @@ class ProgramAnalyzer(DependencyCollector):
                 u_sig = make_signature(u)
                 self.conditions[u_sig].add(rule)
 
-        for v in deps.keys():
+        for v in filter(lambda symbol: symbol.atom.ast_type != ASTType.BooleanConstant, deps.keys()):
             v_sig = make_signature(v)
             self.dependants[v_sig].add(rule)
 
@@ -102,7 +99,7 @@ class ProgramAnalyzer(DependencyCollector):
 
         if is_fact(rule, deps):
             self.facts.add(rule.head)
-        if not len(deps) and len(rule.body) and not is_constraint(rule):
+        if not len(deps) and len(rule.body):
             deps[rule.head] = []
         for _, cond in deps.items():
             cond.extend(filter(filter_body_arithmetic, rule.body))
@@ -151,6 +148,7 @@ class ProgramAnalyzer(DependencyCollector):
 
     def sort_program_by_dependencies(self):
         deps = self.make_dependency_graph(self.dependants, self.conditions)
+        deps = merge_constraints(deps)
         deps = merge_cycles(deps)
         deps = remove_loops(deps)
         program = list(nx.topological_sort(deps))
