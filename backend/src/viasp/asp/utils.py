@@ -1,7 +1,22 @@
 """Mostly graph utility functions."""
 import networkx as nx
+from clingo.ast import Rule, ASTType
 
 
+def is_constraint(rule: Rule):
+    return "atom" in rule.head.child_keys and rule.head.atom.ast_type == ASTType.BooleanConstant
+
+
+def merge_constraints(g: nx.Graph) -> nx.Graph:
+    mapping = {}
+    constraints = frozenset([ruleset for ruleset in g.nodes for rule in ruleset if is_constraint(rule)])
+    if constraints:
+        merge_node = merge_nodes(constraints)
+        mapping = {c: merge_node for c in constraints}
+    return nx.relabel_nodes(g, mapping)
+
+
+# [item for sublist in l for item in sublist]
 def merge_cycles(g: nx.Graph) -> nx.Graph:
     mapping = {}
     for cycle in nx.algorithms.components.strongly_connected_components(g):

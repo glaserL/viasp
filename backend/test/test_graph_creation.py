@@ -14,21 +14,7 @@ from viasp.shared.util import get_start_node_from_graph, get_end_node_from_path
 from helper import get_stable_models_for_program
 
 
-def test_justification_creates_a_graph_with_a_single_path():
-    orig_program = "c(1). c(2). b(X) :- c(X). a(X) :- b(X)."
-    g = get_graph_of_sorted_program(orig_program)
-    assert len(g.nodes()) == 3
-    assert len(g.edges()) == 2
-
-
-def test_justification_creates_a_graph_with_three_paths_on_choice_rules():
-    orig_program = "a(1). a(2). { b(X) } :- a(X)."
-    g = get_graph_of_sorted_program(orig_program)
-    assert len(g.nodes()) == 5
-    assert len(g.edges()) == 4
-
-
-def get_graph_of_sorted_program(program: str):
+def sort_program_and_get_graph(program: str):
     analyzer = ProgramAnalyzer()
     sorted_program = analyzer.sort_program(program)
     saved_models = get_stable_models_for_program(program)
@@ -36,6 +22,20 @@ def get_graph_of_sorted_program(program: str):
 
     g = build_graph(saved_models, reified, analyzer)
     return g
+
+
+def test_justification_creates_a_graph_with_a_single_path():
+    orig_program = "c(1). c(2). b(X) :- c(X). a(X) :- b(X)."
+    g = sort_program_and_get_graph(orig_program)
+    assert len(g.nodes()) == 3
+    assert len(g.edges()) == 2
+
+
+def test_justification_creates_a_graph_with_three_paths_on_choice_rules():
+    orig_program = "a(1). a(2). { b(X) } :- a(X)."
+    g = sort_program_and_get_graph(orig_program)
+    assert len(g.nodes()) == 5
+    assert len(g.edges()) == 4
 
 
 def test_pairwise_works():
@@ -95,16 +95,44 @@ wet :- sprinkler."""
     assert len(list(g.nodes)) == 10
 
 
-def test_behemoth():
-    orig_program = "c(1). e(1). 1 #sum { X,Y : a(X,Y) : b(Y), c(X) ; X,Z : b(X,Z) : e(Z) }  :- c(X)."
-
+def test_dependencies_register_on_negation():
+    program = """
+    {a}.
+    c :- not b.
+    b :- a.
+    """
     analyzer = ProgramAnalyzer()
-    sorted_program = analyzer.sort_program(orig_program)
-    saved_models = get_stable_models_for_program(orig_program)
-    reified = reify_list(sorted_program)
+    sorted_program = analyzer.sort_program(program)
+    assert len(sorted_program) == 3
+    assert str(list(sorted_program[0].rules)[0]) == "{ a }."
+    assert str(list(sorted_program[1].rules)[0]) == "b :- a."
+    assert str(list(sorted_program[2].rules)[0]) == "c :- not b."
 
-    g = build_graph(saved_models, reified, analyzer)
-    assert len(g)
+
+def test_integrity_constraints_are_preserved():
+    program = """
+    1 {a; b} 1.
+    :- not b.
+    {c} :- a, not b.
+    :- c.
+    """
+    g = sort_program_and_get_graph(program)
+    assert any(any(str(r) == "#false :- not b." for r in t["transformation"].rules) for _, _, t in g.edges(data=True))
+    assert any(any(str(r) == "#false :- c." for r in t["transformation"].rules) for _, _, t in g.edges(data=True))
+
+
+def test_integrity_constraints_get_sorted_last_and_merged():
+    program = """
+    1 {a; b} 1.
+    :- not b.
+    {c} :- a, not b.
+    :- c.
+    """
+    analyzer = ProgramAnalyzer()
+    sorted_program = analyzer.sort_program(program)
+    assert len(sorted_program) == 3
+    assert any(str(rule) == "#false :- not b." for rule in sorted_program[2].rules)
+    assert any(str(rule) == "#false :- c." for rule in sorted_program[2].rules)
 
 
 def test_negative_recursion_gets_treated_correctly():
