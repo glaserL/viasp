@@ -1,14 +1,16 @@
 import json
 
+import clingo.ast
 import networkx as nx
-from clingo import Control
+from clingo import Control, ModelType
 from networkx import node_link_data, node_link_graph
 
 from viasp.shared.io import DataclassJSONEncoder, DataclassJSONDecoder, clingo_model_to_stable_model
 from helper import get_stable_models_for_program
 from viasp.asp.justify import build_graph
 from viasp.asp.reify import ProgramAnalyzer, reify_list
-from viasp.shared.model import StableModel, ClingoMethodCall
+from viasp.shared.model import StableModel, ClingoMethodCall, Signature, Transformation, TransformationError, \
+    FailedReason
 
 
 def test_networkx_graph_with_dataclasses_is_isomorphic_after_dumping_and_loading_again():
@@ -51,3 +53,35 @@ def test_serialization_calls(clingo_call_run_sample):
     deserialized = json.loads(serialized, cls=DataclassJSONDecoder)
     for model in deserialized:
         assert isinstance(model, ClingoMethodCall)
+
+
+def test_failed_reason():
+    object_to_serialize = FailedReason.FAILURE
+    serialized = json.dumps(object_to_serialize, cls=DataclassJSONEncoder)
+    assert serialized
+
+
+def test_transformation():
+    object_to_serialize = Transformation(1, [])
+    serialized = json.dumps(object_to_serialize, cls=DataclassJSONEncoder)
+    assert serialized
+
+
+def test_transformation_error():
+    sample_data = []
+    clingo.ast.parse_string("a.", lambda x: sample_data.append(x))
+    object_to_serialize = TransformationError(sample_data[0], FailedReason.WARNING)
+    serialized = json.dumps(object_to_serialize, cls=DataclassJSONEncoder)
+    assert serialized
+
+
+def test_stable_model():
+    object_to_serialize = StableModel([0], False, ModelType.StableModel, [], [], [], [], [])
+    serialized = json.dumps(object_to_serialize, cls=DataclassJSONEncoder)
+    assert serialized
+
+
+def test_signature():
+    object_to_serialize = Signature("a", 1)
+    serialized = json.dumps(object_to_serialize, cls=DataclassJSONEncoder)
+    assert serialized

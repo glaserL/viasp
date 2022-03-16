@@ -92,20 +92,20 @@ export default function ViaspDash(props) {
 
     return <div id={id}>
         <ColorPaletteProvider colorPalette={colors}>
-            <UserMessagesProvider>
-                <HighlightedNodeProvider>
-                    <FilterProvider>
-                        <SettingsProvider backendURL={backendURL}>
+            <HighlightedNodeProvider>
+                <FilterProvider>
+                    <SettingsProvider backendURL={backendURL}>
+                        <UserMessagesProvider>
                             <TransformationProvider>
                                 <div>
                                     <UserMessages/>
                                     <MainWindow notifyDash={notifyDash}/>
                                 </div>
                             </TransformationProvider>
-                        </SettingsProvider>
-                    </FilterProvider>
-                </HighlightedNodeProvider>
-            </UserMessagesProvider>
+                        </UserMessagesProvider>
+                    </SettingsProvider>
+                </FilterProvider>
+            </HighlightedNodeProvider>
         </ColorPaletteProvider>
     </div>
 }

@@ -1,17 +1,15 @@
 from collections import defaultdict
-from dataclasses import dataclass
-from enum import Enum
 from typing import Dict, List, Tuple, Iterable, Set, Collection, Any, Union
 
 import clingo
 import networkx as nx
 from clingo import ast, Symbol
-from clingo.ast import Transformer, parse_string, Rule, ASTType, AST, Literal, Minimize
+from clingo.ast import Transformer, parse_string, Rule, ASTType, AST, Literal, Minimize, Disjunction
 
 from .utils import is_constraint, merge_constraints
 from ..asp.utils import merge_cycles, remove_loops
 from viasp.asp.ast_types import SUPPORTED_TYPES, ARITH_TYPES, UNSUPPORTED_TYPES, UNKNOWN_TYPES
-from ..shared.model import Transformation
+from ..shared.model import Transformation, TransformationError, FailedReason
 from ..shared.simple_logging import warn, error
 
 
@@ -28,17 +26,6 @@ def filter_body_arithmetic(elem: clingo.ast.Literal):
     return elem.atom.ast_type not in ARITH_TYPES
 
 
-class FailedReason(Enum):
-    WARNING = "WARNING"
-    FAILURE = "FAILURE"
-
-
-@dataclass
-class TransformationError:
-    ast: AST
-    reason: FailedReason
-
-
 class FilteredTransformer(Transformer):
 
     def __init__(self, accepted=None, forbidden=None, warning=None):
@@ -50,8 +37,14 @@ class FilteredTransformer(Transformer):
             warning = UNKNOWN_TYPES
         self._accepted: Collection[ASTType] = accepted
         self._forbidden: Collection[ASTType] = forbidden
-        self._warning: Collection[ASTType] = warning
+        self._warnings: Collection[ASTType] = warning
         self._filtered: List[TransformationError] = []
+
+    def will_work(self):
+        return all(f.reason != FailedReason.FAILURE for f in self._filtered)
+
+    def get_filtered(self):
+        return self._filtered
 
     def visit(self, ast: AST, *args: Any, **kwargs: Any) -> Union[AST, None]:
         """
@@ -62,7 +55,7 @@ class FilteredTransformer(Transformer):
             error(f"Filtering forbidden part of clingo language {ast} ({ast.ast_type})")
             self._filtered.append(TransformationError(ast, FailedReason.FAILURE))
             return
-        if ast.ast_type in self._forbidden:
+        if ast.ast_type in self._warnings:
             warn(
                 f"Found unsupported part of clingo language {ast} ({ast.ast_type})\nThis may lead to faulty visualizations!")
             self._filtered.append(TransformationError(ast, FailedReason.WARNING))
