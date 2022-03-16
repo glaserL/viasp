@@ -5,9 +5,8 @@ export const defaultPalette = {
     ten: {dark: "#3FA7D1", bright: "#3FA7E1"},
     thirty: {dark: "#444", bright: "#454545"},
     sixty: {dark: "#F6F4F3", bright: "#FEFEFE"},
-    error_ten: "#EB4A4E",
-    error_thirty: "#4C191A",
-    error_sixty: "#FCE8E8"
+    error: {ten: "#EB4A4E", thirty: "#4C191A", sixty: "#FCE8E8"},
+    warn: {ten: "#FF9800", thirty: "#653300", sixty: "#FFF1DF"}
 };
 
 const ColorPaletteContext = React.createContext([]);

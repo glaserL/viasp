@@ -8,7 +8,10 @@ import {useMessages} from "../contexts/UserMessages";
 function useColor(level) {
     const colors = useColorPalette();
     if (level === "error") {
-        return {ten: colors.error_ten, thirty: colors.error_thirty, sixty: colors.error_sixty}
+        return {ten: colors.error.ten, thirty: colors.error.thirty, sixty: colors.error.sixty}
+    }
+    if (level === "warn") {
+        return {ten: colors.warn.ten, thirty: colors.warn.thirty, sixty: colors.warn.sixty}
     }
     return {}
 }
@@ -25,7 +28,7 @@ function Message(props) {
 Message.propTypes = {
     message: PropTypes.exact({
         text: PropTypes.string,
-        level: PropTypes.oneOf(["error"])
+        level: PropTypes.oneOf(["error", "warn"])
     })
 }
 
