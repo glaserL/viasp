@@ -7,11 +7,12 @@ import networkx as nx
 from clingo import Control, Symbol, Model
 
 from clingo.ast import AST, Function
+from networkx import DiGraph
 
 from .reify import ProgramAnalyzer
 from ..shared.model import Node, Transformation
 from ..shared.simple_logging import info, warn
-from ..shared.util import pairwise
+from ..shared.util import pairwise, get_leafs_from_graph
 
 
 def stringify_fact(fact: Function) -> str:
@@ -39,8 +40,8 @@ def get_h_symbols_from_model(wrapped_stable_model: Iterable[Symbol],
 def get_facts(original_program) -> Collection[Symbol]:
     ctl = Control()
     facts = set()
-    stringified = "".join(map(str, original_program))
-    ctl.add("__facts", [], stringified)
+    as_string = "".join(map(str, original_program))
+    ctl.add("__facts", [], as_string)
     ctl.ground([("__facts", [])])
     for atom in ctl.symbolic_atoms:
         if atom.is_fact:
@@ -63,7 +64,7 @@ def collect_h_symbols_and_create_nodes(h_symbols: Collection[Symbol], relevant_i
     return h_symbols
 
 
-def insert_atoms_into_nodes(path: List[Node]):
+def insert_atoms_into_nodes(path: List[Node]) -> None:
     facts = path[0]
     state = set(facts.diff)
     facts.atoms = frozenset(state)
@@ -106,8 +107,19 @@ def join_paths_with_facts(paths: Collection[nx.DiGraph]) -> nx.DiGraph:
     return combined
 
 
-def list_of_transformations_to_mapping_prob_u_can_throw_this_away(transformations: Iterable[Transformation]):
+def make_transformation_mapping(transformations: Iterable[Transformation]):
     return {t.id: t for t in transformations}
+
+
+def append_noops(result_graph: DiGraph, analyzer: ProgramAnalyzer):
+    next_transformation_id = max(t.id for t in analyzer.get_sorted_program()) + 1
+    leaves = list(get_leafs_from_graph(result_graph))
+    leaf: Node
+    for leaf in leaves:
+        noop_node = Node(frozenset(), next_transformation_id, leaf.atoms)
+        result_graph.add_edge(leaf, noop_node,
+                              transformation=Transformation(next_transformation_id,
+                                                            [str(pt) for pt in analyzer.pass_through]))
 
 
 def build_graph(wrapped_stable_models: Collection[str], transformed_prg: Collection[AST],
@@ -115,7 +127,7 @@ def build_graph(wrapped_stable_models: Collection[str], transformed_prg: Collect
     paths: List[nx.DiGraph] = []
     facts = analyzer.get_facts()
     sorted_program = analyzer.get_sorted_program()
-    mapping = list_of_transformations_to_mapping_prob_u_can_throw_this_away(sorted_program)
+    mapping = make_transformation_mapping(sorted_program)
     fact_node = Node(frozenset(facts), -1, frozenset(facts))
     if not len(mapping):
         info(f"Program only contains facts. {fact_node}")
@@ -129,6 +141,8 @@ def build_graph(wrapped_stable_models: Collection[str], transformed_prg: Collect
         paths.append(new_path)
 
     result_graph = join_paths_with_facts(paths)
+    if analyzer.pass_through:
+        append_noops(result_graph, analyzer)
     return result_graph
 
 

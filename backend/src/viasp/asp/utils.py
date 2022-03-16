@@ -4,7 +4,7 @@ from clingo.ast import Rule, ASTType
 
 
 def is_constraint(rule: Rule):
-    return "atom" in rule.head.child_keys and rule.head.atom.ast_type == ASTType.BooleanConstant
+    return rule.ast_type == ASTType.Rule and "atom" in rule.head.child_keys and rule.head.atom.ast_type == ASTType.BooleanConstant
 
 
 def merge_constraints(g: nx.Graph) -> nx.Graph:
@@ -16,7 +16,6 @@ def merge_constraints(g: nx.Graph) -> nx.Graph:
     return nx.relabel_nodes(g, mapping)
 
 
-# [item for sublist in l for item in sublist]
 def merge_cycles(g: nx.Graph) -> nx.Graph:
     mapping = {}
     for cycle in nx.algorithms.components.strongly_connected_components(g):
