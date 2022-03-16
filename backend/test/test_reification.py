@@ -212,6 +212,23 @@ def test_aggregate_in_body_of_constraint():
     assert len(result) == 1
 
 
+def test_minimized_causes_a_warning():
+    program = "#minimize { 1,P,R : assignedB(P,R), paper(P), reviewer(R) }."
+
+    transformer = ProgramAnalyzer()
+    transformer.sort_program(program)
+    assert len(transformer.get_filtered())
+
+
+def test_disjunction_causes_error_and_doesnt_get_passed():
+    program = "a; b."
+
+    transformer = ProgramAnalyzer()
+    program = transformer.sort_program(program)
+    assert len(transformer.get_filtered())
+    assert not len(program)
+
+
 def test_minimized_is_collected_as_pass_through():
     program = "#minimize { 1,P,R : assignedB(P,R), paper(P), reviewer(R) }."
 
@@ -240,6 +257,7 @@ def test_constraints_gets_put_last():
     """
     transformer = ProgramAnalyzer()
     result = transformer.sort_program(program)
+    assert len(result) == 3
     assert len(result[0].rules) == 1
     assert len(result[1].rules) == 1
     assert len(result[2].rules) == 3

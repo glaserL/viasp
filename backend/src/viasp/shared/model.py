@@ -1,10 +1,12 @@
 from copy import copy
 from dataclasses import dataclass, field
+from enum import Enum
 from inspect import Signature as inspect_Signature
 from typing import Any, Sequence, Dict, Union, FrozenSet, Collection
 from uuid import UUID, uuid4
 
 from clingo import Symbol, ModelType
+from clingo.ast import AST
 
 
 @dataclass()
@@ -64,3 +66,14 @@ class StableModel:
     shown: Collection[Symbol]
     csp: Collection[Symbol]
     theory: Collection[Symbol]
+
+
+class FailedReason(Enum):
+    WARNING = "WARNING"
+    FAILURE = "FAILURE"
+
+
+@dataclass
+class TransformationError:
+    ast: AST
+    reason: FailedReason

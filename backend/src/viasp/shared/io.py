@@ -12,7 +12,7 @@ from _clingo.lib import clingo_model_type_brave_consequences, clingo_model_type_
 from clingo import Model as clingo_Model, ModelType, Symbol
 from clingo.ast import AST
 
-from .model import Node, Transformation, Signature, StableModel, ClingoMethodCall
+from .model import Node, Transformation, Signature, StableModel, ClingoMethodCall, TransformationError, FailedReason
 
 
 def model_to_json(model: Union[clingo_Model, Collection[clingo_Model]], *args, **kwargs) -> str:
@@ -22,25 +22,25 @@ def model_to_json(model: Union[clingo_Model, Collection[clingo_Model]], *args, *
 def object_hook(obj):
     if '_type' not in obj:
         return obj
-    type = obj['_type']
+    t = obj['_type']
     del obj['_type']
-    if type == "Function":
+    if t == "Function":
         return clingo.Function(**obj)
-    elif type == "Number":
+    elif t == "Number":
         return clingo.Number(**obj)
-    elif type == "Node":
+    elif t == "Node":
         obj['atoms'] = frozenset(obj['atoms'])
         obj['diff'] = frozenset(obj['diff'])
         return Node(**obj)
-    elif type == "Transformation":
+    elif t == "Transformation":
         return Transformation(**obj)
-    elif type == "Signature":
+    elif t == "Signature":
         return Signature(**obj)
-    elif type == "Graph":
+    elif t == "Graph":
         return nx.node_link_graph(obj["_graph"])
-    elif type == "StableModel":
+    elif t == "StableModel":
         return StableModel(**obj)
-    elif type == "ClingoMethodCall":
+    elif t == "ClingoMethodCall":
         return ClingoMethodCall(**obj)
     return obj
 
@@ -54,6 +54,8 @@ def dataclass_to_dict(o):
     if isinstance(o, Node):
         return {"_type": "Node", "atoms": o.atoms, "diff": o.diff, "uuid": o.uuid,
                 "rule_nr": o.rule_nr}
+    elif isinstance(o, TransformationError):
+        return {"_type": "TransformationError", "ast": o.ast, "reason": o.reason}
     elif isinstance(o, Signature):
         return {"_type": "Signature", "name": o.name, "args": o.args}
     elif isinstance(o, Transformation):
@@ -63,6 +65,7 @@ def dataclass_to_dict(o):
                 "atoms": o.atoms, "terms": o.terms, "shown": o.shown, "csp": o.csp, "theory": o.theory}
     elif isinstance(o, ClingoMethodCall):
         return {"_type": "ClingoMethodCall", "name": o.name, "kwargs": o.kwargs, "uuid": o.uuid}
+
     else:
         raise Exception(f"I/O for {type(o)} not implemented!")
 
@@ -84,6 +87,8 @@ def encode_object(o):
     elif isinstance(o, Symbol):
         x = symbol_to_dict(o)
         return x
+    elif isinstance(o, FailedReason):
+        return {"_type": "FailedReason", "value": o.value}
     elif is_dataclass(o):
         result = dataclass_to_dict(o)
         return result
@@ -134,17 +139,17 @@ class viasp_ModelType(IntEnum):
     Enumeration of the different types of models.
     """
     BraveConsequences = clingo_model_type_brave_consequences
-    '''
+    """
     The model stores the set of brave consequences.
-    '''
+    """
     CautiousConsequences = clingo_model_type_cautious_consequences
-    '''
+    """
     The model stores the set of cautious consequences.
-    '''
+    """
     StableModel = clingo_model_type_stable_model
-    '''
+    """
     The model captures a stable model.
-    '''
+    """
 
     @classmethod
     def from_clingo_ModelType(cls, clingo_ModelType: ModelType):

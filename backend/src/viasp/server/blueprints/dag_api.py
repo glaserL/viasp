@@ -119,6 +119,7 @@ def get_all_transformations():
 @bp.route("/graph/edges", methods=["GET", "POST"])
 @cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def get_edges():
+    to_be_returned = []
     if request.method == "POST":
         to_be_returned = get_src_tgt_mapping_from_graph(request.json)
     elif request.method == "GET":

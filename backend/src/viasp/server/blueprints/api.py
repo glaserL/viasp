@@ -1,6 +1,7 @@
 from typing import Tuple, Any, Dict, Iterable
 
 from flask import request, Blueprint, jsonify, abort, Response
+from flask_cors import cross_origin
 
 from .dag_api import set_graph
 from ..database import CallCenter, ProgramDatabase
@@ -60,6 +61,7 @@ def reconstruct():
 class DataContainer:
     def __init__(self):
         self.models = []
+        self.warnings = []
 
 
 dc = DataContainer()
@@ -100,7 +102,30 @@ def wrap_marked_models(marked_models: Iterable[StableModel]):
     return result
 
 
+def _set_warnings(warnings):
+    dc.warnings = warnings
+
+
+@bp.route("/control/warnings", methods=["POST"])
+def set_warnings():
+    _set_warnings(request.json)
+    return "ok"
+
+
+@bp.route("/control/warnings", methods=["DELETE"])
+@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
+def clear_warnings():
+    dc.warnings = []
+
+
+@bp.route("/control/warnings", methods=["GET"])
+@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
+def get_warnings():
+    return jsonify(dc.warnings)
+
+
 @bp.route("/control/show", methods=["POST"])
+@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def show_selected_models():
     marked_models = dc.models
     marked_models = wrap_marked_models(marked_models)
@@ -108,9 +133,11 @@ def show_selected_models():
     db = ProgramDatabase()
     analyzer = ProgramAnalyzer()
     analyzer.add_program(db.get_program())
-    reified = reify_list(analyzer.get_sorted_program(), h=analyzer.get_conflict_free_h(),
-                         model=analyzer.get_conflict_free_model())
-    g = build_graph(marked_models, reified, analyzer)
+    _set_warnings(analyzer.get_filtered())
+    if analyzer.will_work():
+        reified = reify_list(analyzer.get_sorted_program(), h=analyzer.get_conflict_free_h(),
+                             model=analyzer.get_conflict_free_model())
+        g = build_graph(marked_models, reified, analyzer)
 
-    set_graph(g)
+        set_graph(g)
     return "ok", 200
