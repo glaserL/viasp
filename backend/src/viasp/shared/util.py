@@ -15,7 +15,9 @@ def get_end_node_from_path(graph: nx.DiGraph) -> Any:
 
 
 def get_leafs_from_graph(graph: nx.DiGraph) -> Iterable[Any]:
-    return filter(lambda deg: deg[1] == 0, graph.out_degree())
+    for candidate, out_degree in graph.out_degree:
+        if out_degree == 0:
+            yield candidate
 
 
 def get_sorted_path_from_path_graph(graph: nx.DiGraph) -> Any:

@@ -1,6 +1,8 @@
 import clingo
+import pytest
 from clingo.ast import Rule, parse_string, ASTType
 from viasp.asp.reify import transform, ProgramAnalyzer
+from viasp.asp.ast_types import SUPPORTED_TYPES, make_unknown_AST_enum_types, UNSUPPORTED_TYPES
 
 
 def assertProgramEqual(actual, expected, message=None):
@@ -201,3 +203,43 @@ def get_reasons(prg, model):
     for x in ctl.symbolic_atoms.by_signature("h", 2):
         reasons.append(x.symbol)
     return set(reasons)
+
+
+def test_aggregate_in_body_of_constraint():
+    program = ":- 3 { assignedB(P,R) : paper(P) }, reviewer(R)."
+    transformer = ProgramAnalyzer()
+    result = transformer.sort_program(program)
+    assert len(result) == 1
+
+
+def test_minimized_is_collected_as_pass_through():
+    program = "#minimize { 1,P,R : assignedB(P,R), paper(P), reviewer(R) }."
+
+    transformer = ProgramAnalyzer()
+    result = transformer.sort_program(program)
+    assert not len(result)
+    assert len(transformer.pass_through)
+
+
+def test_ast_types_do_not_intersect():
+    assert not SUPPORTED_TYPES.intersection(UNSUPPORTED_TYPES), "No type should be supported and unsupported"
+    known = SUPPORTED_TYPES.union(UNSUPPORTED_TYPES)
+    unknown = make_unknown_AST_enum_types()
+    assert not unknown.intersection(known), "No type should be known and unknown"
+
+
+@pytest.mark.skip(reason="Not implemented yet")
+def test_constraints_gets_put_last():
+    program = """
+    { assigned(P,R) : reviewer(R) } 3 :-  paper(P).
+     :- assigned(P,R), coi(R,P).
+     :- assigned(P,R), not classA(R,P), not classB(R,P).
+    assignedB(P,R) :-  classB(R,P), assigned(P,R).
+     :- 3 { assignedB(P,R) : paper(P) }, reviewer(R).
+    #minimize { 1,P,R : assignedB(P,R), paper(P), reviewer(R) }.
+    """
+    transformer = ProgramAnalyzer()
+    result = transformer.sort_program(program)
+    assert len(result[0].rules) == 1
+    assert len(result[1].rules) == 1
+    assert len(result[2].rules) == 3

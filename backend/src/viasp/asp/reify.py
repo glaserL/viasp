@@ -1,14 +1,18 @@
 from collections import defaultdict
-from typing import Dict, List, Tuple, Iterable, Set, Collection
+from dataclasses import dataclass
+from enum import Enum
+from typing import Dict, List, Tuple, Iterable, Set, Collection, Any, Union
 
 import clingo
 import networkx as nx
 from clingo import ast, Symbol
-from clingo.ast import Transformer, parse_string, Rule, ASTType, AST, Literal
+from clingo.ast import Transformer, parse_string, Rule, ASTType, AST, Literal, Minimize
 
 from .utils import is_constraint, merge_constraints
 from ..asp.utils import merge_cycles, remove_loops
+from viasp.asp.ast_types import SUPPORTED_TYPES, ARITH_TYPES, UNSUPPORTED_TYPES, UNKNOWN_TYPES
 from ..shared.model import Transformation
+from ..shared.simple_logging import warn, error
 
 
 def is_fact(rule, dependencies):
@@ -21,7 +25,51 @@ def make_signature(literal: clingo.ast.Literal) -> Tuple[str, int]:
 
 
 def filter_body_arithmetic(elem: clingo.ast.Literal):
-    return elem.atom.ast_type != ASTType.Comparison
+    return elem.atom.ast_type not in ARITH_TYPES
+
+
+class FailedReason(Enum):
+    WARNING = "WARNING"
+    FAILURE = "FAILURE"
+
+
+@dataclass
+class TransformationError:
+    ast: AST
+    reason: FailedReason
+
+
+class FilteredTransformer(Transformer):
+
+    def __init__(self, accepted=None, forbidden=None, warning=None):
+        if accepted is None:
+            accepted = SUPPORTED_TYPES
+        if forbidden is None:
+            forbidden = UNSUPPORTED_TYPES
+        if warning is None:
+            warning = UNKNOWN_TYPES
+        self._accepted: Collection[ASTType] = accepted
+        self._forbidden: Collection[ASTType] = forbidden
+        self._warning: Collection[ASTType] = warning
+        self._filtered: List[TransformationError] = []
+
+    def visit(self, ast: AST, *args: Any, **kwargs: Any) -> Union[AST, None]:
+        """
+        Dispatch to a visit method in a base class or visit and transform the
+        children of the given AST if it is missing.
+        """
+        if ast.ast_type in self._forbidden:
+            error(f"Filtering forbidden part of clingo language {ast} ({ast.ast_type})")
+            self._filtered.append(TransformationError(ast, FailedReason.FAILURE))
+            return
+        if ast.ast_type in self._forbidden:
+            warn(
+                f"Found unsupported part of clingo language {ast} ({ast.ast_type})\nThis may lead to faulty visualizations!")
+            self._filtered.append(TransformationError(ast, FailedReason.WARNING))
+        attr = 'visit_' + str(ast.ast_type).replace('ASTType.', '')
+        if hasattr(self, attr):
+            return getattr(self, attr)(ast, *args, **kwargs)
+        return ast.update(**self.visit_children(ast, *args, **kwargs))
 
 
 class DependencyCollector(Transformer):
@@ -40,18 +88,22 @@ class DependencyCollector(Transformer):
         return conditional_literal
 
 
-class ProgramAnalyzer(DependencyCollector):
+class ProgramAnalyzer(DependencyCollector, FilteredTransformer):
     """
     Receives a ASP program and finds it's dependencies within, can sort a program by it's dependencies.
     """
 
     def __init__(self):
+        super().__init__()
+        # TODO: self.dependencies can go?
         self.dependencies = nx.DiGraph()
         self.dependants: Dict[Tuple[str, int], Set[Rule]] = defaultdict(set)
         self.conditions: Dict[Tuple[str, int], Set[Rule]] = defaultdict(set)
         self.rule2signatures = defaultdict(set)
         self.facts: Set[Symbol] = set()
         self.constants: Set[Symbol] = set()
+        self.constraints: Set[Rule] = set()
+        self.pass_through: Set[AST] = set()
 
     def _get_conflict_free_version_of_name(self, name: str) -> Collection[str]:
         candidates = [name for name, _ in self.dependants.keys()]
@@ -83,6 +135,11 @@ class ProgramAnalyzer(DependencyCollector):
             for v in conditions:
                 self.dependencies.add_edge(u, v)
 
+    def register_rule_conditions(self, rule: AST, conditions: List[Literal]) -> None:
+        for c in conditions:
+            c_sig = make_signature(c)
+            self.conditions[c_sig].add(rule)
+
     def register_rule_dependencies(self, rule: Rule, deps: Dict[Literal, List[Literal]]) -> None:
         for uu in deps.values():
             for u in uu:
@@ -96,6 +153,8 @@ class ProgramAnalyzer(DependencyCollector):
     def visit_Rule(self, rule: Rule):
         deps = defaultdict(list)
         _ = self.visit(rule.head, deps=deps)
+        for b in rule.body:
+            self.visit(b, deps=deps)
 
         if is_fact(rule, deps):
             self.facts.add(rule.head)
@@ -105,6 +164,12 @@ class ProgramAnalyzer(DependencyCollector):
             cond.extend(filter(filter_body_arithmetic, rule.body))
         self.register_symbolic_dependencies(deps)
         self.register_rule_dependencies(rule, deps)
+
+    def visit_Minimize(self, minimize: Minimize):
+        deps = defaultdict(list)
+        self.pass_through.add(minimize)
+
+        return minimize
 
     def visit_Definition(self, definition):
         self.constants.add(definition)
@@ -134,15 +199,19 @@ class ProgramAnalyzer(DependencyCollector):
         """
         g = nx.DiGraph()
         # Add dependents
+
+        for deps in head_dependencies.values():
+            for dep in deps:
+                g.add_node(frozenset([dep]))
+        for deps in body_dependencies.values():
+            for dep in deps:
+                g.add_node(frozenset([dep]))
+
         for head_signature, rules_with_head in head_dependencies.items():
             dependent_rules = body_dependencies.get(head_signature, [])
             for parent_rule in rules_with_head:
                 for dependent_rule in dependent_rules:
                     g.add_edge(frozenset([parent_rule]), frozenset([dependent_rule]))
-
-            if len(dependent_rules) == 0:
-                for rule in rules_with_head:
-                    g.add_node(frozenset([rule]))
 
         return g
 
