@@ -13,8 +13,7 @@ function loadFacts(backendURL) {
 
 export function Facts(props) {
     const {notifyClick} = props;
-    const {backendURL} = useSettings();
-
+    const {state, backendURL} = useSettings();
     const [fact, setFact] = React.useState(null);
     React.useEffect(() => {
         let mounted = true;
@@ -25,7 +24,7 @@ export function Facts(props) {
                 }
             })
         return () => mounted = false;
-    }, []);
+    }, [state.backend_url]);
     if (fact === null) {
         return (
             <div className="row_container">
