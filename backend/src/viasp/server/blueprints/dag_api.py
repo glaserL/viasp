@@ -1,8 +1,9 @@
 import json
 import os
 from collections import defaultdict
-from typing import Union, Collection
+from typing import Union, Collection, Dict, List
 
+import igraph
 import networkx as nx
 from flask import Blueprint, request, jsonify, abort, Response
 from flask_cors import cross_origin
@@ -58,18 +59,43 @@ def get_graph():
     return GRAPH
 
 
+def nx_to_igraph(nx_graph: DiGraph):
+    return igraph.Graph.Adjacency((nx.to_numpy_matrix(nx_graph) > 0).tolist())
+
+
+def igraph_to_networkx_layout(i_layout, nx_map):
+    nx_layout = {}
+    for i, pos in enumerate(i_layout.coords):
+        nx_layout[nx_map[i]] = pos
+    return nx_layout
+
+
+def make_node_positions(nx_graph: DiGraph, i_graph: igraph.Graph):
+    layout = i_graph.layout_reingold_tilford(root=[0])
+    layout.rotate(180)
+    nx_map = {i: node for i, node in enumerate(nx_graph.nodes())}
+    pos = igraph_to_networkx_layout(layout, nx_map)
+    return pos
+
+
+def get_sort(nx_graph: DiGraph):
+    i_graph = nx_to_igraph(nx_graph)
+    pos = make_node_positions(nx_graph, i_graph)
+    return pos
+
+
 def handle_request_for_children(transformation_id, ids_only) -> Collection[Union[Node, int]]:
     graph = get_graph()
     children = list()
     for u, v, d in graph.edges(data=True):
         edge: Transformation = d['transformation']
         if str(edge.id) == transformation_id:
-            if ids_only:
-                children.append(v.uuid)
-            else:
-                children.append(v)
-
-    return children
+            children.append(v)
+    pos: Dict[Node, List[float]] = get_sort(graph)
+    ordered_children = sorted(children, key=lambda node: pos[node][0])
+    if ids_only:
+        ordered_children = [node.uuid for node in ordered_children]
+    return ordered_children
 
 
 @bp.route("/graph/clear", methods=["DELETE"])
