@@ -115,10 +115,6 @@ function SettingsTable() {
             <Header text="Backend"/>
             <BackendURLSetting input={state.backend_url}/>
             <BackendHealthCheck/>
-            <tr>
-                <td align="right" colSpan="3"><IoInformationCircleOutline/><i style={{fontSize: '9pt'}}>Requires reload
-                    to take effect</i></td>
-            </tr>
             </tbody>
         </table>
     </React.Fragment>
