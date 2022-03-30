@@ -12,6 +12,7 @@ from _clingo.lib import clingo_model_type_brave_consequences, clingo_model_type_
 from clingo import Model as clingo_Model, ModelType, Symbol
 from clingo.ast import AST
 
+from .interfaces import ViaspClient
 from .model import Node, Transformation, Signature, StableModel, ClingoMethodCall, TransformationError, FailedReason
 
 
@@ -82,6 +83,9 @@ def encode_object(o):
     if isinstance(o, clingo_Model):
         x = model_to_dict(o)
         return x
+    elif isinstance(o, ViaspClient):
+        return {"_type": "ViaspClient"}
+
     elif isinstance(o, ModelType):
         return {"__enum__": str(o)}
     elif isinstance(o, Symbol):
