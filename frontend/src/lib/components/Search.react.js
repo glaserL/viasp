@@ -162,7 +162,7 @@ export function Search(props) {
             {suggestionsListComponent}
             <ActiveFilters/>
             <input
-                style={{width: '200px'}}
+                style={{width: '220px'}}
                 type="text"
                 onChange={onChange}
                 onKeyDown={onKeyDown}

@@ -3,27 +3,43 @@ import {make_atoms_string, make_rules_string} from "../utils/index";
 import PropTypes from "prop-types";
 import {NODE, SIGNATURE, TRANSFORMATION} from "../types/propTypes";
 import {useSettings} from "../contexts/Settings";
+import styled from "styled-components";
+import {useColorPalette} from "../contexts/ColorPalette";
+
+const StyledSuggestion = styled.span`
+ &:before {
+    color: ${props => props.color};
+    position: absolute;
+    left: 0;
+    content: '${props => props.content}';
+};
+`
 
 function SuggestionContent(props) {
     const {value} = props;
     const {state} = useSettings()
-    let className = "";
+    const colorPalette = useColorPalette();
     let display = "UNKNOWN FILTER"
+    let suggestionSymbol = "?";
+    let color = "#123123"
 
     if (value._type === "Node") {
-        className = "search_node"
+        suggestionSymbol = "{}"
+        color = colorPalette.ten.dark;
         display = make_atoms_string(state.show_all ? value.atoms : value.diff)
     }
     if (value._type === "Signature") {
-        className = "search_signature"
+        suggestionSymbol = "  /"
+        color = colorPalette.ten.bright;
         display = `${value.name}/${value.args}`
     }
 
     if (value._type === "Transformation") {
-        className = "search_transformation"
+        suggestionSymbol = ":-"
+        color = colorPalette.ten.dark;
         display = make_rules_string(value.rules)
     }
-    return <span className={className}>{display}</span>
+    return <StyledSuggestion color={color} content={suggestionSymbol}>{display}</StyledSuggestion>
 }
 
 
