@@ -10,7 +10,7 @@ from .shared.simple_logging import log, Level, error
 
 def backend_is_running(url=DEFAULT_BACKEND_URL):
     try:
-        r = requests.head(url)
+        r = requests.get(f"{url}/healthcheck")
         return r.status_code == 200
     except requests.exceptions.ConnectionError:
         return False
