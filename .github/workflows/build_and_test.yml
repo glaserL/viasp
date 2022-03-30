@@ -218,7 +218,7 @@ jobs:
           BACKENDPID=$!
           echo Giving backend time to startup..
           sleep 15s
-          python quickstart.py &
+          echo "foo. {bar} :- foo." | python quickstart.py &
           PID=$!
           sleep 15s
           echo Killing processes..
