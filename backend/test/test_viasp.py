@@ -1,3 +1,5 @@
+import io
+import sys
 from inspect import Signature
 from typing import Sequence, Any, Dict, Collection
 
@@ -29,3 +31,38 @@ class DebugClient(ViaspClient):
 
     def __init__(self, internal_client: FlaskClient):
         self.client = internal_client
+
+
+def test_load_from_file(client):
+    debug_client = DebugClient(client)
+    ctl = wrapper.Control(_viasp_client=debug_client)
+    ctl.load("test/resources/sample_encoding.lp")
+    # Check that the calls were received
+    res = client.get("control/calls")
+    assert res.status_code == 200
+    assert len(res.json) > 0
+    # Start the reconstructing
+    res = client.get("control/reconstruct")
+    assert res.status_code == 200
+    # Assert program was called correctly
+    res = client.get("control/program")
+    assert res.status_code == 200
+    assert res.data == b"sample.{encoding} :- sample."
+
+
+def test_load_from_stdin(client):
+    debug_client = DebugClient(client)
+    ctl = wrapper.Control(_viasp_client=debug_client)
+    sys.stdin = io.StringIO("sample.{encoding} :- sample.")
+    ctl.load("-")
+    # Check that the calls were received
+    res = client.get("control/calls")
+    assert res.status_code == 200
+    assert len(res.json) > 0
+    # Start the reconstructing
+    res = client.get("control/reconstruct")
+    assert res.status_code == 200
+    # Assert program was called correctly
+    res = client.get("control/program")
+    assert res.status_code == 200
+    assert res.data == b"sample.{encoding} :- sample."

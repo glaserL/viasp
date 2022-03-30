@@ -28,6 +28,17 @@ def handle_calls_received(calls: Iterable[ClingoMethodCall]) -> None:
         handle_call_received(call)
 
 
+@bp.route("/control/calls", methods=["GET"])
+def get_calls():
+    return jsonify(calls.get_all())
+
+
+@bp.route("/control/program", methods=["GET"])
+def get_program():
+    db = ProgramDatabase()
+    return db.get_program()
+    
+
 @bp.route("/control/add_call", methods=["POST"])
 def add_call():
     if request.method == "POST":
