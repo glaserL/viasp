@@ -6,7 +6,6 @@ from clingo import Control as InnerControl, Model
 from dataclasses import asdict, is_dataclass
 
 from .clingoApiClient import ClingoClient
-from .server.database import ClingoMethodCall
 from .shared.io import clingo_model_to_stable_model
 from .shared.model import StableModel
 
@@ -19,7 +18,10 @@ class ShowConnector:
 
     def __init__(self, **kwargs):
         self._marked: List[StableModel] = []
-        self._database = ClingoClient(**kwargs)
+        if "_viasp_client" in kwargs:
+            self._database = kwargs["_viasp_client"]
+        else:
+            self._database = ClingoClient(**kwargs)
         self._connection = None
 
     def show(self):
@@ -38,14 +40,17 @@ class ShowConnector:
         self._marked.clear()
 
     def register_function_call(self, name, sig, args, kwargs):
-        serializable_call = ClingoMethodCall.merge(name, sig, args, kwargs)
-        self._database.save_function_call(serializable_call)
+        self._database.register_function_call(name, sig, args, kwargs)
 
 
 class Control(InnerControl):
 
     def __init__(self, *args, **kwargs):
         self.viasp = ShowConnector(**kwargs)
+        if "_viasp_client" in kwargs:
+            del kwargs["_viasp_client"]
+        if "viasp_backend_url" in kwargs:
+            del kwargs["viasp_backend_url"]
         self.viasp.register_function_call("__init__", signature(super().__init__), args, kwargs)
         super().__init__(*args, **kwargs)
 
