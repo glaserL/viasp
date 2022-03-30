@@ -39,7 +39,11 @@ If you don't have any scripts handy that use the python API of clingo, you can u
 
 **IMPORTANT** You will still need to start viasp (`viasp` or `viasp &`)
 
-Then run [`examples/quickstart.py`](examples/quickstart.py). Modify the clingo program in there to your linking.
+Then run [`examples/quickstart.py`](examples/quickstart.py).
+
+It works very similar to the usual `clingo`, you can call it as `python quickstart.py encoding.lp` or
+even `cat encoding | python quickstart.py`
+If you want to filter the models you have to edit the script, however.
 
 If you now run your ASP programs, you can inspect them using viASP at [http://127.0.0.1:8050/](http://127.0.0.1:8050/)
 or what ever port you have set.
