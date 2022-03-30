@@ -1,4 +1,5 @@
 import json
+import sys
 from inspect import signature
 from typing import List
 
@@ -6,6 +7,7 @@ from clingo import Control as InnerControl, Model
 from dataclasses import asdict, is_dataclass
 
 from .clingoApiClient import ClingoClient
+from .shared.defaults import STDIN_TMP_STORAGE_PATH
 from .shared.io import clingo_model_to_stable_model
 from .shared.model import StableModel
 
@@ -54,9 +56,18 @@ class Control(InnerControl):
         self.viasp.register_function_call("__init__", signature(super().__init__), args, kwargs)
         super().__init__(*args, **kwargs)
 
+    def load(self, path: str) -> None:
+        if path == "-":
+            path = STDIN_TMP_STORAGE_PATH
+            tmp = sys.stdin.readlines()
+            with open(path, "w", encoding="utf-8") as f:
+                f.writelines(tmp)
+        self.viasp.register_function_call("load", signature(self.load), [], kwargs={"path": path})
+        super().load(path=path)
+
     def __getattribute__(self, name):
         attr = InnerControl.__getattribute__(self, name)
-        if is_non_cython_function_call(attr):
+        if is_non_cython_function_call(attr) and name != "load":
             def wrapper_func(*args, **kwargs):
                 self.viasp.register_function_call(attr.__name__, signature(attr), args, kwargs)
                 result = attr(*args, **kwargs)

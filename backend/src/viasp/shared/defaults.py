@@ -5,3 +5,5 @@ DEFAULT_BACKEND_URL = f"{DEFAULT_BACKEND_PROTOCOL}://{DEFAULT_BACKEND_HOST}:{DEF
 
 GRAPH_PATH = "viasp_graph_storage.json"
 PROGRAM_STORAGE_PATH = "prg.lp"
+
+STDIN_TMP_STORAGE_PATH = "viasp_stdin_tmp.lp"

@@ -65,6 +65,17 @@ class ClingoReconstructor:
         db.clear_program()
         return Control(**call.kwargs)
 
+    @handles("load")
+    def load(self, ctl: Control, call: ClingoMethodCall):
+        path = call.kwargs["path"]
+        prg = ""
+        with open(path, encoding="utf-8") as f:
+            prg = "\n".join(f.readlines())
+        db = ProgramDatabase()
+        db.add_to_program(prg)
+        ctl.load(path)
+        return ctl
+
 
 BOB_THE_BUILDER = ClingoReconstructor()
 
