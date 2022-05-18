@@ -1,5 +1,6 @@
 import json
 import sys
+import shutil
 from inspect import signature
 from typing import List
 
@@ -62,8 +63,11 @@ class Control(InnerControl):
             tmp = sys.stdin.readlines()
             with open(path, "w", encoding="utf-8") as f:
                 f.writelines(tmp)
+        else:
+            shutil.copy(path, STDIN_TMP_STORAGE_PATH)
+            path = STDIN_TMP_STORAGE_PATH
         self.viasp.register_function_call("load", signature(self.load), [], kwargs={"path": path})
-        super().load(path=path)
+        super().load(path=str(path))
 
     def __getattribute__(self, name):
         attr = InnerControl.__getattribute__(self, name)

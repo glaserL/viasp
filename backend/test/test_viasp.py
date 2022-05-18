@@ -1,4 +1,5 @@
 import io
+import pathlib
 import sys
 from inspect import Signature
 from typing import Sequence, Any, Dict, Collection
@@ -36,7 +37,8 @@ class DebugClient(ViaspClient):
 def test_load_from_file(client):
     debug_client = DebugClient(client)
     ctl = wrapper.Control(_viasp_client=debug_client)
-    ctl.load("test/resources/sample_encoding.lp")
+    sample_encoding = pathlib.Path(__file__).parent.resolve() / "resources" / "sample_encoding.lp"
+    ctl.load(sample_encoding)
     # Check that the calls were received
     res = client.get("control/calls")
     assert res.status_code == 200

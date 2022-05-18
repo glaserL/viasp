@@ -3,6 +3,7 @@ from enum import IntEnum
 from json import JSONEncoder, JSONDecoder
 from dataclasses import is_dataclass
 from typing import Any, Union, Collection, Iterable
+from pathlib import PosixPath
 from uuid import UUID
 
 import clingo
@@ -85,7 +86,8 @@ def encode_object(o):
         return x
     elif isinstance(o, ViaspClient):
         return {"_type": "ViaspClient"}
-
+    elif isinstance(o, PosixPath):
+        return str(o)
     elif isinstance(o, ModelType):
         return {"__enum__": str(o)}
     elif isinstance(o, Symbol):
